@@ -88,7 +88,7 @@ class commander_base(object):
         for key in self.toc:
             string += f'\\input{{parts/{key}}}'
         string += r'\end{document}'
-        self.touch_file(string, self.file('tex'))
+        self.touch(string, self.file('tex'))
 
 
 class commander(commander_base):
@@ -98,7 +98,7 @@ class commander(commander_base):
     def xelatex_it(self):
         print('xelatex it')
         print('enter X to end it, see out in stdout.txt file\n > ', end='')
-        self._run_ex(['xelatex', self.file('tex')], open(self.file('output.txt'), 'w+'))
+        self.run_ex(['xelatex', self.file('tex')], open(self.file('output.txt'), 'w+'))
         print('end of latex')
 
     def new(self):
@@ -111,7 +111,7 @@ class commander(commander_base):
         import datetime
         today = datetime.date.today()
         # touch with: '\section{input_}\n\timetx{today_}
-        self.touch_file(f'\\section{{{input_}}}\n\\timetx{{{today}}}\n\n', path)
+        self.touch(f'\\section{{{input_}}}\n\\timetx{{{today}}}\n\n', path)
         
         self.run_ex(['vim', path])
 
@@ -123,7 +123,7 @@ class commander(commander_base):
         (self.cwd / 'parts' / f'{input_}.tex').unlink()
 
     def run_it(self, Test=False):
-        self.touch_file(self.config['cls_file_str'], self.cwd / self.file('cls'))
+        self.touch(self.config['cls_file_str'], self.cwd / self.file('cls'))
         self.touch_tex_file()
         print('-'*50, end='\n\n')
 
@@ -134,7 +134,10 @@ class commander(commander_base):
             self.rm_useless()
 
     def look_it(self):
-        self._run_ex(['chrome', self.file('pdf')])
+        try:
+            self.run_ex(['chrome', self.file('pdf')])
+        except:
+            print('need to add chrome in PATH, or change the run.py file\'s 138 line')
 
 
 # ===============================================
@@ -146,7 +149,9 @@ def help():
         'run : run it\n'
         '?q  : quit it\n'
         'new : edit a new note\n'
-        'rm  : rm a note'
+        'rm  : rm a note\n'
+        'list: list the note\n'
+        'look: look the pdf file'
     )
     print(add_indent(help_doc, 4))
 
@@ -176,4 +181,8 @@ if __name__ == '__main__':
                 print(f'no command named {input_}')
             print()
         except Exception as e:
+            import traceback
             print(e, '\n')
+            print('-' * 50)
+            traceback.print_exc()
+            print()
