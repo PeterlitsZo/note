@@ -47,7 +47,7 @@ class data(UserDict):
 
 # ===============================================
 # about file: -----------------------------------
-class commander(object):
+class commander_base(object):
     def __init__(self, cwd):
         self.cwd = cwd
         self.toc = data(cwd /'toc.yml')
@@ -55,23 +55,33 @@ class commander(object):
         self.file_name = self.config['file_name']
         self.file = lambda suffix: cwd / (self.file_name + '.' + suffix)
 
-    def _run_ex(self, command, stdout=None):
+    def run_ex(self, command, stdout = None):
         import subprocess
         subprocess.run(command, cwd=self.cwd, stdout=stdout)
 
-    def _rm_by_suffix(self, suffix):
-        for file in self.cwd.iterdir():
-            if file.suffix in suffix.split('|'):
-                print('rm:', file.name)
-                file.unlink()
+    def rm(self, *file_paths):
+        for file_path in file_paths:
+            print('[rm]:', file_path.name)
+            (self.cwd / file_path).unlink()
+
+    def rm_by_suffix(self, suffix_without_dot):
+        '''suffix_without_dot: look like 'pdf|tex|yml|' or else'''
+        files = self.cwd.iterdir()
+        suffixs = suffix_without_dot.split('|')
+        for file in files:
+            if file.suffix[1:] in suffixs:
+                self.rm(file)
+
+    def touch(self, string, path):
+        with open(self.cwd / path, 'wt', encoding='utf-8') as file:
+            print('[write]:', file.name)
+            file.write(string)
+
+    def list_toc(self):
+        print(list_dict_obj(self.toc))
 
     def rm_useless(self):
-        self._rm_by_suffix('.aux|.log|.cls|.tex|.txt')
-
-    def touch_file(self, string, path):
-        with open(self.cwd / path, 'wt', encoding='utf-8') as file:
-            print('write:', file.name)
-            file.write(string)
+        self.rm_by_suffix('aux|log|cls|tex|txt')
 
     def touch_tex_file(self):
         string = r'\documentclass{PeterlitsNote}\begin{document}'
@@ -79,6 +89,11 @@ class commander(object):
             string += f'\\input{{parts/{key}}}'
         string += r'\end{document}'
         self.touch_file(string, self.file('tex'))
+
+
+class commander(commander_base):
+    def __init__(self, cwd):
+        super().__init__(cwd)
 
     def xelatex_it(self):
         print('xelatex it')
@@ -98,10 +113,7 @@ class commander(object):
         # touch with: '\section{input_}\n\timetx{today_}
         self.touch_file(f'\\section{{{input_}}}\n\\timetx{{{today}}}\n\n', path)
         
-        self._run_ex(['vim', path])
-
-    def list_toc(self):
-        print(list_dict_obj(self.toc))
+        self.run_ex(['vim', path])
 
     def rm_note(self):
         self.list_toc()
