@@ -3,6 +3,17 @@
 from ruamel.yaml import YAML
 from collections import UserDict
 
+# ==============================================
+# about time: ----------------------------------
+import datetime
+def long_time():
+    """ from year to microsenced """
+    return str(datetime.datetime.now())
+
+def short_time():
+    """ from year to day """
+    return str(datetime.date.today())
+
 # ===============================================
 # about print: ----------------------------------
 def add_indent(string, indent_int):
@@ -30,7 +41,12 @@ class data(UserDict):
     _yamler = YAML()
     def __init__(self, path):
         self.path = path
-        super().__init__(data._yamler.load(path))
+        if path.exists():
+            yaml_data = data._yamler.load(path)
+        else:
+            yaml_data = {}
+        assert isinstance(yaml_data, dict)
+        super().__init__(yaml_data)
 
     def __getattribute__(self, name):
         if name in 'clear, pop, popitem, setdefault, update'.split(', '):
@@ -46,6 +62,12 @@ class data(UserDict):
             return super().__getattribute__(name)
 
     def _write(self):
+        if not self.path.exists():
+            for parent_path in reversed(self.path.parents):
+                if not parent_path.exists():
+                    parent_path.mkdir()
+            else:
+                self.path.touch()
         data._yamler.dump(self.data, self.path)
 
     def __delitem__(self, key):
@@ -60,19 +82,19 @@ class data(UserDict):
 # ===============================================
 # about noteobject: -----------------------------
 class hasher(object):
-    def __init__(self, hash, cwd:Path):
+    def __init__(self, hash, cwd:'Path'):
         self.cwd = cwd
         self.hash = hash
         self.path = self._get_path()
 
     def _get_path(self):
-        hash_str = str(self.hash)
-        path = self.cwd / hash_str[:2] / hash_str[2:] + '.noteobject'
+        hash_str = self.hash
+        path = self.cwd / 'pigtime' /  'object' / hash_str[:2] / (hash_str[2:] + '.yml')
         return path
 
 
 class nodeobject(data):
-    def __new__(cls, hash, cwd:Path):
+    def __new__(cls, hash, cwd:'Path'):
         node_data = data(hasher(hash, cwd).path)
         if node_data['type'] == 'node':
             cls = nodeobject_note
@@ -85,11 +107,29 @@ class nodeobject(data):
     @classmethod
     def _init(cls, hash, cwd):
         self = object.__new__(cls)
-        super(data, self).__init__(hasher(hash, cwd).path)
+        super(nodeobject, self).__init__(hasher(hash, cwd).path)
         self.hash = hash
         self.type = self['type']
         self.value = self['value']
         return self
+
+    def __init__(self, *args):
+        # do nothing
+        pass
+
+    @classmethod
+    def get_new_tree(cls, cwd):
+        import hashlib
+        init_time = long_time()
+        hashed_string = (init_time.encode('utf-8'))
+        sha1 = hashlib.sha1(hashed_string)
+        hash_num = sha1.hexdigest()
+        
+        new_tree = data(hasher(hash_num, cwd).path)
+        new_tree['type'] = 'tree'
+        new_tree['init_time'] = init_time
+        new_tree['value'] = []
+        return nodeobject(hash_num, cwd)
 
 
 class nodeobject_tree(nodeobject):
@@ -160,19 +200,28 @@ class commander(commander_base):
         self.run_ex(['xelatex', self.file('tex')], open(self.file('output.txt'), 'w+'))
         print('end of latex')
 
-    def new(self):
-        input_ = input("enter the file's name > ")
-        index = '{:0>3}'.format(max(int(key) for key in self.toc) + 1)
-        path = self.cwd / 'parts' / '{}.tex'.format(index)
+    # def new(self):
+    #     input_ = input("enter the file's name > ")
+    #     index = '{:0>3}'.format(max(int(key) for key in self.toc) + 1)
+    #     path = self.cwd / 'parts' / '{}.tex'.format(index)
         
-        self.toc[index] = {'name': input_}
+    #     self.toc[index] = {'name': input_}
 
-        import datetime
-        today = datetime.date.today()
-        # touch with: '\section{input_}\n\timetx{today_}
-        self.touch(f'\\section{{{input_}}}\n\\timetx{{{today}}}\n\n', path)
+    #     import datetime
+    #     today = datetime.date.today()
+    #     # touch with: '\section{input_}\n\timetx{today_}
+    #     self.touch(f'\\section{{{input_}}}\n\\timetx{{{today}}}\n\n', path)
         
-        self.run_ex(['vim', path])
+    #     self.run_ex(['vim', path])
+    # <<<<< older
+    # ===========================================
+    # >>>>> newer
+    def init(self):
+        if 'current' in self.config:
+            print('it is already inited')
+        root = nodeobject.get_new_tree(self.cwd)
+        self.config['current'] = root.hash
+
 
     def rm_note(self):
         self.list_toc()
@@ -212,6 +261,7 @@ def help():
     help_doc = (
         '-------------------------------------\n'
         'edit the book:\n'
+        '    init: init a root book\n'
         '    new : edit a new note\n'
         '    rm  : rm a note\n'
         '    edit: edit a note\n\n'
@@ -222,7 +272,7 @@ def help():
         'others:\n'
         '    help: show this\n'
         '    ?q  : quit it\n'
-        '-------------------------------------\n'
+        '-------------------------------------'
     )
     print(add_indent(help_doc, 4))
 
@@ -230,9 +280,10 @@ if __name__ == '__main__':
     from pathlib import Path
     Test = False
     com = commander(Path.cwd())
-
+    print('enter help for help')
+    print('-'*50)
     while True:
-        input_ = input('(enter help for help)> ')
+        input_ = input('> ')
         com.reload()
         try:
             if input_ == 'run':
@@ -251,6 +302,10 @@ if __name__ == '__main__':
                 com.look_it()
             elif input_ == 'edit':
                 com.edit_file()
+            elif input_ == 'init':
+                com.init()
+            elif input_ == '':
+                continue
             else:
                 print(f'no command named {input_}')
             print()
