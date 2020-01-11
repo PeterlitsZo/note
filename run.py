@@ -14,6 +14,7 @@ def short_time():
     """ from year to day """
     return str(datetime.date.today())
 
+
 # ===============================================
 # about print: ----------------------------------
 def add_indent(string, indent_int):
@@ -96,7 +97,7 @@ class hasher(object):
 class nodeobject(data):
     def __new__(cls, hash, cwd:'Path'):
         node_data = data(hasher(hash, cwd).path)
-        if node_data['type'] == 'node':
+        if node_data['type'] == 'note':
             cls = nodeobject_note
         elif node_data['type'] == 'tree':
             cls = nodeobject_tree
@@ -110,7 +111,6 @@ class nodeobject(data):
         super(nodeobject, self).__init__(hasher(hash, cwd).path)
         self.hash = hash
         self.type = self['type']
-        self.value = self['value']
         return self
 
     def __init__(self, *args):
@@ -118,7 +118,7 @@ class nodeobject(data):
         pass
 
     @classmethod
-    def get_new_tree(cls, cwd):
+    def new(cls, cwd, type):
         import hashlib
         init_time = long_time()
         hashed_string = (init_time.encode('utf-8'))
@@ -126,9 +126,8 @@ class nodeobject(data):
         hash_num = sha1.hexdigest()
         
         new_tree = data(hasher(hash_num, cwd).path)
-        new_tree['type'] = 'tree'
+        new_tree['type'] = type
         new_tree['init_time'] = init_time
-        new_tree['value'] = []
         return nodeobject(hash_num, cwd)
 
 
@@ -147,6 +146,7 @@ class commander_base(object):
         self.cwd = cwd
         self.toc = data(cwd /'toc.yml')
         self.config = data(cwd / 'config.yml')
+        self.current = nodeobject(self.config['current'], self.cwd)
         self.file_name = self.config['file_name']
         self.file = lambda suffix: cwd / (self.file_name + '.' + suffix)
 
@@ -219,9 +219,25 @@ class commander(commander_base):
     def init(self):
         if 'current' in self.config:
             print('it is already inited')
-        root = nodeobject.get_new_tree(self.cwd)
+            return
+        root = nodeobject.new(self.cwd, 'tree')
+        root['value'] = []
         self.config['current'] = root.hash
 
+    def new(self):
+        note = nodeobject.new(self.cwd, 'note')
+
+        title = input("enter the note's title > ")
+        note['title'] = title
+        self.current['value'].append(note.hash)
+        
+        self.run_ex(['vim', self.file('temp.tex')])
+        if self.file('.temp.tex').exists():
+            note.path.write_text(self.file('temp.tex').read_text(encoding='utf-8'), encoding='utf-8')
+            self.file('temp.tex').unlink()
+        else:
+            # !
+            self.rm_note()
 
     def rm_note(self):
         self.list_toc()
