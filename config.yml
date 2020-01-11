@@ -3,6 +3,11 @@ cls_file_str: |-
   \LoadClass{ctexbook}
 
   \RequirePackage[nosfdefault]{sourcesanspro}
+  \RequirePackage[shortlabels]{enumitem}
+  \setlist{leftmargin=2em, itemsep=0.1em, parsep=0em,
+      itemindent=0em, listparindent=0em,
+      labelwidth=1.5em, labelsep=1em}
+
   \newcommand{\CONSOLAS}{\sourcesansprolight}
 
   \newcommand{\code}[1]
@@ -16,6 +21,9 @@ cls_file_str: |-
                                         {4em \@plus .5ex \@minus 2ex}%
                                         {.4ex \@plus.1ex}%
                                         {\normalfont\Large\bfseries}}
+
+  \newenvironment{alist}{\begin{enumerate}}{\end{enumerate}}
+  \newenvironment{aiter}{\begin{itemize}}{\end{itemize}}
 tex_file_str: |-
   \documentclass{PeterlitsNote}
 

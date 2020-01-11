@@ -26,22 +26,34 @@ def list_dict_obj(dict_data:'dict or non-dict'):
 
 # ===============================================
 # about yaml: -----------------------------------
-_yamler = YAML()
-
 class data(UserDict):
+    _yamler = YAML()
     def __init__(self, path):
         self.path = path
-        super().__init__(_yamler.load(path))
+        super().__init__(data._yamler.load(path))
+
+    def __getattribute__(self, name):
+        if name in 'clear, pop, popitem, setdefault, update'.split(', '):
+            super_ = super()
+            self_ = self
+            def result_func(*args, **kwargs):
+                result = super_.__getattribute__(name)
+                result = getattr(super_, name)(*args, **kwargs)
+                self_._write()
+                return result
+            return result_func
+        else:
+            return super().__getattribute__(name)
 
     def _write(self):
-        _yamler.dump(self.data, self.path)
+        data._yamler.dump(self.data, self.path)
 
+    def __delitem__(self, key):
+        super().__delitem__(key)
+        self._write()
+    
     def __setitem__(self, index, value):
         super().__setitem__(index, value)
-        self._write()
-
-    def pop(self, key):
-        self.data.pop(key)
         self._write()
 
 
@@ -95,6 +107,10 @@ class commander(commander_base):
     def __init__(self, cwd):
         super().__init__(cwd)
 
+    def reload(self):
+        self.toc = data(self.cwd /'toc.yml')
+        self.config = data(self.cwd / 'config.yml')
+
     def xelatex_it(self):
         print('xelatex it')
         print('enter X to end it, see out in stdout.txt file\n > ', end='')
@@ -121,6 +137,13 @@ class commander(commander_base):
 
         self.toc.pop(input_)
         (self.cwd / 'parts' / f'{input_}.tex').unlink()
+
+    def edit_file(self):
+        self.list_toc()
+        input_ = input('enter enter the index > ')
+
+        path = self.cwd / 'parts' / '{}.tex'.format(input_)
+        self.run_ex(['vim', path])
 
     def run_it(self, Test=False):
         self.touch(self.config['cls_file_str'], self.cwd / self.file('cls'))
@@ -151,7 +174,8 @@ def help():
         'new : edit a new note\n'
         'rm  : rm a note\n'
         'list: list the note\n'
-        'look: look the pdf file'
+        'look: look the pdf file\n'
+        'edit: edit a note'
     )
     print(add_indent(help_doc, 4))
 
@@ -162,6 +186,7 @@ if __name__ == '__main__':
 
     while True:
         input_ = input('(enter help for help)> ')
+        com.reload()
         try:
             if input_ == 'run':
                 com.run_it(Test=Test)
@@ -177,6 +202,8 @@ if __name__ == '__main__':
                 com.rm_note()
             elif input_ == 'look':
                 com.look_it()
+            elif input_ == 'edit':
+                com.edit_file()
             else:
                 print(f'no command named {input_}')
             print()
