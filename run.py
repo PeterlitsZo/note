@@ -56,7 +56,6 @@ class data(UserDict):
 
     def del_file(self):
         self.path.unlink()
-        del self
 
     def _touch_data_file(self):
         if not self.path.exists():
@@ -148,7 +147,7 @@ class nodeobject(data):
         self = object.__new__(cls)
         super(nodeobject, self).__init__(env.get_path(hash))
         self.env = env
-        self.hash = hash
+        self.hash = env._get_full_hash(hash)
         self.type = self['type']
         return self
 
@@ -157,11 +156,13 @@ class nodeobject(data):
         pass
 
     def rm(self):
-        for parent in self['parent']:
-            nodeobject(parent, self.env)['value'].pop(self.hash)
+        for parent in self['parents']:
+            self.env.get_nodeobject(parent)['value'].remove(self.hash)
+            self.env.get_nodeobject(parent).write()
         self.del_file()
         if len(list(self.path.parent.iterdir())) == 0:
-            self.path.parent.unlink()
+            self.path.parent.rmdir()
+        print('[rm]', self.hash)
 
 
 class nodeobject_tree(nodeobject):
@@ -217,9 +218,6 @@ class commander_base(object):
             print('[write]:', file.name)
             file.write(string)
 
-    def list_toc(self):
-        print(self.current)
-    
     def list(self):
         print(self.obj_env)
     
@@ -261,7 +259,7 @@ class commander(commander_base):
 
         title = input("enter the note's title > ")
         note['title'] = title
-        note['parent'] = self.obj_env.current.hash
+        note['parents'] = [self.obj_env.current.hash]
         self.obj_env.current['value'].append(note.hash)
         self.obj_env.current.write()
         
@@ -274,17 +272,22 @@ class commander(commander_base):
             self.rm_note()
 
     def rm_note(self):
-        self.list_toc()
+        self.list()
         input_ = input("enter the node's hash > ")
-        node = nodeobject(input_, self.cwd)
+        node = self.obj_env.get_nodeobject(input_)
         node.rm()
 
     def edit_file(self):
-        self.list_toc()
-        input_ = input('enter enter the index > ')
+        self.list()
+        input_ = input('enter the hash > ')
 
-        path = self.cwd / 'parts' / '{}.tex'.format(input_)
-        self.run_ex(['vim', path])
+        node = self.obj_env.get_nodeobject(input_)
+        temp = self.file('temp.tex')
+        temp.touch()
+        temp.write_text(node['text'], encoding='utf-8')
+        self.run_ex(['vim', temp])
+        node['text'] = temp.read_text(encoding='utf-8')
+        node.write()
 
     def run_it(self, Test=False):
         self.touch(self.config['cls_file_str'], self.cwd / self.file('cls'))
@@ -346,12 +349,10 @@ if __name__ == '__main__':
                 break
             elif input_ == 'list':
                 com.list()
-            # !this
             elif input_ == 'rm':
                 com.rm_note()
             elif input_ == 'look':
                 com.look_it()
-            # !this
             elif input_ == 'edit':
                 com.edit_file()
             elif input_ == 'init':
