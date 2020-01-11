@@ -58,6 +58,49 @@ class data(UserDict):
 
 
 # ===============================================
+# about noteobject: -----------------------------
+class hasher(object):
+    def __init__(self, hash, cwd:Path):
+        self.cwd = cwd
+        self.hash = hash
+        self.path = self._get_path()
+
+    def _get_path(self):
+        hash_str = str(self.hash)
+        path = self.cwd / hash_str[:2] / hash_str[2:] + '.noteobject'
+        return path
+
+
+class nodeobject(data):
+    def __new__(cls, hash, cwd:Path):
+        node_data = data(hasher(hash, cwd).path)
+        if node_data['type'] == 'node':
+            cls = nodeobject_note
+        elif node_data['type'] == 'tree':
+            cls = nodeobject_tree
+        else:
+            raise ValueError('Unexcepection value {}'.format(node_data['type']))
+        return cls._init(hash, cwd)
+
+    @classmethod
+    def _init(cls, hash, cwd):
+        self = object.__new__(cls)
+        super(data, self).__init__(hasher(hash, cwd).path)
+        self.hash = hash
+        self.type = self['type']
+        self.value = self['value']
+        return self
+
+
+class nodeobject_tree(nodeobject):
+    pass
+
+
+class nodeobject_note(nodeobject):
+    pass
+
+
+# ===============================================
 # about file: -----------------------------------
 class commander_base(object):
     def __init__(self, cwd):
@@ -168,14 +211,18 @@ class commander(commander_base):
 def help():
     help_doc = (
         '-------------------------------------\n'
-        'help: show this\n'
-        'run : run it\n'
-        '?q  : quit it\n'
-        'new : edit a new note\n'
-        'rm  : rm a note\n'
-        'list: list the note\n'
-        'look: look the pdf file\n'
-        'edit: edit a note'
+        'edit the book:\n'
+        '    new : edit a new note\n'
+        '    rm  : rm a note\n'
+        '    edit: edit a note\n\n'
+        'show around:\n'
+        '    run : run it\n'
+        '    list: list the note\n'
+        '    look: look the pdf file\n\n'
+        'others:\n'
+        '    help: show this\n'
+        '    ?q  : quit it\n'
+        '-------------------------------------\n'
     )
     print(add_indent(help_doc, 4))
 
