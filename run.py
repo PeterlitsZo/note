@@ -11,6 +11,14 @@ def short_time():
 
 
 # ===============================================
+# about hash: -----------------------------------
+def sha1_string(string):
+    import hashlib
+    hashed_string = string.encode('utf-8')
+    return hashlib.sha1(hashed_string).hexdigest()
+
+
+# ===============================================
 # about print: ----------------------------------
 def add_indent(string, indent_int):
     indent = indent_int * ' '
@@ -34,25 +42,25 @@ class data(UserDict):
         assert isinstance(yaml_data, dict)
         super().__init__(yaml_data)
 
-    def __getattribute__(self, name):
-        if name in 'clear, pop, popitem, setdefault, update'.split(', '):
-            super_ = super()
-            self_ = self
-            def result_func(*args, **kwargs):
-                result = getattr(super_, name)(*args, **kwargs)
-                self_.write()
-                return result
-            return result_func
-        else:
-            return super().__getattribute__(name)
+    # def __getattribute__(self, name):
+    #     if name in 'clear, pop, popitem, setdefault, update'.split(', '):
+    #         super_ = super()
+    #         self_ = self
+    #         def result_func(*args, **kwargs):
+    #             result = getattr(super_, name)(*args, **kwargs)
+    #             self_.write()
+    #             return result
+    #         return result_func
+    #     else:
+    #         return super().__getattribute__(name)
 
-    def __delitem__(self, key):
-        super().__delitem__(key)
-        self.write()
+    # def __delitem__(self, key):
+    #     super().__delitem__(key)
+    #     self.write()
     
-    def __setitem__(self, index, value):
-        super().__setitem__(index, value)
-        self.write()
+    # def __setitem__(self, index, value):
+    #     super().__setitem__(index, value)
+    #     self.write()
 
     def del_file(self):
         self.path.unlink()
@@ -73,99 +81,100 @@ class data(UserDict):
 # ===============================================
 # about noteobject: -----------------------------
 class nodeobject_env(object):
-    def __init__(self, cwd, current_node=None):
+    def __init__(self, cwd:'Path', current_node:'hash_string'=None):
+        """ get a nodeobject env,
+
+        if there is not a current root node, let self.current to be None"""
         self.cwd = cwd / 'pigtime' / 'object'
-        if current_node:
-            self.current = self.get_nodeobject(current_node)
-        else:
-            self.current = None
-        self._reload_hash_list()
+        self.current = self.get_nodeobject(current_node) if current_node else None
+        self.hash_set = set()
+        self._reload_hash_set()
 
     def __str__(self):
         return str(self.current)
 
-    def _reload_hash_list(self):
-        self.hash_list = []
+    def _reload_hash_set(self):
+        self.hash_set = set()
         if self.cwd.exists():
-            for hash_dir in self.cwd.iterdir():
-                for hash_file in hash_dir.iterdir():
-                    self.hash_list.append(hash_dir.name + hash_file.name.rsplit('.', 1)[0])
+            hash_file_iter = \
+                (file for hashdir in self.cwd.iterdir() for file in hashdir.iterdir())
+        else:
+            hash_file_iter = []
+        for hash_file in hash_file_iter:
+            self.hash_set.add(hash_file.parent.name + hash_file.name.rsplit('.', 1)[0])
 
-    def _get_full_hash(self, hash):
-        result = []
-
-        self._reload_hash_list()
-        for item in self.hash_list:
-            if item.startswith(hash):
-                result.append(item)
+    def _get_full_hash(self, hash_str):
+        self._reload_hash_set()
+        result = [item for item in self.hash_set if item.startswith(hash_str)]
         if len(result) > 1:
             print('the given hash is too short to get a full one')
             print('... or this is a wrong hash')
         elif len(result) == 0:
-            print(f'there is no hash match {hash}')
+            print(f'there is no hash match {hash_str}')
         else:
-            return result[0]
+            return result[0] 
 
-    def _sha1_string(self, string):
-        import hashlib
-        hashed_string = string.encode('utf-8')
-        return hashlib.sha1(hashed_string).hexdigest()
-
-    def get_path(self, hash, existed=True):
-        full_hash = hash
-        if existed:
-            full_hash = self._get_full_hash(hash)
+    def get_path(self, hash_str, existed=True):
+        full_hash = self._get_full_hash(hash_str) if existed else hash_str
         path = self.cwd / full_hash[:2] / (full_hash[2:] + '.yml')
         return path
 
-    def get_nodeobject(self, hash):
-        return nodeobject(hash, self)
+    def get_nodeobject(self, hash_str):
+        full_hash = self._get_full_hash(hash_str)
+        return nodeobject(hash_str, data(self.get_path(hash_str)), self)
     
     def new(self, type):
         init_time = long_time()
-        hash = self._sha1_string(init_time)
-        
-        new_node_data = data(self.get_path(hash, existed=False))
+        hash_str = sha1_string(init_time)
+        new_node_data = data(self.get_path(hash_str, existed=False))
         new_node_data['type'] = type
         new_node_data['init_time'] = init_time
-        return nodeobject(hash, self)
+        new_node_data.write()
+        return nodeobject(hash_str, new_node_data, self)
 
 
 class nodeobject(data):
-    def __new__(cls, hash, env:'nodeobject_env'):
-        node_type = data(env.get_path(hash))['type']
-        if node_type == 'note':
+    def __new__(cls, full_hash, hash_data:'hash\'s data obj', env:'nodeobject_env'):
+        if hash_data['type'] == 'note':
             cls = nodeobject_note
-        elif node_type == 'tree':
+        elif hash_data['type'] == 'tree':
             cls = nodeobject_tree
         else:
-            raise ValueError('Unexcepection value {}'.format(node_data['type']))
-        return cls._init(hash, env)
+            raise ValueError('Unexcepection value {}'.format(hash_data['type']))
+        return cls._init(full_hash, hash_data, env)
 
     @classmethod
-    def _init(cls, hash, env):
+    def _init(cls, full_hash, hash_data, env):
         self = object.__new__(cls)
-        super(nodeobject, self).__init__(env.get_path(hash))
+        super(nodeobject, self).__init__(hash_data.path)
         self.env = env
-        self.hash = env._get_full_hash(hash)
+        self.hash = full_hash
         self.type = self['type']
         return self
 
     def __init__(self, *args):
-        # do nothing
-        pass
+        self._reload_counter()
+
+    def _reload_counter(self):
+        self._under_same_hash_dir_counter = sum(1 for __ in self.path.parent.iterdir())
+
+        if self._under_same_hash_dir_counter == 0:
+            self.path.parent.rmdir()
 
     def rm(self):
         for parent in self['parents']:
-            self.env.get_nodeobject(parent)['value'].remove(self.hash)
-            self.env.get_nodeobject(parent).write()
+            parent_node = self.env.get_nodeobject(parent)
+            parent_node['value'].remove(self.hash)
+            parent_node.write()
         self.del_file()
-        if len(list(self.path.parent.iterdir())) == 0:
-            self.path.parent.rmdir()
+        self._reload_counter()
         print('[rm]', self.hash)
 
 
 class nodeobject_tree(nodeobject):
+    def __init__(self, *arg):
+        self.childs= list(self.env.get_nodeobject(obj_hash) for obj_hash in self['value'])
+
     def list(self):
         print(str(self))
 
@@ -173,15 +182,14 @@ class nodeobject_tree(nodeobject):
         result_head = self.hash[:6] + f"...:(type: {self['type']})\n"
         result = []
         for nodeobject_hash in self['value']:
-            node = nodeobject(nodeobject_hash, self.env)
-            result.append(str(node))
+            result.append(str(self.env.get_nodeobject(nodeobject_hash)))
         result = result_head + add_indent('\n'.join(result), 4)
         return result
 
 
 class nodeobject_note(nodeobject):
     def __str__(self):
-        result = '* {}...:\n'.format(self.hash[:6])
+        result = '*{}...:\n'.format(self.hash[:6])
         result_connect = '\n'.join([f'{c}: {self[c]}' for c in self if c != 'text'])
         result += add_indent(result_connect, 4)
         return result
@@ -224,13 +232,6 @@ class commander_base(object):
     def rm_useless(self):
         self.rm_by_suffix('aux|log|cls|tex|txt')
 
-    def touch_tex_file(self):
-        string = r'\documentclass{PeterlitsNote}\begin{document}'
-        for key in self.toc:
-            string += f'\\input{{parts/{key}}}'
-        string += r'\end{document}'
-        self.touch(string, self.file('tex'))
-
 
 class commander(commander_base):
     def __init__(self, cwd):
@@ -251,7 +252,9 @@ class commander(commander_base):
             return
         root = self.obj_env.new('tree')
         root['value'] = []
+        root.write()
         self.config['current'] = root.hash
+        self.config.write()
         self.obj_env.current = root
 
     def new(self):
@@ -268,8 +271,8 @@ class commander(commander_base):
             note['text'] = self.file('temp.tex').read_text(encoding='utf-8')
             self.file('temp.tex').unlink()
         else:
-            # !
-            self.rm_note()
+            note['text'] = ''
+        note.write()
 
     def rm_note(self):
         self.list()
@@ -290,8 +293,16 @@ class commander(commander_base):
         node.write()
 
     def run_it(self, Test=False):
-        self.touch(self.config['cls_file_str'], self.cwd / self.file('cls'))
-        self.touch_tex_file()
+        self.touch(self.config['cls_file_str'], self.file('cls'))
+        item_numberer = 0
+        result = r'\documentclass{PeterlitsNote}\begin{document}'
+        for part in self.obj_env.current['value']:
+            part_node = self.obj_env.get_nodeobject(part)
+            result += f"\\section{{{part_node['title']}}}" + f"\\timetx{{{part_node['init_time']}}}\n\n"
+            result += part_node['text']
+        result += r'\end{document}'
+        self.touch(result, self.file('tex'))
+
         print('-'*50, end='\n\n')
 
         self.xelatex_it()
