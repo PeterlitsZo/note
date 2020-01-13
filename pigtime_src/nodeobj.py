@@ -73,8 +73,15 @@ class nodeobject_env(object):
         init_time = long_time()
         hash_str = sha1_string(init_time)
         new_node_data = data(self.get_path(hash_str, existed=False))
+        # config by type:
         new_node_data['type'] = type
         new_node_data['init_time'] = init_time
+        new_node_data['parents'] = []
+        if type == 'tree':
+            new_node_data['value'] = []
+        if type == 'node':
+            new_node_data['title'] = ''
+            new_node_data['text'] = ''
         new_node_data.write()
         return nodeobject(hash_str, self)
 
@@ -125,13 +132,16 @@ class nodeobject_tree(nodeobject):
     func:
       - rm: remove itself.
       - list: print str of itself.
+      - write: write data to file.
+      - del_file: del its file.
+      - write_file: write string to its file and reload it.
     data:
+      - data: can use [] to change
       - path: its file's path
       - env: its env's object. can get obj like it.
       - hash: its hash.
     """
     def __init__(self, *arg):
-        self['value'] = self['value'] if 'value' in self else []
         self.childs= list(self.env.get_nodeobject(obj_hash) for obj_hash in self['value'])
         self.write()
 
@@ -152,7 +162,11 @@ class nodeobject_note(nodeobject):
     the note nodeobject
     func:
       - rm: remove itself.
+      - write: write data to file.
+      - del_file: del its file.
+      - write_file: write string to its file and reload it.
     data:
+      - data: can use [] to change
       - path: its file's path
       - env: its env's object. can get obj like it.
       - hash: its hash.
