@@ -1,0 +1,10 @@
+type: note
+init_time: '2020-01-13 01:32:53.936011'
+title: cf's 85A problem
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+text: "和上次那道关于字符串的题很像。都涉及到了把字符串转换为相应的小写形式。\n\n关于转换的函数，应该是下列的样子：\n\n\\begin{lstlisting}\n\
+  std::string lower(std::string str){\n    std::transform(str.begin(), str.end(),\
+  \ str.begin(),\n            [](unsigned char c){return std::tolower(c)};\n    return\
+  \ str;\n}\n\\end{lstlisting}\n\n我自己在使用中的时候，lambda函数没有加上\\code{return}语句，下次一定。\n\
+  （lambda函数是一个黑盒，必须要有输入有输出）。\n"

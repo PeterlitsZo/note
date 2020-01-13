@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-01-12 12:21:33.898432'
+title: '\LaTeX 中的对齐问题'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+text: "\\LaTeX 中有两种对齐方式：(1) 环境对齐，(2) 命令对齐。\n其中环境的话是上下都空了个间隔，用命令会好一点。\n但怎么说呢，命令的话会作用到一个\\\
+  code{\\x par}。\n\n注：VsCode中用\\code{\\$nunber}来表示捕获的分组。\n\n"

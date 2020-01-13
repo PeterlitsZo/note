@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-01-12 12:22:55.901702'
+title: python的pyyaml问题
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+text: "直接用pyyaml会有点问题。现在我是在用ruamel.yaml的第三方包。\n\n效果不错，但是还有要改进的地方。我想去参与开发这个项目。有一说一，这个项目还不错的说。\n\
+  \n"

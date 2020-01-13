@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-01-12 09:19:39.244631'
+title: cf's 4A problem
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+text: "divide a even ingeter into two parts, each of them is even\n\n这说明了这个整数能被2整除（因为$\\\
+  text{even}+\\text{even}=\\text{even}$)，且不能为2.\n"

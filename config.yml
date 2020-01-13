@@ -4,14 +4,26 @@ cls_file_str: |-
 
   \RequirePackage[nosfdefault]{sourcesanspro}
   \RequirePackage[shortlabels]{enumitem}
+  \RequirePackage{amsmath}
+  \RequirePackage{listings}
   \setlist{leftmargin=2em, itemsep=0.1em, parsep=0em,
       itemindent=0em, listparindent=0em,
       labelwidth=1.5em, labelsep=1em}
 
+  \lstset{
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{black}\bfseries\underbar,
+    breakatwhitespace=false,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false}
+
   \newcommand{\CONSOLAS}{\sourcesansprolight}
 
   \newcommand{\code}[1]
-      {{\CONSOLAS #1}}
+      {\lstinline[basicstyle=\normalsize\ttfamily]`#1`}
   \newcommand{\timetx}[1]
       {\noindent\emph{\small #1}\vspace{2em}}
   \newcommand{\x}{\textbackslash}
@@ -31,4 +43,4 @@ tex_file_str: |-
       ***
   \end{document}
 file_name: PeterlitsNote
-current: c5e66a1bcf32467004f0daba661212f740127e15
+current: d7c97fb962ebeec3827179ecd2471c7720a8d86d

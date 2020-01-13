@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-01-12 12:22:21.429750'
+title: Python中的setup.py
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+text: "通过setup.py文件，可以使用命令\\code{python setup.py\ninstall}来安装包。（注，要在setup.py目录下运行才会ok，也就是说，\\\
+  code{cwd}是setup.py的父目录）\n\n也可以使用\\code{setuptools.setup(...)}的那啥来指定外部名，之后就可以在外面直接用了。\n"
