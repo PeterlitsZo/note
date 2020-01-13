@@ -3,20 +3,22 @@ from .printlib import add_indent
 
 def help():
     help_doc = (
-        '+------------------------------------\n'
+        '+---------------------------------------------\n'
         '| edit the book:\n'
-        '|     init: init a root book\n'
-        '|     new : edit a new note\n'
-        '|     rm  : rm a note\n'
-        '|     edit: edit a note\n|\n'
+        '|     init   : init a root book\n'
+        '|     new    : edit a new note\n'
+        '|     rm     : rm a note\n'
+        '|     edit   : edit a note\n'
+        '|     editraw: edit the yaml of the note\n|\n'
         '| show around:\n'
-        '|     run : run it\n'
-        '|     list: list the note\n'
-        '|     look: look the pdf file\n|\n'
+        '|     run    : run it\n'
+        '|     list   : list the note\n'
+        '|     look   : look the pdf file\n|\n'
         '| others:\n'
-        '|     help: show this\n'
-        '|     ?q  : quit it\n'
-        '+-------------------------------------'
+        '|     help   : show this\n'
+        '|     ?q     : quit it\n'
+        '|     !com   : run the command com at shell\n'
+        '+----------------------------------------------'
     )
     print(add_indent(help_doc, 4))
 
@@ -47,10 +49,14 @@ def main():
                 com.look_it()
             elif input_ == 'edit':
                 com.edit_file()
+            elif input_ == 'editraw':
+                com.edit_raw_file()
             elif input_ == 'init':
                 com.init()
             elif input_ == '':
                 continue
+            elif input_[0] == '!':
+                com.run_ex(input_[1:])
             else:
                 print(f'no command named {input_}')
         except Exception as e:

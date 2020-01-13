@@ -1,6 +1,6 @@
 type: note
 init_time: '2020-01-12 15:35:41.865311'
-title: cf's 118a problem
+title: cf's 118A problem
 parents:
 - d7c97fb962ebeec3827179ecd2471c7720a8d86d
 text: " 遇到了几个有意思的问题。\n\n 首先时如何把字符串转换为小写的字符串。\n 在python中只需要使用\\code{str.lower()}就可以得到一个拷贝了。\n\

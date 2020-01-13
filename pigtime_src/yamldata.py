@@ -6,10 +6,8 @@ class data(UserDict):
     _yamler = YAML()
     def __init__(self, path):
         self.path = path
-        if path.exists():
-            yaml_data = data._yamler.load(path)
-        else:
-            yaml_data = {}
+        yaml_data = data._yamler.load(path) if path.exists() else {}
+        self.file_data = self.path.read_text(encoding = 'utf-8')
         assert isinstance(yaml_data, dict)
         super().__init__(yaml_data)
 
@@ -27,3 +25,7 @@ class data(UserDict):
     def write(self):
         self._touch_data_file()
         data._yamler.dump(self.data, self.path)
+
+    def write_file(self, string):
+        self.path.write_text(string, encoding='utf-8')
+        self = data(self.path)

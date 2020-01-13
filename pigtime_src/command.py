@@ -87,6 +87,17 @@ class commander(commander_base):
         node = self.obj_env.get_nodeobject(input_)
         node.rm()
 
+    def edit_raw_file(self):
+        self.list()
+        input_ = input('enter the hash > ')
+
+        node = self.obj_env.get_nodeobject(input_)
+        temp = self.file('temp.tex')
+        temp.touch()
+        temp.write_text(node.file_data, encoding='utf-8')
+        self.run_ex(['vim', temp])
+        node.write_file(temp.read_text(encoding='utf-8'))
+
     def edit_file(self):
         self.list()
         input_ = input('enter the hash > ')
