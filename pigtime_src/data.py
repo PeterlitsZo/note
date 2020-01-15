@@ -5,15 +5,21 @@ from collections import UserDict
 class data(UserDict):
     _yamler = YAML()
     def __init__(self, path):
-        self.path = path
         yaml_data = data._yamler.load(path) if path.exists() else {}
-        self.file_data = self.path.read_text(encoding = 'utf-8')
-        assert isinstance(yaml_data, dict)
         super().__init__(yaml_data)
+        self.path = path
 
-    def del_file(self):
-        self.path.unlink()
+    def __getitem__(self, key):
+        if key in self:
+            return super().__getitem__(key)
+        return None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.write()
+        
     def _touch_data_file(self):
         if not self.path.exists():
             for parent_path in reversed(self.path.parents):
@@ -22,10 +28,10 @@ class data(UserDict):
             else:
                 self.path.touch()
         
-    def write(self):
+    def write(self, string = None):
         self._touch_data_file()
-        data._yamler.dump(self.data, self.path)
-
-    def write_file(self, string):
-        self.path.write_text(string, encoding='utf-8')
+        if string:
+            self.path.write_text(string, encoding='utf-8')
+        else:
+            data._yamler.dump(self.data, self.path)
         self = data(self.path)

@@ -6,24 +6,29 @@ cls_file_str: |-
   \RequirePackage[shortlabels]{enumitem}
   \RequirePackage{amsmath}
   \RequirePackage{listings}
+  \RequirePackage[x11names]{xcolor}
   \setlist{leftmargin=2em, itemsep=0.1em, parsep=0em,
       itemindent=0em, listparindent=0em,
       labelwidth=1.5em, labelsep=1em}
 
   \lstset{
     basicstyle=\small\ttfamily,
-    keywordstyle=\color{black}\bfseries\underbar,
+    frame=tRBl,
+    language=C++,
     breakatwhitespace=false,
+    keywordstyle=\color{Green4!50!black},
+    commentstyle=\color{Gray0!50!black},
+    stringstyle=\color{Orange4!50!black},
+    numberstyle=\color{red},
     breaklines=true,
-    numbers=left,
-    numberstyle=\tiny,
-    numbersep=5pt,
+    morekeywords={string, set, vector},
+    xleftmargin=2.5em,
     showstringspaces=false}
 
   \newcommand{\CONSOLAS}{\sourcesansprolight}
 
   \newcommand{\code}[1]
-      {\lstinline[basicstyle=\normalsize\ttfamily]`#1`}
+      { \lstinline[basicstyle=\normalsize\ttfamily]`#1` }
   \newcommand{\timetx}[1]
       {\noindent\emph{\small #1}\vspace{2em}}
   \newcommand{\x}{\textbackslash}

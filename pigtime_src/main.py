@@ -1,5 +1,5 @@
 from .command import commander
-from .printlib import add_indent
+from .units import add_indent
 
 def help():
     help_doc = (

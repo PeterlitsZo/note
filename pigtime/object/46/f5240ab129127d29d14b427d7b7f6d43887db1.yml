@@ -1,0 +1,10 @@
+type: note
+init_time: '2020-01-15 02:24:11.383948'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: Python中的hash
+text: "想要完成的功能：\n为不同的类型的对象进行一个独一无二的hash标记。\n\n为了完成这个功能，我看了看Python的标准库，\\code{hashlib}库。\n\
+  \\code{hashlib}库为hash算法提供了良好的支持，\n比如说要计算my-object的sha-1的哈希值，可以这样：\n\n\\begin{lstlisting}[language=Python]\n\
+  m = hashlib.sha1()          # 新建sha1对象\nm.update(str(my_object))\nm.digest()   \
+  \               # sha-1值\nm.hexdigest()               # 表示为16进制字符串的sha-1值\n\\end{lstlisting}\n\
+  \n(?):update可以直接接受字符串吗？它不用被编码吗？\n"

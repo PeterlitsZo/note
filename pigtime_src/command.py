@@ -1,16 +1,15 @@
-from .yamldata import data
-from .nodeobj import nodeobject_env
+from .data import data
+from .pigtime import pigenv
 
 class commander_base(object):
     def __init__(self, cwd):
-        current = self.config['current'] if 'current' in self.config else None
         self.cwd = cwd
-        self.config = data(cwd / 'config.yml')
-        self.obj_env = nodeobject_env(self.cwd, current)
+        self.config = data(cwd / 'pigtime' / 'config.yml')
+        self.pigenv = pigenv(self.cwd, self.config['current'])
         self.file = lambda suffix: cwd / (self.config['file_name'] + '.' + suffix)
 
     def reload(self):
-        self.config = data(self.cwd / 'config.yml')
+        self.config = data(self.cwd / 'pigtime' / 'config.yml')
 
     def run_ex(self, command, stdout = None):
         import subprocess
@@ -31,13 +30,13 @@ class commander_base(object):
         self.rm_by_suffix('aux|log|cls|tex|txt')
 
     def touch(self, string, path):
-        with open(self.cwd / path, 'wt', encoding='utf-8') as file:
+        with open(path, 'wt', encoding='utf-8') as file:
             print('[write]:', file.name)
             file.write(string)
         return path
 
     def list(self):
-        print(self.obj_env)
+        print(self.pigenv)
     
 
 class commander(commander_base):
@@ -56,35 +55,36 @@ class commander(commander_base):
         if 'current' in self.config:
             print('it is already inited')
             return
-        root = self.obj_env.new('tree')
-        self.config['current'] = root.hash
-        self.config.write()
-        self.obj_env.current = root
+        root = self.pigenv.new_pig('tree')
+        with self.config as config:
+            config['current'] = root.hash
+        self.pigenv.current = root
 
     def new(self):
-        note = self.obj_env.new('note')
+        note_pig = self.pigenv.new_pig('note')
 
         title = input("enter the note's title > ")
-        note['title'] = title
-        note['parents'] = [self.obj_env.current.hash]
-        self.obj_env.current['value'].append(note.hash)
-        self.obj_env.current.write()
+        with note_pig as note, self.pigenv.current as current:
+            note['title'] = title
+            note['parents'] = [self.pigenv.current.hash]
+            current['value'].append(note_pig.hash)
         
-        self.run_ex(['vim', self.file('temp.tex')])
-        if self.file('temp.tex').exists():
-            note['text'] = self.file('temp.tex').read_text(encoding='utf-8')
-            self.file('temp.tex').unlink()
-            print('[rm]:', self.file('temp.tex'))
-        note.write()
+            self.run_ex(['vim', self.file('temp.tex')])
+            if self.file('temp.tex').exists():
+                note['text'] = self.file('temp.tex').read_text(encoding='utf-8')
+                self.file('temp.tex').unlink()
+                print('[rm]:', self.file('temp.tex'))
 
     def rm_note(self):
         self.list()
         input_ = input("enter the node's hash > ")
-        node = self.obj_env.get_nodeobject(input_)
-        node.rm()
+        self.pigenv.remove_pig(input_)
+        with self.config as config:
+            if self.pigenv.current == None:
+                config.pop('current')
 
     def edit_data(self, data, suffix):
-        temp_file = self.touch(data, self.file('temp' + suffix))
+        temp_file = self.touch(data, self.file('temp.' + suffix))
         self.run_ex(['vim', temp_file])
         return temp_file.read_text(encoding='utf-8')
 
@@ -92,23 +92,24 @@ class commander(commander_base):
         self.list()
         input_ = input('enter the hash > ')
 
-        node = self.obj_env.get_nodeobject(input_)
-        node.write_file(self.edit_data(node.file_data, 'yml'))
+        node = self.pigenv.get_pig(input_)
+        edited_data = node.path.read_text(encoding = 'utf-8')
+        node.path.write_text(self.edit_data(edited_data, 'yml'), encoding = 'utf-8')
+        node = self.pigenv.get_pig(input_)
 
     def edit_file(self):
         self.list()
         input_ = input('enter the hash > ')
 
-        node = self.obj_env.get_nodeobject(input_)
-        node['text'] = self.edit_data(node['text'], 'tex')
-        node.write()
+        with self.pigenv.get_pig(input_) as node:
+            node['text'] = self.edit_data(node['text'], 'tex')
 
     def run_it(self, Test=False):
         self.touch(self.config['cls_file_str'], self.file('cls'))
         item_numberer = 0
         result = r'\documentclass{PeterlitsNote}\begin{document}'
-        for part in self.obj_env.current['value']:
-            part_node = self.obj_env.get_nodeobject(part)
+        for part in self.pigenv.current['value']:
+            part_node = self.pigenv.get_pig(part)
             result += f"\\section{{{part_node['title']}}}" + f"\\timetx{{{part_node['init_time']}}}\n\n"
             result += part_node['text'] + '\n\n'
         result += r'\end{document}'

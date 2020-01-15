@@ -1,0 +1,11 @@
+type: note
+init_time: '2020-01-13 17:25:19.221487'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 关于C++中的using和typedef
+text: "总是因为泛型的原因要声明很长的变量类型，但是其实有为变量类型设置别名的方法。\n\n第一点是使用\\code{typedef}来重命名变量。格式如下：\n\
+  \n\\begin{lstlisting}[language=C++]\n    typedef org new;\n\\end{lstlisting}\n\n\
+  另外的方法是使用\\code{using}来进行命名变量的工作。\n这是C++11起才开始支持的，语法会更好一些，更统一化一些。\n另外它还支持模板操作。\n\
+  普通的用法是这样：\n\n\\begin{lstlisting}\n    using new = org;\n\\end{lstlisting}\n\n或者说这样：\n\
+  \n\\begin{lstlisting}\ntemplate <typename T> using my_type = whatever<T>;\n\nmy_type<int>\
+  \ my_var;\n\\end{lstlisting}\n\n这样相较而言，typedef就好像是宏定义的一样（当然并不是）。\n"

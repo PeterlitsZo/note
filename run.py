@@ -1,3 +1,3 @@
-import pigtime_src.__main__ as main
+import pigtime_src.main as main
 
 main.main()
