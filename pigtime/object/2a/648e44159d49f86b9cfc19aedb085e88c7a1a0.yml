@@ -1,0 +1,12 @@
+type: note
+init_time: '2020-01-23 09:41:49.392911'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1285C problem
+text: "现在还在\\code{running on test 36}，都不知道发生了什么。\n\n\\subsection{关于题面}\n首先题面说了有$LCM(a,b)=X$，其中``$LCM(a,b)$\
+  \ is the smallest positive integer\nthat is divisible by both a and b''。\n很明显，如果存在数$x$，有$x|a$，$x|b$的时候，也就有$LCM(a,b)=LCM(\\\
+  frac{a}{x},b)$，\n因为$LCM(a,b)=\\frac{ab}{gcd(a,b)}$，而又有$LCM(\\frac{a}{x},b)=\\frac{ab}{gcd(a,xb)}$，\n\
+  两式等价。\n\n所以对于$a$，$b$，很容易可以找到互质的两个数$c$，$d$，使得$LCM(a,b)=LCM(c,d)=cd$，\n这时$c$，$d$最小，所以$max(c,d)$相对最小。\n\
+  \n现在给定$N=cd$，不妨假定$c\\le d$，则有$c\\in [1,\\lfloor\\sqrt{N}\\rfloor]$，\n此时不难看出$N(\\\
+  text{mod }c)=0$，也就是$c|N$，\n且$gcd(c,d)=1$，不然得到的数为$\\frac{cd}{x}$，而不为$cd$。\n\n迭代一次，寻找满足条件的$c$的最大值，答案也就出来了。\n\
+  \n\\subsection{其他答案}\n有一点点改进的空间，那就是逆向寻找，找到一个值就可以输出了。\n"

@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-01-24 05:16:31.300438'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 关于undefined reference to `WinMain'
+text: "因为如题目这样的\\code{Compilation Error}，导致了我重新安装了一边g++，\n因为一直在纳闷明明没有使用WinAppiliction的我，是怎样搞出的``WinMain''，\n\
+  结果看了一下（在半个小时之后了），是我的main函数写错了，写成了maim。\n"

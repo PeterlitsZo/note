@@ -1,0 +1,17 @@
+type: note
+init_time: '2020-01-16 06:55:23.613204'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1288C problem
+text: "这道题的题意经分析之后可以知道，主要是为了求得单调递增数列的可能排列数。\n\n它给出了一个数列的长度$len$和每个元素的可能取值$1\\le a_i\\\
+  le n$。\n我设可能排列数为$f(len, range)$，其中$range$是$n-1+1$的值，$a_i$只能取整数。\n比如说，$f(2, 2)$是${1,\
+  \ 1}$，${1, 2}$，${2, 2}$三的排列的排列数，\n故值为3。\n\n注意到，$f(len, range)$在一般情况下，可以分为两种方面考虑，\n\
+  第一种是数组的第一个元素取到了$range$对应的第一个元素，\n所以剩下数组剩下的元素长度减一，元素取值范围不变（因为不是严格单调），\n总的排列数为$f(len-1,\
+  \ range)$。\n\n另一种是数组的第一个元素没有取到$range$对应的第一个长度，\n这个时候总的排列数为$f(len, range-1)$。\n\n\
+  故$f(len, range)$满足下式：\n\n\\[f(l, r)=\n\\begin{cases}\n    1, & \\text{if } r=1,\
+  \ \\\\\n    r, & \\text{if } l=1,\\\\\n    f(l-1, r) + f(l, r-1), & \\text{if }\
+  \ l\\ne 1 \\text{ and } r\\ne1.\n\\end{cases}\\]\n\n所以建立一个$len\\times range$的二维数组，自底向上把数组填满到$f(len,\
+  \ range)$，\n就可以求出答案了。\n\n这个之外我还犯了一个小问题，\\code{10e9+7}不是$10^9+7$，\n因为在代码中那个\\code{e}就已经有10的意思了，所以正确写法是\\\
+  code{1e9+7}，\n昨天找这个找了好久欸，真是太笨了。\n\n\\subsection{关于排列组合}\n\n看了其他人的做法，发现有不少人用的方法是通过排列组合，\n\
+  也就是通过$f(len, range)=C_{len+range-1}^{range}$来解决问题的。\n我能理解，但是如果我一开始没有想到，那这样才可以把\n\
+  $f(len, range)=f(len-1, range) + f(len, range-1)$\n解成我想要的$C_{len+range-1}^{range}$呢？\n"

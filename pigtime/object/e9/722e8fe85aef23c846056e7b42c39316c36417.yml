@@ -1,0 +1,29 @@
+type: note
+init_time: '2020-01-17 17:06:11.000355'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1285B problem
+text: "有点伤心，这道题我没有做出来。\n\n这道题是为了求取最大的连续子串之和，令其为$f(list, start, end)$，\n有三种可能情况。\n\
+  第一种，数组串本身就是最优子串，其值为$sum(list.begin\\to list.end)$。\n第二种，最优子串不含有数组串最后一个元素，\n所以其值为$f(list,\
+  \ start, end-1)$。\n第三种和第二种类似，为$f(list, start+1, end)$。\n\n可以注意到其中第二种和第三种有重复的地方，\n\
+  比如$f(list, start+1, end-1)$就同时是第二和第三种情况的子串。\n\n为了降低时间复杂度，可以使用动态规划。\n我采用了自底向上的设计模式，所以每个子问题的解都依赖与之前的子子问题之解。\n\
+  每个子问题都用了一块内存来存储其的最大的连续子串之和。\n（我甚至还记录了它们对应的$sum(list.begin\\to list.end)$！）\n这样，计算每个子问题的时间复杂度为$O(1)$，\n\
+  一共的复杂度为$O(n^2)$。\n\n结果过不了？我晕了。\n\n接下来说一些这个题揭露出来的问题。\n\n\\subsection{segmentation\
+  \ fault}\n在编译后运行时直接跳出了这个错误，并提示发生了段错误。\n\n它的意思是访问了不应该访问的地址，操作系统及时阻止了（干得好），\n并抛出了错误原因。\n\
+  \n\\subsection{max}\n关于求取最值，在之前有认识过求取容器中最值的标准库函数\\code{std::max_element}，\n今天要用到其他的函数方法。\n\
+  \n在非容器中，使用可以使用、\\code{std::max}，\n它的一个原型如下：\n\\begin{lstlisting}[language=C++]\n\
+  template< class T >\nconst T& max( const T& a, const T& b );\n\\end{lstlisting}\n\
+  而另一个原型则如下：\n\\begin{lstlisting}[language=C++]\ntemplate< class T >\nT max( std::initializer_list<T>\
+  \ ilist );\n\\end{lstlisting}\n\n这个函数可以表示两个数的最大值，也可以表示一个initializer\\_list的最大值。\n\
+  \n比如说为了取得三者之间的最大值，可以使用：\n\\begin{lstlisting}[language=C++]\nstd::max(std::max(x,\
+  \ y), z);\n\\end{lstlisting}\n或者使用更简单的语法结构：\n\\begin{lstlisting}[language=C++]\n\
+  std::max({x, y, z});\n\\end{lstlisting}\n\n\\subsection{accumulate}\n求和。\n\n从第一个迭代器开始，一直求到最后一个迭代器。\n\
+  包含第一个迭代器的值，但不包含最后一个。\n\n所以说要表达类似Python中的\\code{[:]}，可以使用\\code{v.begin()}和\\code{v.end()}。\n\
+  如果要表达\\code{[a:]}，则可以使用\\code{v.begin()+a}，而\\code{end}不变。\n但是如果要表达\\code{[a:b]}的话，则应该表达为：\n\
+  \\code{v.begin()+a}，而结尾则变为\\code{v.begin()+b}，\n效果是一样的，都取不到最后一个值。\n\n\\subsection{最后，这道题的答案}\n\
+  我的想法是把Yasser的和算出来，然后把Adel的最优子串算出来。\n两者相互比较，最后判断输出答案。\n\n但是他们的答案却不是这样。\n\n他们的想法是：\n\
+  \n对于给定数组$\\{a_1, a_2, \\ldots, a_i, \\ldots, a_n\\}$，\n全部的和明显是$S_A = sum(\\{a_1,\
+  \ a_2, \\ldots, a_n\\})$。\n\n如果开始的部分和$sum(\\{a_1, a_2, \\ldots, a_i\\}) \\le 0$，\n\
+  则明显有$sum(\\{a_{i+1}, \\ldots, a_n\\}) \\ge S_A$。\n\n同理，结尾部分存在该子列，或者开头和结尾都存在这种子列，\n\
+  都很明显满足这个条件。\n\n逆否命题也成立。故原条件可以推广到更容易求解的状态。\n\n所以说只需要在前后处寻找是否有符合条件的子列。\n时间复杂度从$O(n^2)$变成了$O(n)$，只是求不出来最优子列的值了，\n\
+  只能判断有无最优子列。\n"

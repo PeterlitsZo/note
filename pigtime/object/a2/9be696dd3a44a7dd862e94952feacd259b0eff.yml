@@ -1,0 +1,16 @@
+type: note
+init_time: '2020-01-25 06:07:54.481951'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1294B problem
+text: "这是一个简化的机器人走路的题，只能向上或者向右走。\n并询问你是否能够完成任务和完成任务的方法。\n\n分析后可知，当机器人处于一个点时，它只能到达以它为原点的第一象限区域。\n\
+  也就是说，每一个点都必须要在前一个点的右上方。\n易知，对于一个点来说，除了其右上方的点外，它相对与其他点来说都是在右上方向的。\n\n所以对其他的点来说，令它们以$(x_i,\
+  \ y_i)$排好序后，\n就分为两种情况。第一种，在同一个$x$上，排在后面的都是在它的上方，\n第二种，在不同的$x$上，其点的$y$坐标很明显会大于这个$x$坐标上最上面的一个点的$y$坐标。\n\
+  （如果不是，就无法完成任务）\n\n\\subsection{little bug}\n其一。\n\n对于\\code{*a.b}，我不是很清楚它们之间的优先级\\\
+  ldots\\ldots\n它会先调用点运算符，之后在调用\\code{*}号运算符，所以要使用\\code{(*a).b}的形式。\n\n其二。\n\n\\\
+  code{int}和\\code{char*}是不能相乘的（我知道这是屁话，但还是希望它能搞个\\code{string}出来。\n然后\\code{int}和\\\
+  code{string}也是不能相乘的，这个倒是超出了我的预算。\n要使用重复的字符串，应该使用：\\code{string(int n, char c)}来生成。\n\
+  \n其三。\n\n通过上面的那一回事，我发现了盲点！\n\\code{type t(a, b)}和\\code{type t = type(a, b)}应该是等价的才对。\n\
+  \n其四。\n\n关于\\code{for auto}，它有这种形式：\\code{for(auto& a: a_s)}，\n其中的\\code{a}，其实是\\\
+  code{(*iterator)}，而不是迭代器。\n\n\\subsection{关于其他人的答案}\n其他的都差不多，但是好像\\code{pair}是可以比较大小的，\n\
+  所以标准排序算法\\code{sort(type_t a.begin(), type_t a.end())}是可以支持的。\n这就让给\\code{pair}排序成为了可能。\n"

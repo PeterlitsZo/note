@@ -1,0 +1,17 @@
+type: note
+init_time: '2020-01-15 09:01:57.170873'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1288B problem
+text: "数学真香，我爱数学，数学爱我。\n\n这道题的题目定义了一个函数，叫做\\code{conc}，实例如下：\n\n\\begin{lstlisting}[language=python]\n\
+  >>> conc(314, 15926535)\n31415926535\n>>> conc(5741, 59635)\n574159635\n\\end{lstlisting}\n\
+  \n原文是，``\\code{conc(a, b)} is the concatenation of a and b.''\n也就是说，\\code{conc}把a和b拼接起来得到一个新的数，\n\
+  有关系式$$conc(a, b) = a\\times 10^{\\text{len of }b\\text{ in base 10}} + b$$\n目前看来为了得到b在base\
+  \ 10下的长度只能用算法试出来。\n\n如果有关系式满足$$conc(a, b) = a\\cdot b + a + b$$化简后则恒有:\n$$10^{\\\
+  text{len of }b\\text{ in base 10}} = b + 1$$\n\n也就是说如果要在$(1\\ldots A)$和$(1\\ldots\
+  \ B)$中找到所有符合条件的a，b，\n只需要求出$10^{\\text{len of }b\\text{ in base 10}} = b + 1$的b，\n\
+  然后乘以A（因为所有的a都是满足条件的），答案就出来了。\n\n当然除了数学问题，还有其他的很多问题，\n比如说：\n\n\\begin{lstlisting}[language=C++]\n\
+  while(temp--)\n    ;//change the value of value;\n\\end{lstlisting}\n\n上面这个代码可能不会运行temp遍的，因为temp在头部和循环题中用的都是同一个内存空间。\n\
+  \n\\subsection{后记}\n（看来别人的回答后\\ldots\\ldots ）\n\n我对不起我的数学老师！\n我单知道在Python里面是简单直接用\\\
+  code{len(str(num))}来获取长度，获取在十进制下的长度，\n我不知道其他的函数还有更数学化的\\code{log10}！\n我真傻，真的！\n\n\
+  (手动狗头）\n"

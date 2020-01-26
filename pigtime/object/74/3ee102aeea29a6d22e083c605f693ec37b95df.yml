@@ -1,0 +1,14 @@
+type: note
+init_time: '2020-01-25 13:49:00.375339'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1294C problem
+text: "这个题的题面是为了让一个数$N$分解成三个不相等的数$a$，$b$，$c$。\n即有$N=a\\times b\\times c$，而且$a$，$b$，$c$三个数互不相等，且所有数大于等于2。\n\
+  \n不妨设$a < b < c$，所以$N=a\\times b\\times c>a^3$，\n即有$a\\in[2,\\lfloor\\sqrt[3]{N}\\\
+  rfloor]$。\n\n\\begin{lstlisting}[language=C++]\nint result[2], index = 0;\n//index\
+  \ = 0 -> i^3 < N; index = 1 -> i^2 < N;\nfor(int i = 2; pow(i, 3 - index) < N &&\
+  \ index < 2; ++i)\n    if(N % i == 0)\n        result[index++] = i,\n        N /=\
+  \ i;\nif(index != 2)\n    cout << \"NO\" << endl;\nelse\n    cout << \"YES\" <<\
+  \ endl << result[0] << \" \"\n         << result[1] << \" \" << N << endl;\n\\end{lstlisting}\n\
+  \n当在\\code{for}循环中，可以保证如果\\code{result[0]}和\\code{result[1]}能正确产出，\n\\code{num}也能成为所谓的\\\
+  code{result[3]}。\n\n所以说判别标准就是所谓的\\code{index}\n"

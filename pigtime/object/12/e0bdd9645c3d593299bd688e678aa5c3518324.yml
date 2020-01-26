@@ -5,12 +5,12 @@ parents:
 - d7c97fb962ebeec3827179ecd2471c7720a8d86d
 text: " 遇到了几个有意思的问题。\n\n 首先时如何把字符串转换为小写的字符串。\n 在python中只需要使用\\code{str.lower()}就可以得到一个拷贝了。\n\
   \ （谢天谢地，我现在特别怀念python）\n 但是很明显这在C++中时行不通的。\n\n 第一种转换方法是使用\\code{transfrom}函数再配上一个lambda函数。\n\
-  \ transfrom是由标准库algorithm提供的，在关于它的介绍网站说的那样\n （在https://en.cppreference.com/w/cpp/algorithm/transform中）\n\
-  \ ，它的几个声明之一是：\n\n \\begin{lstlisting}\n    template< class InputIt, class OutputIt,\
-  \ class UnaryOperation >\n    OutputIt transform( InputIt first1, InputIt last1,\
-  \ OutputIt d_first,\n                    UnaryOperation unary_op );\n\\end{lstlisting}\n\
-  \n它会把unary\\_op作用到这些$[frist1, last1)$上去，而输出到$[frist2, +\\infty)$上去。\n\n而lambda函数，最简单的形式是这两种：\n\
-  \n\\begin{lstlisting}\n    [ captures ] ( params ) { body }\n    [ captures ] {\
-  \ body }\n\\end{lstlisting}\n\n回到主题来，这个函数就是为了封装住来自cctype的函数\\code{std::tolower}的函数原型是\n\
-  \\code{int tolower(int ch);}\n\n以上是第一种方法。\n\n第二种方法是使用boost库，不表。\n\n之后遇到了有多个使用或和等于的逻辑判断符，换个思路，其实用set可能也是一个不错的思路。\n\
-  有一点很有意思，如果找不到，一般会返回该容器的\\code{.end()}的值。\n\n"
+  \ transfrom是由标准库algorithm提供的，如关于它的介绍网站%\n \\footnote{在https://en.cppreference.com/w/cpp/algorithm/transform中}%\n\
+  \ 说的那样，它的几个声明之一是：\n\n \\begin{lstlisting}\ntemplate< class InputIt, class OutputIt,\
+  \ class UnaryOperation >\nOutputIt transform( InputIt first1, InputIt last1, OutputIt\
+  \ d_first,UnaryOperation unary_op );\n\\end{lstlisting}\n\n它会把unary\\_op作用到这些$[frist1,\
+  \ last1)$上去，而输出到$[frist2, +\\infty)$上去。\n\n而lambda函数，最简单的形式是这两种：\n\n\\begin{lstlisting}\n\
+  [ captures ] ( params ) { body }\n[ captures ] { body }\n\\end{lstlisting}\n\n回到主题来，这个函数就是为了封装住来自cctype的函数\\\
+  code{std::tolower}的函数原型是\n\\code{int tolower(int ch);}\n\n以上是第一种方法。\n\n第二种方法是使用boost库，不表。\n\
+  \n之后遇到了有多个使用或和等于的逻辑判断符，换个思路，其实用set可能也是一个不错的思路。\n有一点很有意思，如果找不到，一般会返回该容器的\\code{.end()}的值。\n\
+  \n"

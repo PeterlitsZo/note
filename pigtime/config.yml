@@ -11,6 +11,9 @@ cls_file_str: |-
       itemindent=0em, listparindent=0em,
       labelwidth=1.5em, labelsep=1em}
 
+  \setlength{\marginparwidth}{0pt}
+  \RequirePackage[top=3.7cm, left=4.2cm, bottom=3.7cm, right=3.2cm, includehead, includefoot]{geometry}
+
   \lstset{
     basicstyle=\small\ttfamily,
     frame=tRBl,
