@@ -1,0 +1,12 @@
+type: note
+init_time: '2020-01-28 09:05:51.832202'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1293A problem
+text: "本题给出了连续离散集合$A=\\{1, \\ldots, n\\}$，\n同时也给出了非连续的离散集合$B=\\{b_1, \\ldots, b_k\\\
+  }$，\n且有$b_i\\in A, i\\in [1, k]$。\n\n开始给定了初始数字$s\\in A$，然后求出$i$，对于$I=s+i\\text{\
+  \ or }s-i$，\n如果对于$i$有$\\exists I, I\\in A\\text{ and } I\\notin B$，则求出对应的最小的$i$。\n\
+  \n很明显，当$s\\notin B$时，$i=0$。\n\n我是通过\\code{set}来作为$B$的容器（以减少查询的时间），\n然后从$i = 0$开始查询，看看对于$I\\\
+  in A$是否满足$I\\notin B$，\n当有满足的则返回$i$，此时的$i$即为最小的$i$。\n\n另外我发现了一点，在C++中，只有0才代表了\\\
+  code{false}，\n其他的数都代表了\\code{true}，即使是负数也不例外。\n\n\\subsection{其他代码}\n对于\\code{set}，我猜测\\\
+  code{find}和\\code{count}的复杂度应该差不多。\n所以在不支持C++20的编译器来说，\n\\code{count}和\\code{contains}在某些方面表现了惊人的可代替性。\n"
