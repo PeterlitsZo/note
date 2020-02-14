@@ -1,0 +1,12 @@
+type: note
+init_time: '2020-02-08 11:07:20.858709'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1296A problem
+text: "为了给数组赋值，可以使用：\n\\begin{lstlisting}[language=C++]\nint len_arr;\ncin >> len_arr;\n\
+  vector<int> arr(len_arr);\nwhile(len_arr--)\n    cin >> arr[len_arr];\n\\end{lstlisting}\n\
+  或者使用\\code{for auto}结构进行遍历：\n\\begin{lstlisting}[language=C++]\nfor(auto &i: arr)\n\
+  \    cin >> i;\n\\end{lstlisting}\n\n我在做这个题的时候，一开始使用了\\code{arr[len_arr-1]}代替了\\\
+  code{arr[len_arr]}，\n之后就理所当然崩溃了，原因是减一的操作是在判断之后，\n所以说，在循环体中\\code{len_arr}的值最小是0。\n\
+  \n另外为了求取\\code{sum}值，\n应该要使用\\code{for auto}语法或者说是使用\\code{accumulate}，\n不过\\code{fot\
+  \ auto}使用的时候会需要一个值，\n而另一个则可以直接返回值。\n"

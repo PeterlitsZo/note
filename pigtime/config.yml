@@ -15,20 +15,15 @@ cls_file_str: |-
   \RequirePackage[top=3.7cm, left=4.2cm, bottom=3.7cm, right=3.2cm, includehead, includefoot]{geometry}
 
   \lstset{
-    basicstyle=\small\ttfamily,
+    basicstyle=\fontsize{8.5pt}{10.2pt}\ttfamily\color{Green4!5!black},
     frame=tRBl,
-    language=C++,
     breakatwhitespace=false,
     keywordstyle=\color{Green4!50!black},
     commentstyle=\color{Gray0!50!black},
     stringstyle=\color{Orange4!50!black},
-    numberstyle=\color{red},
     breaklines=true,
-    morekeywords={string, set, vector},
     xleftmargin=2.5em,
     showstringspaces=false}
-
-  \newcommand{\CONSOLAS}{\sourcesansprolight}
 
   \newcommand{\code}[1]
       { \lstinline[basicstyle=\normalsize\ttfamily]`#1` }

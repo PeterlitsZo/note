@@ -1,0 +1,20 @@
+type: note
+init_time: '2020-02-01 02:14:27.397813'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1295B problem
+text: "又是一道没有做出来的题目\\ldots\\ldots\n\n\\subsection{最小同余正整数}\n为了得到$n$关于$m$的余数，自然是下意识使用$n\
+  \ (\\text{mod} m)$，\n但是在C++中使用\\code{n \\% m}，\n却可能不是想要的正整数结果，比如：\n\\begin{lstlisting}[language=C++]\n\
+  cout << -1 % 100 << endl;\n// -1\n\\end{lstlisting}\n\n原因是为了将求余推广到整数上，有以下的等价关系：\n\
+  \\begin{lstlisting}[language=C++]\n//n > 0, m > 0;\nn % m;\nn % (-m) == n % m;\n\
+  (-n) % m == -(n % m); //abs(n % m) < abs(m);\n\\end{lstlisting}\n很明显当$n<0$时，求出来的就不是正整数了，\n\
+  而为了求出最小同余正整数，根据求余的性质，\n只需要在求余之后加上$|m|$就可以了。\n唉，如果它和Python学学就好了，\n在Python中\\code{-1\
+  \ \\% 23}就是22。\n而在C++中不得不用：\n\\begin{lstlisting}[language=C++]\nint atom(const int&\
+  \ n, const int& m){\n    int a = n % m;\n    if(n >= 0) return a;\n    else return\
+  \ a + abs(m);\n}\n\\end{lstlisting}\n来作为结尾。\n\n\\subsection{寻找元素}\n在\\code{std::set}中寻找元素，可以简单的使用如\\\
+  code{count}，\n或者\\code{find(set.begin(), set.end(), item) != set.end()}，\n如果在C++20中，还有method\
+  \ \\code{contains}来寻找。\n\n而在\\code{std::vector}，也只能使用\n\\code{find(vec.begin(),\
+  \ vec.end(), item) != vec.end()}\n来寻找元素。\n\n当然也可以定义一个模板函数来简化它。\n\n\\subsection{整数同号}\n\
+  为了得到两个数是否同号的布尔值，\n可以使用\\code{std::signbit}，\n对于整数有：\n\\begin{lstlisting}[language=C++]\n\
+  signbit(0); // false;\nsignbit(1); // false;\nsignbit(-1); // true;\n\\end{lstlisting}\n\
+  \n"

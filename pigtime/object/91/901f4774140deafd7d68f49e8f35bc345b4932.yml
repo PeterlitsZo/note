@@ -1,0 +1,12 @@
+type: note
+init_time: '2020-02-14 16:09:05.315418'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1303A problem
+text: "\\subsection{题目}\n给定一个由0和1构成的数值，为了让数的1聚集在一起，\n求最少要删除的0的个数。\n\n\\subsection{思考}\n\
+  总的来说，把首末两端的0给去掉，然后\\code{count}1的个数，\n即得到答案。\n\n\\subsection{我的答案}\n我设置了一个标志，用来判断是否在首末为1的子串中，\n\
+  如果标志为真，如果遇到0则把\\code{temp_cnt}自增，\n不然就令\\code{cnt += temp_cnt}，\n这样也能避免末尾的0被归入计算中。\n\
+  \n\\subsection{其他人的答案 - 1}\n\\code{string}有一个方法是\\code{find}，\n它会接受一个字符或者字符串，和初始位置（默认为0），\n\
+  返回被找到字符的位置。\n\n利用它，可以在寻找两个1之间的0的个数。\n比如给出初始位置为$n$，而返回值为$m$，\n则如果$n = m$，则说明两个1之间没有空隙，\n\
+  有$m - n$个零，并让$n += 1$。\n\n而如果$n < m$也同理。\n\n\\subsection{其他人的答案 - 2}\n\\code{string}除了\\\
+  code{find}，也还有\\code{rfind}，\n所以把首末的1的位置找到并递归就明显好做得多。\n"

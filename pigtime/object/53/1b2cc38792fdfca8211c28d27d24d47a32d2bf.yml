@@ -1,0 +1,10 @@
+type: note
+init_time: '2020-01-31 02:28:52.041320'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: puts, printf and fwrite
+text: "（感觉我已经走火入魔了）\n\n首先输出一个字符的时候，其实最快的是\\code{putchar}，\n但是要输出字符串的时候，不输出格式化字符串的时候，\n\
+  函数的速度有：\\code{fwrite}$>$\\code{puts}/\\code{fputs}$>$\\code{printf}。\n\n其中\\code{fwrite}的函数声明是：\n\
+  \\begin{lstlisting}[language=C++]\nsize_t fwrite(const void *ptr, size_t size, size_t\
+  \ count, FILE *stream);\n\\end{lstlisting}\n\n而根据stack overflow\n的一篇回答\\footnote{https://stackoverflow.com/questions/2454474/what-is-the-difference-between-printf-and-puts-in-c/2457714\\\
+  #2457714}，\n可以看出它省略了调用\\code{strlen}的函数开销。\n而相较与\\code{printf}，它更省略了其他的开销。\n"
