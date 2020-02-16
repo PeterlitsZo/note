@@ -1,0 +1,12 @@
+type: note
+init_time: '2020-02-16 10:58:40.308151'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1304 problem
+text: "是时候学点新知识了，铛铛！\\code{struct}！\n之前忙着做题，不敢使用这个怕做错了就麻烦了，\n结果我还是完全记得这个语法结构的说。\n\n\
+  使用结构肯定比使用数组要好，\n毕竟数组是使用来储存意义相同的数据，\n而结构是用来储存意义不一样的结构。\n用来比较的话，一个相当于Python中的列表，\n\
+  另一个就像元组和类。\n\n此外，鉴于我经常在里面犯一些低级错误，\n重载输出操作符也是很有必要的，比如说：\n\\begin{lstlisting}[language=C++]\n\
+  ostream& operator<<(ostream& os, const vector<p>& it){\n    os << '[';\n    for(auto\
+  \ &i: it){\n        os << \"{\" << i.t << \", \" << i.h << \", \" << i.l << '},\
+  \ ';\n    os << ']' << endl;\n}\n\\end{lstlisting}\n\n其他的和紫名大佬差不多，除了我把循环和处理和输入输出都分开了。\n\
+  \n我在想是不是没有必要再竞赛中把输入输出和处理隔开。\n"

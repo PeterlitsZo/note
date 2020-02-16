@@ -1,0 +1,28 @@
+type: note
+init_time: '2020-02-14 19:14:25.856520'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1303C problem
+text: "这道题，给定了一个密码，\n密码的每两个相邻的字母在键盘上也是相邻的，\n求取符合条件的一维键盘布局。\n\n很明显是要求输入一个密码，输出一个布局格式。\n\
+  而对于格式而言，因为是一维的，\n所以我是想着可以根据这个建一个图,\n其中一般情况下，每个点要不然有2个边，\n要不然没有边（就是没有构成密码的字母），\n\
+  而有一个边的点就是密码区块的开始和结束，\n所有的密码都是在密码区块中的。\n\n以上是我的思路。\n当然具体要复杂一些，包括判断有无环，\n还有密码长度为一的特殊情况。\n\
+  \n\\subsection{其他人的答案}\n有人是这么做的：\n使用\\code{bitset}记录所有密码的字符集，\n如果密码的下一位没有在字符集中，\n\
+  则把字符链接到密码区块的前面中。\n如果一直是这种线性的结构的话，\n维持\\code{p = 0}的位置，\\code{p}一直指着\n最新的字符。\n\n\
+  这样子的话，到时候就能直接输出密码区块，\n之后再把不在字符集中的所有字符输出。\n\n但是密码的下一位出现在了字符集中，\n而且\\code{p = 0}（这代表了它之前是线性的），\n\
+  而且最重要的是，\n这个字符不在正在增长的密码区块\\code{result}的\n第\\code{p+1}位中，\n也就是和本位\\code{result[p]}的上一位不一样，\n\
+  说明了下一位在密码区块中已经有左右两个字母，\n还要和本位在一起，这在一维上是矛盾的。\n\n但是\\code{p}不可能一直指向最新的元素，\n如果它指向最老的元素，即\\\
+  code{p = a.size() - 1}，\n此时有一个不在字符集中的元素，这可以把该元素\n链接在后面以成为最老的元素\n（因为这个元素和之前那个元素很近，\n\
+  又不在密码区块中，那只能在密码区块的另一边中了啦）。\n但是在的话，而且\\code{result[p-1]=ch}，\n就令\\code{p--}，让它指向它应该在的位置。\n\
+  \n以下是最主要的循环：\n\\begin{lstlisting}[language=C++]\nfor(auto& ch: input){\n    // if\
+  \ ch is in alphabet:\n    if(alphabet[ch-'a'])\n        // if it is not at the tail,\
+  \ so we can move p\n        if(p < result.size() - 1 && result[p+1] == ch)\n   \
+  \         p++;\n        // if it is not at the head, so we can move p\n        else\
+  \ if(p > 0 && result[p-1] == ch)\n            p--;\n        // oh we can't move\
+  \ it!\n        else{\n            flag = true;\n            break;\n        }\n\
+  \    // if ch is not in alphabet, \n    // then should link it to result,\n    //\
+  \ its head or tail, whatever.\n    else\n        // if it is on the head - it is\
+  \ easy\n        if(p == 0)\n            result = ch + result;\n        // or it\
+  \ is on the tail\n        else if(p == result.size() - 1){\n            result +=\
+  \ ch;\n            p++;\n        // it is on the inside of result\n        } else\
+  \ {\n            flag = true;\n            break;\n        }\n    alphabet.set(ch\
+  \ - 'a');\n}\n\\end{lstlisting}\n"

@@ -1,0 +1,21 @@
+type: note
+init_time: '2020-02-14 16:35:21.606044'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1303B problem
+text: "首先因为\\code{scanf}和\\code{long long}之间，\n不太熟悉而所以处处碰壁。\n\n\\subsection{关于\\code{long\
+  \ long}和\\code{scanf}}\n测试代码如下：\n\\begin{lstlisting}[language=C++]\n#include<bits/stdc++.h>\n\
+  using namespace std;\nusing ll = long long;\n\nint main(){\n    ll a, c;\n    int\
+  \ b;\n    scanf(\"%d%d%lld\", &a, &b, &c);\n    cout << a << ' ' << b << ' ' <<\
+  \ c << endl;\n    printf(\"%lld %d %d\\n\", a, b, c);\n    return 0;\n}\n\\end{lstlisting}\n\
+  \n测试输入输出如下：\n\\begin{lstlisting}\n$ ./a.out\n4294967296 4294967296 4294967296\n\
+  0 0 4294967296\n0 0 0\n\\end{lstlisting}\n\n可以看到哇，对于\\code{a}来说，只有使用\\code{\\%lld}，\n\
+  才会使得它把正确的数据储存到相关的内存位置上，\n而不然的话，它则会使用错误的数据，\n可以看到高位的1被舍弃掉了。\n\n同理，\\code{printf}则根本没有读高位的1。\n\
+  \n\\subsection{其他人的答案}\n在这道题中我需要求到$\\lceil\\frac{n}{m}\\rceil$，\n而众所周知C++中整数相除是得不到小数的，所以我用了：\n\
+  \\begin{lstlisting}[language=C++]\n(n % m)?n / m + 1: n / m\n\\end{lstlisting}\n\
+  \n但换一种思考方式，只有$m|n$的时候，\n$n($ mod $m)$才会等于$0$，$\\lfloor\\frac{n}{m}\\rfloor$，\n在这种时候可以直接等于$\\\
+  lceil\\frac{n}{m}\\rceil$，\n但是在其他时候都有：\n$$\\lfloor\\frac{n}{m}\\rfloor + 1 = \\\
+  lceil\\frac{n}{m}\\rceil$$\n所以说只要令$n$加上$m-1$成为$n'$时，\n当原$n$存在有：$n($ mod $m) = 0$时，\n\
+  变化后的$n'$有$\\lfloor\\frac{n'}{m}\\rfloor$的值不变。\n但是对于原$n$有$n($ mod $m)\\in [1, m-1]$时，\n\
+  都有变化后恒成立：$\\lfloor\\frac{n'}{m}\\rfloor$有\n原$n$的$\\lfloor\\frac{n}{m}\\rfloor +\
+  \ 1$的值。\n\n故上代码的等价代码为：\n\\begin{lstlisting}[language=C++]\n(n + m - 1)/ m\n\\end{lstlisting}\n"
