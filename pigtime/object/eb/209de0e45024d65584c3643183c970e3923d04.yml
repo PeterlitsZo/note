@@ -1,0 +1,17 @@
+type: note
+init_time: '2020-02-18 07:16:08.124380'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1307C problem
+text: "老规矩先说题干。\n给定一个字符串，找到符合规矩后寻找到的出现次数最多的子字符串。\n规矩是原字符串中寻找成等差数列的有限长度下标集合\n（其中最短长度是1），然后将其按照下标提取出来。\n\
+  \n这道题的陷阱就是这个等差数列了，\n这个也正是最迷惑人的东西了，因为题解中最主要的部分和等差一点关系也没有。\n\n以下是题解原文：\n\nWe observe\
+  \ that if the hidden string that occurs the most times has length\nlonger than 2,\
+  \ then there must exist one that occurs just as many times of\nlength exactly 2.\
+  \ This is true because we can always just take the first 2\nletters; there can't\
+  \ be any collisions. Therefore, we only need to check strings\nof lengths 1 and\
+  \ 2. Checking strings of length 1 is easy. To check strings of\nlength 2, we can\
+  \ iterate across S from left to right and update the number of\ntimes we have seen\
+  \ each string of length 1 and 2 using DP.\n\n如上，证明分两步：\n一，长度$len_b>2$的字符串$b$出现次数小于等于长度$len_s=2$的字符串$s$：\n\
+  如果有字符串$b$存在的话，其对应的前缀$s$必定也满足下标成等差数列。\n故$b$出现次数必定小于等于$s$出现的次数。\n二，长度为一的字符串可能出现次数小于长度为二的字符串的出现次数：\n\
+  不同下标集合构成的长度为二的字符串，可能前缀都是同一个下标对应的字符，\n所以长度为1的字符串可能对应多个长度为2的字符串，\n但是如果存在的话，长度为2的字符串却有且只有一个对应的$len_b>2$长度字符串。\n\
+  \n如上证明了我们最主要的地方就是分析长度为1和2的字符串。\n"

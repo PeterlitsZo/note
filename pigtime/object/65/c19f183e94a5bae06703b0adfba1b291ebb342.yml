@@ -1,0 +1,9 @@
+type: note
+init_time: '2020-02-20 15:30:16.633458'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1296D problem
+text: "这是一道简单的D题，我不得不说不亏是我（骄傲）。\n\n有几个关于C++的小知识和之前复习到的小技巧：\n\n第一个是Variable-length\
+  \ array（VLA），还为维基百科做了一点点贡献，\nVLA是在运行时分配内存空间给数组的一个语言性质，一般是在C99之后支持。\n\n另外是复习之前的一个小技巧：如果想表达$\\\
+  lceil\\frac{m}{n}\\rceil$，\n则可以使用：\\code{(m + n - 1)/ n}。\n\n使用标准库函数\\code{std::sort}时，作用于数组\\\
+  code{A}时，\n作用方法：\\code{sort(A, A+len-1)}。\n\n另外发现宏函数时支持多参数的。\n"

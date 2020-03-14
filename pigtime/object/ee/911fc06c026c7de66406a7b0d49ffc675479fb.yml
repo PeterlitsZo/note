@@ -1,0 +1,8 @@
+type: note
+init_time: '2020-03-06 18:11:44.615188'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 在wsl中启动jupyter-notebook
+text: "为了在wsl中使用jupyter，那么一定需要一个浏览器。\n而wsl一开始就只有终端，并没有提供图形界面（我很喜欢）。为了使用它，\n可以使用\\\
+  code{jupyter-notebook --no-browser}，它提供了一个端口和\n一长串token。使用这两个就可以通过网络协议来使用！太棒了！\n\
+  \n但是有的时候可能之前有东西占住了端口，\\code{8888}是不行的了，\n也可以使用一个选项\\code{--port=other-port}来自己定义一个端口。\n"

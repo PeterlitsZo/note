@@ -1,0 +1,8 @@
+type: note
+init_time: '2020-03-05 13:51:19.334722'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: \LaTeX 的旋转表格
+text: "因为表格太长了，所以说有点时候需要把相关的表格横着放。\n\ngoogle了很容易发现，有一个叫做\\code{rotating}的package提供了\n\
+  \\code{sidewaystable}环境，提供了类似于自带的\\code{table}功能，\n不过不同的只是它的表格是颠倒过来的。\n\n我这一次使用了\\\
+  code{[p]}选项让它放在新的一页。还使用了\n\\code{\\caption}来生成图片，使用\\code{\\label}来为引用服务。\n"

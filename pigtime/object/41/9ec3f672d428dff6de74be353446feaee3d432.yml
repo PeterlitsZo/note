@@ -1,0 +1,19 @@
+type: note
+init_time: '2020-02-20 19:37:50.946162'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 一道数学题
+text: "题目摘抄如下：\n\n设实数$a$，$b$满足$0<a<b$，证明：\n$$\\frac{\\arctan b-\\arctan a}{b-a}\n\
+  >\\frac{1}{\\sqrt{1+a^2}\\cdot\\sqrt{1+b^2}}$$\n\n一开始的时候很容易看到可以把原式化为：\n$$\\frac{\\\
+  arctan b-\\arctan a}{b-a}>\n\\sqrt{(\\arctan a)'\\cdot(\\arctan b)'}$$\n\n从而会想到使用中值定理，但是该式根本推导不到有用的中值定理上，\n\
+  而正解是使用反函数的性质。\n（说明了看见反函数按理应该使用其性质的一般套路）\n\n不妨令$x=\\arctan a$，$y=\\arctan b$，则根据反函数的性质有：\n\
+  （根据原题可知：$y>x>0$）\n$a=\\tan x$，$b=\\tan y$，所以很明显原始等价于：\n$$\\frac{x-y}{\\tan x-\\\
+  tan y}>\n\\frac{1}{|\\frac{1}{\\cos x}\\cdot\\frac{1}{\\cos y}|}$$\n\n进行又一次简单的变换有：\n\
+  $$(\\cos x\\cos y)\\cdot\\frac{x-y}{\\sin(x-y)}>|\\cos x\\cos y|$$\n\n很明显有：\n$$\\\
+  frac{x-y}{\\sin(x-y)}>1(y>x>0)$$\n\n故原式成立。\n\n\\subsection{中值不成立的原因}\n根据中值定理该式$\\\
+  frac{\\arctan a-\\arctan b}{a-b}$\n很明显有：$\\exists \\xi$，\n$(\\arctan\\xi)'=\\frac{\\\
+  arctan a-\\arctan b}{a-b}$，\n所以$((\\arctan\\xi)')^2>(\\arctan a)'(\\arctan b)'$。\n\
+  \n为了利用中值定理解出该题，则只能通过对$\\forall\\xi\\in(a, b)$，\n都有该式成立来证明。但很可惜对于$\\xi\\in(a, b)$，\n\
+  $\\exists\\xi\\in(a, b)$可以令其不成立。\n\n比如因为有$0<a<b$，有当$\\xi\\to b$时，有：\n（因为$\\arctan\
+  \ x$的导函数在正半轴上单调递减）\n$$\\lim_{\\xi\\to b}((\\arctan\\xi)')^2=\n((\\arctan b)')^2<\n\
+  (\\arctan a)'(\\arctan b)'$$\n\n所以使用中值定理是一种错误的选择，该方法绝对搞不出来正确答案出来。\n"

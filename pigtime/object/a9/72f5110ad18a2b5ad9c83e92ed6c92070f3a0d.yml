@@ -1,0 +1,17 @@
+type: note
+init_time: '2020-03-14 14:45:30.148432'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 关于map<bitset>的使用
+text: "众所周知，\\code{map}作为一个模板一般接受四个值，而我一般只给定前两个，\n而后面的值让模板自动补全即可。\n\n今天我打算用\\code{bitset}作为键，但是编译器好像看不起\\\
+  code{bitset}，\n潇潇洒洒给我了一千字的长文，比我自己写的代码还多，从头看到尾，\n字里行间都是\\code{operator<}，我寻思咋地啦，我没有用到小于号啊，\n\
+  你别报其他头文件的错啊，你报这个的，但别人不听，还跟我抬起干来了。\n\n在stack overflow上面使用了一些小花招，搞到了答案，一看，\n原来作为红黑树是要通过小于号来进行比较的，才能产生对应的树。(嗨！\n\
+  我也不是不知道，但还真没想到那方面去）所以说，我转念一想，\n这个的意思是说，\\code{bitset}不支持大小比较咯？（嗨，这不废话吗！\n这玩意？宁还真把它当数啦）\n\
+  \n为了比较它这个类型，我们必须给map多赋值一个类型，这个类型的对象，\n必须可以调用来比较两个key之间的大小关系。\n\n差不多吧，我边写边抄，差不多代码如下：\n\
+  \\begin{lstlisting}[language=C++]\ntemplate<size_t N>\nstruct bitset_less{\n   \
+  \ bool operator() (const bitset<N> & a, const bitset<N> & b){\n        if(N == 0)\
+  \ return true;\n        size_t i = N - 1;\n        do {\n            if(a[i] ^ b[i])\n\
+  \                if(a[i]) return false;\n                else return ture;\n   \
+  \         --i;\n        } while ( i > 0 )\n}\n\\end{lstlisting}\n\n将\\code{bitset\\\
+  _less}传入代码即可。\n\n在抄代码中首先使用$i$从$N-1$一直循环到$0$，但是我忘记了\\code{size\\_t}\n作为一个无符号正整数，是没有负数的，所以我设定的大于零这个条件是很成立的。\n\
+  （我在stack overflow上面问的第一道题）\n"

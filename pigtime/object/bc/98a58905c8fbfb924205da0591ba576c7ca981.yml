@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-03-07 12:14:05.564314'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: latex关于\texttt{\textbackslash end\{...\}}的报错问题
+text: "做数学作业的时候latex说有一个错误发生在\\code{\\\\end{...}}上，\n我百思不得其解，后来发现是有一个环境只写了\\code{\\\
+  \\begin{...}}，\n但是没有写\\code{\\\\end{...}}，这就是原因欸。\n\n所以说报错的地方可能和真实错误的地方有一定距离。\n"

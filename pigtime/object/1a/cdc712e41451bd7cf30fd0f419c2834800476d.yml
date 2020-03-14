@@ -1,0 +1,11 @@
+type: note
+init_time: '2020-03-11 08:44:46.127475'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 链表的使用
+text: "刚开始想要建立一个链表，但是其实上对C语言的管理不清不楚，以为和python一样，\n只要有引用计数，就会一直存在，但是不然，C语言的话，只要是变量离开了它的定义域的话，\n\
+  就会被销毁，不仅仅是回收栈上面的内存，连对象的折构方法也会被一并调用。\n\n我一开始用一个指针指向了一个局部变量，结果一出局部定义域，\n这个变量的空间就被标记为自由的内存栈空间，但是值却没有初始化，只是被标记了而已。\n\
+  \n之后的话我又重新声明了一个局部变量（在另外一个定义域之内），好家伙，结果它用了前面一个的地址，\n链表就形成环了啦！我百思不得其解。\n\n\\subsection{动态的分法}\n\
+  在C++中一般是通过\\code{new}和\\code{delete}来管理内存的新建和释放。\n在C语言中则是用\\code{malloc}和\\code{free}。\n\
+  \n语法格式差不多是：\n\\begin{lstlisting}[language=C++]\nT* var = new T <initialization>;\n\
+  delete var;\n\\end{lstlisting}\n\n以上哈，还有对于空指针\\code{nullptr}的话，\\code{delete}是安全的操作。\n"

@@ -1,0 +1,7 @@
+type: note
+init_time: '2020-03-11 14:21:45.119794'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: python的函数标注支持
+text: "一直很好奇有的时候一些函数注解，比如说使用\\code{Union[int, List[int]]}\n而不是使用一串字符串，到底是怎么实现的。\n\n\
+  经过我的偶然发现，发现了它就在\\code{typing}包里面，真是太棒了~\n"

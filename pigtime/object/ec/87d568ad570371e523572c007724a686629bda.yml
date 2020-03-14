@@ -1,0 +1,10 @@
+type: note
+init_time: '2020-03-08 14:21:58.394338'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1316B problem
+text: "老规矩先说题意。\n这道题给定了一个字符串（长度为$l$），和一个指定的动作：\\code{reverse}子字符串。\n对数$k$而言，需要将它从$[0,\
+  \ k)$一格一格的走到$[l-k,l)$，\n每一次都将范围内的子字符串进行操作。\n\n说说学到的几个操作：\n\n定义别名！如何为一个STL定义别名呢？使用using：\n\
+  \\begin{lstlisting}[language=C++]\ntemplate<typename T>\nusing vec=vector<T>;\n\\\
+  end{lstlisting}\n\n需要注意的是\\code{vec}还是需要使用\\code{<type>}，我好像有点理解了\\code{template}的工作原理。\n\
+  \n其次有一点需要注意，\\code{string}是不能接受字符的，只能接受字符串。\n\n话说，这道题对复杂度的要求还真是宽大啊。\n"

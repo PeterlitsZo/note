@@ -1,0 +1,23 @@
+type: note
+init_time: '2020-02-20 23:25:24.150958'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1299A problem
+text: "这是一道我不会做的A题。\n\n原题定义了一个函数$f(x, y)=x|y-y$，其中的符号$|$代表了进行位运算。\n又定义了一个数组$[a, b,\
+  \ c, d, \\ldots]$的值应该为：\n$$[a, b, c, d, \\ldots] = f(\\ldots f(f(f(a, b), c), d),\
+  \ \\ldots)$$\n\n现在给定了一个数组，请求得到进行调换顺序之后值最大的数组。\n\n位运算是一个我不太熟悉的东西，但是仔细分析还是很容易发现：\n\
+  对于$x$和$y$而言的第$i$-th位$x_i$和$y_i$而言，\n进行$f$变换之后，新的值$z$的第$i$-th位$z_i$仅仅与$x_i$和$y_i$相关。\n\
+  因为当$y_i$等于1时，$(x|y)_i$必定为1，所以$z_i$必定为0。\n（因为当被减数上第$i$-th位为0而减数上该位为1的话就需要借位，\n势必和其他位有关）同理可以得出当且仅当$x_i$并且$\\\
+  lnot y_i$时，\n$z_i$为真，故$z_i=x_i\\land\\lnot y_i$。\n\n由上因为所有位均满足该运算规律，故有\n$z=x\\&(\\\
+  sim y)$。\n\n所以对数组而言，自然也有：\n$$[a, b, c, d, \\ldots] = a\\&(\\sim b)\\&(\\sim c)\\\
+  &(\\sim d)\\&\\ldots$$\n\n因为$\\&$位运算满足交换律，所以原式的值只和第一个数有关。\n且其所有被运算的数第$i$-th位为真，其才为真。\n\
+  那么什么时候需要调换以让该式的结果更大呢？\n\n从最高位开始比较，如果有且只有一个数在该位为一，\n那么让它成为第0位。因为其他位上都会取反变成1，\n而这个数本身的位上的数也保留下来了，从而取到最大。\n\
+  （太棒了）\n\n可是我对位运算不太熟悉，下面是别人的位运算语句：\n\\begin{lstlisting}[language=C++]\n#include<bits/stdc++.h>\n\
+  using namespace std;\n \nint main(){\n    int n;\n    cin >> n;\n    vector<int>\
+  \ a(n);\n    for(auto& x: a)\n        cin >> x;\n    for(int bit=30; bit--;){\n\
+  \        if(count_if(begin(a), end(a),\n                    [&](auto x){return x\
+  \ >> bit & 1;})==1){\n            swap(a[0],*find_if(begin(a), end(a),\n       \
+  \                        [&](auto x){return x >> bit & 1;}));\n            break;\n\
+  \        }\n    }\n    for(auto x: a)\n        std::cout<<x<<' ';\n    std::cout<<'\\\
+  n';\n}\n\\end{lstlisting}\n\n首先有巧妙的位运算小窍门：\\code{num >> bit & 1}，\n它可以确认\\code{num}的第\\\
+  code{bit}位是否为一。\n\n其次有有意思的\\code{count_if}和\\code{find_if}。\n\n再然后是lameda函数。之前我写过的，这里就暂且不表了。\n"

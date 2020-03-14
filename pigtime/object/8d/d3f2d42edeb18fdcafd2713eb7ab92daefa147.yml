@@ -1,0 +1,10 @@
+type: note
+init_time: '2020-03-13 16:58:11.221877'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: cf's 1324D problem
+text: "终于有一次让我做到了D题（虽然还是没有做出来），\n这道题是给定两组数据，分别是$\\{a_1,\\ldots,a_i,\\ldots,a_n\\}$和\n\
+  $\\{b_1,\\ldots,b_i,\\ldots,b_n\\}$，如果下标$i$和$j$满足：\n$$a_i+a_j>b_i+b_j\\Rightarrow\
+  \ (a_i-b_i)+(a_j-b_j)>0$$\n求出可能的下标组合的个数。\n\n我用笨办法来做，先令$c_i=a_i-b_i$，那么对于每一个$i$而言，\n\
+  我从正数找到最后一个可以让$j$的值满足$c_i+c_j>0$。那么累加起来，\n可能的组合数就求出来了（大体如此）。\n\n答案是怎么做的呢？好吧，既然你要找到一个令$c_j\\\
+  ge 1-c_i$的$j$值，\n那么说二分搜索它不香吗？（指\\code{lower\\_bound}）\n好吧一下子把$O(n^2)$变成了$(n\\text{log}n)$啦。\n"

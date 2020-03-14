@@ -1,0 +1,25 @@
+type: note
+init_time: '2020-02-19 14:58:32.463955'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: MIT 6.006 part1(unit1)
+text: "In this course, I am interseting about the finding peak in 1D-gragh or 2D.\n\
+  \nSo what is the peak in 1D-gragh?\nfor a number in a 1D-array, if its left $L$(if\
+  \ $L$ exists) is less than it and its\nright $R$ also do it(if $R$ exists), then\
+  \ the number is a peak.\n\nthere is a $O(\\lg n)$ function that can work it out:\n\
+  firstly, look at n/2 position, if the element is a peak then break the loop;\nif\
+  \ it is not, and the left is bigger than itself, we can know than in the\nsub-srray\
+  \ $A[0..n/2-1]$ must have a peak element inside. (why?)\nelse it can look for the\
+  \ sub-array $A[n/2+1..n-1]$.\n\nIt is easy to find out the compilex is $O(\\lg n)$.\n\
+  \nFor the question why I assert the sub-array must have a peak at least inside,\n\
+  the answer is that the sub-array must have a max-element, and if the max-element\n\
+  is at the edge of the array, then it's easy to know that it is a peak.\n\nIn a 2D-graph,\
+  \ the peak is bigger than or equal with its round cell numbers. the\nbest function\
+  \ to find one of those peaks swiftly is: firstly, look at the middle\ncolumn and\
+  \ the find out the max-element of the column, and if the element is a\npeak then\
+  \ return the answer, but if it does not and the round cell number $C$ at\ncolumn\
+  \ $n/2-1$ is bigger than it, we can say that on the area from column $0$ to\ncolumn\
+  \ $n/2-1$ there must be a peak at least.\n\nWhy? - if the peak $P$ is on the column\
+  \ $n/2-1$, the peak is must bigger than\n$C$ and then is bigger than all numbers\
+  \ on column $n/2$, beacause if it is small\nthan $C$, the max-element is not it,\
+  \ and we can now look at the max-element of\nthe area.\n"

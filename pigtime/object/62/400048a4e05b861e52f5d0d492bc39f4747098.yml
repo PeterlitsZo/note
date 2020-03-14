@@ -1,0 +1,8 @@
+type: note
+init_time: '2020-03-05 18:29:41.111661'
+parents:
+- d7c97fb962ebeec3827179ecd2471c7720a8d86d
+title: 令cmd接受参数
+text: "在wsl中可以通过cmd.exe来进入命令行，但是也可以传入参数来运行\\~{}\n\n使用类似于\\code{cmd.exe /C \"command\
+  \ line\"}来驱动程序。\n传入的命令完全是在cmd.exe中运行，所以说也可以读取到cmd.exe中的PATH。\n通过这个完全可以用来让本来运行在windows的程序套个sheel壳子从而在wsl中运行\\\
+  ~{}\n\n开心中\\~{}\n"
