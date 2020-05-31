@@ -117,8 +117,8 @@ class commander(commander_base):
         print('-'*50, end='\n\n')
         self.xelatex_it()
         print('-'*50, end='\n\n')
-        if not Test:
-            self.rm_useless()
+        #if not Test:
+        #    #self.rm_useless()
 
     def look_it(self):
         try:
