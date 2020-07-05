@@ -1,0 +1,52 @@
+% 这是用来提前加载的预处理格式。
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 使用的宏包
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[stable]{footmisc}
+\usepackage{transparent}
+\usepackage{mathtools}
+
+% 自定义的 marco
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 给 old 的时间信息格式
+
+\def\timetx#1{%
+    \par\noindent\emph{\pltgray\small #1}\smallskip
+    }
+
+% 简短的vb，给 2020/6 使用。
+\def\vb{\verb}
+
+% 不被污染的导入
+\def\inp#1{\begingroup\input#1\endgroup}
+
+% 示例
+\long\def\exple#1#2{\begingroup
+    % the begining definition
+    \edef\MainSkip{\dimexpr\textwidth - \parindent}
+    \edef\SubSkip{\dimexpr\textwidth - \parindent - 1.5em}
+    \def\Rule{\vrule width 1pt}
+    \def\impt##1{\par\smallskip\noindent{\bf ##1}\par}
+    \def\SplitedRuleVbox##1{{%
+        \newbox\totalbox
+        \newbox
+        \setbox
+    }}
+    % the main part
+    \par\smallskip
+    {\bf 示例：}\par\smallskip
+    \indent\hbox to \MainSkip{\hfil\Rule\hfil\hfil\hbox{\hsize=\SubSkip\vbox{#1\par}}}\par
+    {\bf 解答：}\par\smallskip
+    \indent\hbox to \MainSkip{\hfil\Rule\hfil\hfil\hbox{\hsize=\SubSkip\vbox{#2\par}}}\par
+    \smallskip\par
+    \endgroup}
+
+% 源信息
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author{Peterlits Zo}
+\title{Peter笔记}

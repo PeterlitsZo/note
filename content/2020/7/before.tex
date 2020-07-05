@@ -1,0 +1,322 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{默认小数位数}
+
+\def\vb|#1|{ \verb|#1| }
+
+在C++中的\vb|ostream|引导的流输出中，根据对浮点数类型的重载，本身的位数并不
+是很多，所以被判定为答案错误，其实本质上是精度不够。
+
+使用一些可控制符来对齐进行定义：
+\begin{lstlisting}
+#include<iomanip>
+...
+cout << setiosflags(ios::fixed);            //保证setprecision()是设置小数点后的位数。
+cout << setprecision(2) << pi << endl;      //输出3.14
+cout << pi << endl;                         //输出3.14
+\end{lstlisting}
+
+其中\vb|std::fixed|是用来保证浮点数使用定点输出，即fixed-point notation。
+而\vb|setprecision|则是用来定义浮点数的位数的。
+
+或者使用\vb|std::cout.precision(<int>)|来直接定义输出流的浮点数保留精度。
+
+我不是很懂\vb|std::fixed|和\vb|setiosflags(std::fixed)|之间有什么不同，
+但是在翻看了一些StackOverflow的回答，好像有很多都是一样的。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{数论 --- 关于被整除，和其扩展}
+
+\subsection{一元的被整除}
+
+整除，和不整除，是二元的，换言之，两个数之间，要不然有整除关系，
+要不然没有，不存在介于整除和不整除的关系。所以说研究未被整除，
+本质上也是在研究什么情况下会被整除。
+
+\def\a{\text{\tt a}}
+\def\b{\text{\tt b}}
+\def\mod{\text{mod }}
+\def\floor#1{\lfloor{#1}\rfloor}
+\def\ceil#1{\lceil{#1}\rceil}
+\def\lcm{\text{lcm}}
+
+对两个数$\a$和$\b$而言，不妨假设$\a > \b$，那么当且仅当
+$\a = \b\times k, k\in R$的情况下，两数之间存在整除关系。一般而言，
+我们会使用$\a (\mod \b)$或者$a\%b$来判断它们之间的余数是否为零
+来间接判断它们之间是否有整除关系。
+
+现在将$\a$的范围从一个数，扩大到$[m, n]$，研究能被整除的个数\footnote{%
+同时也是在研究不被整除的个数。假设$\a(\mod\b)=0$的$\a$有$t$个，那么
+不被整除的$\a$的个数则自然为$n-m+1-t$}。根据前面的定义，两个符合条件
+的$\a$最短距离则为$|\b\times k-\b\times (k-1)|=\b$，那么自然由于满足条件的%
+$\a$的间隔性，所以其$\a$的个数几乎接近于$n - m + 1\over b$。
+
+说几乎，但是并不是正确答案，因为$\a$的个数是离散的，对于不同的$m$，或者$n$，
+即使上下限之间的距离一样，也可能会多一个$\a$或者少一个，在这种情况下$\a$的数量到底是
+呈现一个什么样规律呢？
+
+我注意到，当$m$和$n$恰好卡在某一个$\a$上的时候和未卡在$\a$上的时候，前后的
+$\a$的数值相差为1。对$n > m$的$n$作为研究对象，$n\in[k\b, k\b + \b - 1]$的时候，
+其$\a$的数值一样。所以我们不妨将其进行运算$\floor{n\over\b}=k$，同理对$m$进行运算，
+即$\ceil{m\over\b} - 1$。两式相减有$\floor{n\over\b}-\ceil{m\over\b} + 1$，
+其值就是对于一元的未被整除的$\a$的个数的值。
+
+{\bf 示例：}%
+对于$\a\in[3, 19]$，$\b=5$而言，不难看出来，$\floor{n\over\b}=
+\floor{19\over 5}=3$，$\ceil{m\over\b}-1=\ceil{3\over 5}-1=0$，
+两式相减为$3$，即5，10，15三个数字。
+
+{\bf 分析易知：}%
+其中$\floor{n\over\b}$代表了从0到n之间，有多少个符合条件的$\a$，而$\ceil{m\over\b}-1$%
+表示了从0到m之间（但是不包含m）有多少个符合条件的$\a$。
+
+\subsection{多元的被整除}
+
+对于多元的未被整除，就是将$\b$扩展到了更高层次的、离散化的元组了。举个例子，
+对于$[3, 18]$中可以被其中一个在$(2, 5, 7)$中的数整除的数$\a$而言，求符合条件
+的$\a$的个数。
+
+我们不妨将一元的被整除的函数抽象为一个函数$f(m, n, \b)=
+\floor{n\over\b}-\ceil{m\over\b} + 1$，从直观的角度而言，我们可能会对例子
+而言列出式子：$f(3, 18, 2) + f(3, 18, 5) + f(3, 18, 7)$，但是它错得也很容易理解，
+如图\ref{pic:venn}所示，被2整除的数，可能同时也被5整除，甚至可能同时被7整除，
+对于这个$\a$而言，它因为一个愚蠢的加法运算，用一个数搞出了有三个数的效果。
+效果很棒，但很明显是错误的，是不够准确的。
+
+\begin{figure}
+    \centering
+    \def\firstC{(0,0) circle (1.5cm)}
+    \def\secondC{(60:2cm) circle (1.5cm)}
+    \def\thirdC{(0:2cm) circle (1.5cm)}
+    \begin{tikzpicture}
+        \fill[black,opacity=0.2] \firstC;
+        \fill[black,opacity=0.2] \secondC;
+        \fill[black,opacity=0.2] \thirdC;
+        \draw[color=black!50] \firstC;
+        \draw[color=black!50] \secondC;
+        \draw[color=black!50] \thirdC;
+        \node at(0,0) {被2整除};
+        \node at(60:2cm) {被5整除};
+        \node at(0:2cm) {被7整除};
+    \end{tikzpicture}
+    \caption{对于$[m,n]$而言符合条件的$\a$的韦恩图，分别对应了未被3、5、7整除}
+    \label{pic:venn}
+\end{figure}
+
+借鉴于概率学，很容易知道，因为两个公式$f(m,n,\alpha)$和$f(m,n,\beta)$之间重合的
+部分，恰好是能够同时被被$\alpha$和$\beta$整除的数字。也就是说$\a=k\alpha\beta$，
+换言之，中间的值为$f(m,n,\alpha\beta)$。和概率学同理，对于上面的示例的答案为：%
+$g(x)=f(m,n,x);\ g(2)+g(3)+g(5)-g(2\times5)-g(2\times7)-g(5\times7)+g(2\times3\times7)$
+
+推广有：对于范围$[m,n]$，存在$r$个数对于$(a_1, a_2, \ldots, a_n)$中至少一个数
+而言有整除关系。令$$f(m, n, \b)=\floor{n\over\b}-\ceil{m\over\b} + 1$$其值易知，
+由于一元被整除关系的推导，为在范围$[m, n]$之间能被$\b$整除的数$\a$的个数。那么对于上式
+有：$$r=\smashoperator{\sum_{1\le i\le n}}f(m,n,a_i)-
+        \smashoperator{\sum_{1\le i<j\le n}}f(m,n,\lcm(a_i, a_j))+
+        \smashoperator{\sum_{1\le i<j<k \le n}}f(m,n,\lcm(a_i, a_j, a_k))-\ldots$$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\Cp{C/C++}
+
+\section{\Cp 的宏定义}
+
+\subsection{基本用法}
+
+在\Cp 的宏定义语法中，最常见的就是将一个文本中字符串，或者
+是文中中类似函数的结构扩展为另一个字符串。这些过程都发生在
+编译之前，被称为预处理过程。
+\begin{lstlisting}
+#define IDENTIFIER TOKEN-STRING(opt)
+#define IDENTIFIER(IDENTIFIER(opt), ..., IDENTIFIER(opt)) TOKEN-STRING(opt)
+\end{lstlisting}
+
+在预处理过程中，是可以通过\verb|#ifdef|或者\verb|#idndef|来
+测试是否有该宏定义。这就是最基本的用法了。
+
+值得注意和是，\Cp 中的宏定义替换只会替换一个\verb|token|而
+不是其他的结构字符串。所以在\verb|string|或者在\verb|comment|%
+中的字符串则是永远不会被替换的。
+
+\subsection{长的宏定义}
+
+使用长一点点的宏定义，有时候为了美观必须要断行，而一般的%
+\verb|TOKEN-STRING|是无法断行的，为了断行第一个特殊字符\verb|\|
+就出来了。如果\verb|\|的后面是一个\verb|newline|字符，那么
+它会取消掉该\verb|newline|对它的不理影响，即，让该\verb|newline|
+不再作为一个断行符号、一个\verb|#define|命令的结束符号。
+
+\subsection{特殊的格式}
+
+在第二种格式（即，类似函数式定义的时候），有一些特殊的用法，
+比如\verb|##|，\verb|#|和\verb|#@|，分别是：形成一个原类似于
+参数的IDENTIFIER之间的的连接（拼接），字符串化和字符化。
+
+在我常用的过程中，我习惯使用以下的宏定义：
+\begin{lstlisting}
+#define FUCK(token) #token": " << token << "; "
+
+int a = 114514, b = 314524;
+cout << FUCK(a) << FUCK(b) << endl;
+\end{lstlisting}
+
+其中，\verb|FUCK(a)|会被扩展为\verb|"a"": " << a << "; "|，
+其中根据定义两个字符串会粘合在一起，成为\verb|"a: "|，所以说
+其相关的输出应该如下：
+\begin{lstlisting}
+a: 114514; b: 314524; %
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Python基础概念}
+
+\def\pyth{\verb|python|}
+
+理解\pyth 中的基本概念，才是学习\pyth 中需要注意的一步。
+
+\subsection{对象}
+
+一门简单的语言，必定是抽象程度足够高的语言，在\pyth 中，最基本的
+概念，也同时是最重要的概念，就是对象了。而不同对象的区分就在于类型
+（type）。当然作为一门足够高抽象的语言，类型也是一个对象。
+
+\begin{lstlisting}
+In [1]: # 数字1是对象吗？
+In [2]: isinstance(1, object)
+Out[2]: True
+
+In [3]: # 太棒了，那他是什么类型的对象呢？很明显，1的类型是int（object中的一
+   ...: # 种类型），int本身是一种类型没错吧，所以int的类型是type。type是int的
+   ...: # 类型，所以type也是一种类型（一种可以调用的对象类型）。
+In [4]: type(1), type(int), type(int)(int), type(type)
+Out[4]: (int, type, type, type)
+
+In [5]: # 看来是int类型的对象，int类型可以干什么呢？
+In [6]: help(int)       # 使用help(1)也会有一样的结果哦。
+class int(object)       # 看来int是一种object，所以说int对象也是一种对象
+ |  int([x]) -> integer # 将其他东西括起来，能变成int对象的就会变。
+ |  Convert a number or string to an integer, or return 0 if no arguments
+ |  are given. If x is a number, return x.__int__(). ...
+ |                      # int除了是一个类型，它本身也是可以调用的。
+ |                      # 调用int，会把数字和字符串转换为整数。
+ |                      # 原理上，是调用了x.__int__()。
+ |  ...
+ |  __add__(self, value, /)
+ |      Return self+value.
+ |                      # 原来是这样：每一个操作符，底层都是一个函数。
+ |  ...
+
+In [7]: # 看来我声明了一种peter类型，这种类型产生的对象，都对应着数字
+   ...: # 31425926
+In [8]: class peter(object):
+   ...:     def __int__(self):
+   ...:         return 31415926
+In [9]: int(peter())
+Out[9]: 31415926
+In [9]: "peter() have the integer value: %d" % peter()
+Out[9]: 'peter() have the integer value: 31415926'
+
+In [10]: # 还记得之前说过对象的运算符操作底层是一个函数吗？
+In [11]: "peter() have the integer value: %d".__mod__(peter())
+Out[11]: 'peter() have the integer value: 31415926'
+
+In [12]: # 看来的确如此，1 + 1和1.__add__(1)一样，"%d" % 1和"%d".__mod__(1)
+    ...: # 自然也是一样的。这么看来，格式运算符也没有什么大不了的，它和1 + 1
+    ...: # 一样简单，不过是把所有以%开头的，以字母结尾的字符区间替换为相应
+    ...: # 的东西，比如以s结尾，就会让它以string形式输出，如果是d，就是以digit
+    ...: # 形式输出。
+\end{lstlisting}
+
+\subsection{常见复合类型}
+
+\pyth 中有常见的复合类型，为列表（list），元组（tuple），和词典
+（dict），它们前两个都可以同时储存不同类型的对象\footnote{在底层
+内存模型不一样的情况下，提供这种功能的语言并没有想象得那么多。毕竟
+这种符合一般人高抽象层次的理想解决方案，在实现上都比较消耗内存。}，
+而词典则提供了一种\verb|key:value|的抽象数据结构。
+
+\begin{lstlisting}
+In [1]: # 太棒了，一个可以容纳各种各样的数据结构。无论是int类型的整数object，
+   ...: # 还是string类型的字符串object，或者是float类型的浮点数object.
+In [2]: [1, 'this', 1.3]
+Out[2]: [1, 'this', 1.3]
+\end{lstlisting}
+
+\subsection{去序列化}
+
+在\pyth 中有一种语法糖：它就是去序列化，本质上是元组的解序列化。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{if-idf排序}
+
+和之前的布尔查询不同，if-idf杜绝了结果太多或者太少：它使用了
+相关度来进行排序。通过对文档进行$[0,1]$之间的赋值，从而能够
+更好的服务。
+
+\subsection{关联矩阵}
+
+关联矩阵可以用来描述一个文档。之前的数据结构，我用的是单词对应
+它所对应的文档序号。我可以很轻松的对文档序号链表进行逻辑操作，
+但是我无法刻画出这个文档的全貌。关联矩阵就是一个用来描述文档
+而不是单词的一种数据结构。
+
+\subsubsection{二值关联矩阵}
+
+把每一篇文档都看成一个二维的向量，每一个坐标都代表了那个坐标
+对应的单词是否出现\footnote{合理的想想，这样的话每一个文档的
+向量长度都明显有点过长了，因为单词集很长啊！}。
+
+\subsubsection{非二值关联矩阵}
+\label{sec 非二值}
+
+非二值关联矩阵，就是用词频（很明显，是一个整数）来描述文档，而
+不是用布尔值来描述文档。
+
+但是一般而言，相关度不会正比于词频。所以说，一般使用对数词频来
+代替原始的词频：
+
+\def\tif{\text{if }}
+
+$$iw_{t,d} = \left\{\begin{array}{ll}
+    1+\log_{10}tf_{t,f} & \tif\ tf_{t,d}>0  \\
+    0 & otherwise \end{array} \right.$$
+
+这就是单词t在文档d中的频数的对数频数。
+
+\subsection{权重}
+
+为了更好的获得搜索结果，我们应该要分清楚罕见词汇和不罕见词汇。如果
+包含了一个罕见词汇的话，对它的权重自然更将应该比其他的大\footnote{%
+从另外一个方面来看待的话，这是因为罕见词汇的信息量更大一些。越稀
+少的单词所蕴含的信息量自然更大一些。}。
+
+\subsubsection{文档频率\footnote{因为它的英文是Document frequency，
+所以又可以被叫做df}}
+
+在\ref{sec 非二值}中说过，可以使用一个词频向量来刻画一个文档。而
+文档频率则是用来刻画单词的。它是用来刻画单词的罕见程度。
+
+一般而言，我们对文档频率做一些调整：
+
+$$idf_t = \log_{10}{N \over df_t}$$
+
+\subsection{tf-idf权重计算与处理}
+
+根据上面两个结果来说的话，我们可以对两个进行综合：tf用来刻画文档
+对词项的相关度，而idf则用来刻画词项的稀有度。它的值如下：
+
+$$w_{t,d} = (1+\log tf_{t,d})\cdot\log{N\over df_t}$$
+
+由式子容易知道，tf-idf权重有性质：1. 随着词频增加而增加，2. 随着
+词项罕见度增大而增大。
+
+如同之前所说的一样，我们需要对文档形成的向量进行排序。
+
+我们把查询也看成向量之后，就可以用余弦值来刻画它们的相近程度。在这
+个之前，因为我们处理前会处理引索，如果我们把它处理为单位向量，就会大大
+减少查询时间。这是因为归一化向量的积就是它们之间的余弦值。
+

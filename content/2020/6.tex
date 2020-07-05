@@ -1,14 +1,223 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{6月笔记}
+\section{\LaTeX{}中的盒子寄存器}
+
+盒子有三个值：宽度，高度和深度，盒子的实际高度是高度和深度的值的和，分割它们的是
+基线。
+
+在盒子中可以使用\vb|\width|，\vb|\height|和\vb|\depth|，\vb|\totalheight|来表示
+所有的自然值。
+
+对于盒子寄存器来说，可以使用：
+\begin{lstlisting}
+\newbox\BOX         % or \newsavebox{\BOX}
+\sbox\BOX{<BOX>}    % or \setbox\BOX=<BOX> or \savebox{\BOX}{<BOX>}
+\usebox{\BOX}
+\end{lstlisting}
+
+使用上面的三个命令可以用来声明、赋值和使用盒子。关于盒子它有一些属性，可以用%
+\vb|\ht|、\vb|\wd|和\vb|\dp|来获取。
+
+\vb|\newsavebox|会检查名字是否被使用过。
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{To-do List}
+\section{关于Mr.Jackson Walter的洛必达直观解释}
 
-\begin{plttodoenv}{3}
-\t[ ]重新做一下HDU-6400
-\end{plttodoenv}
+本文来自\url{https://math.stackexchange.com/questions/98082/why-does-lh\%C3\%B4pitals-rule-work}
+
+洛必达首先是有两种情况，而这两种情况下都能使用：
+
+\begin{enumerate}
+    \item 如果$\lim_{x\to a}f(x)=0$并且$\lim_{x\to a}g(x)=0$的情况下，那么存在：
+        \[\lim_{x\to a}\frac{f(x)}{g(x)}=\frac{f'(x)}{g'(x)}\]
+    \item 如果$\lim_{x\to a}f(x)=\infty$并且$\lim_{x\to a}g(x)=\infty$的情况下，那么存在：
+        \[\lim_{x\to a}\frac{f(x)}{g(x)}=\frac{f'(a)}{g'(a)}\]
+\end{enumerate}
+
+洛必达的直观解释是，假设有一个点，它的$x$坐标是$f(x)$而它的$y$坐标是$g(x)$，那么该点%
+$t$满足：
+\[ t \to [f(x), g(x)] \]
+
+当$x\to a$的时候，两个坐标都趋向于零，那么比率$\frac{f(x)}{g(x)}$的几何涵义是$(0, 0)$点
+处的斜率，而该店的切线由$[f'(x), g'(x)]$给出，所以洛必达定理指出，趋于零点处的切线斜率就是
+趋于零点处的斜率的极限。
+
+（好吧我好像还是没有很懂的样子）
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\LaTeX{}中的扩展和非扩展}
+
+\subsection{关于def和edef、let命令}
+
+作为一个宏标记语言，很多东西都是需要扩展到不可扩展的地步的。比如说常用的\vb|\def|%
+和\vb|\newcommand|定义出的命令都是可扩展的，在求值时会主动扩展，递归到不可扩展时。
+而\vb|\edef|则会先将命令体完全扩展开来再赋值：
+\begin{lstlisting}
+\def\txt{a}
+\def\foo{\txt}
+\let\bar\foo
+\bar -> a
+\def\txt{b}
+\bar -> b
+\end{lstlisting}
+
+或者：
+\begin{lstlisting}
+\def\txt{a}
+\def\foo{\txt}
+\edef\bar{\foo}
+\bar -> a
+\def\txt{b}
+\bar -> a
+\end{lstlisting}
+
+可以看到这两个之间呈现出了不同的结果。这是因为\vb|\def|不会扩展group但是\vb|\edef|%
+会尝试扩展了之后在赋值给自定义的扩展命令。（我的天，这太绕口了）当然\vb|\let|%
+也和这个很像，它会得到值而不是命令本身。
+
+\subsection{关于显示宏}
+
+我们有三个工具用来搞定这个：\vb|\show|，\vb|\showthe|，\vb|\the|来显示命令，
+其中\vb|\show|会显示出它的扩展后的样子，\vb|\the|则会将命令指定的寄存器扩展到
+原位置。自然，\vb|\showthe|是用来显示寄存器的值的命令。
+
+一般而言，寄存器中储存数字，长度，弹性长度，盒子等等。
+
+对于Lua\LaTeX{}而言，值得注意的是：\vb|\luadirect|是可以扩展的。而其它的运行环境可能
+不是可扩展的。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\LaTeX{}中的begingroup和endgroup}
+ 
+\subsection{前言}
+
+看了看别人写的代码，定义的环境中存在\vb|\begingroup|和\vb|\endgroup|的情况下，
+好像定义的命令和变量都神奇的具有局部作用域！我之前一直以为它们都是作用在全局中
+的。
+
+我在翻看一个关于日历表的\LaTeX{}宏包源代码的时候，发现用\vb|\def|来重命名了命令%
+\vb|\day|，而之后又神奇的出现了。尴尬的是，当我删除命令\vb|\begingroup|和%
+\vb|\endgroup|的时候，它还是令人惊喜的具有局部作用域。
+
+好吧\vb|\newenvironment|也很厉害，它有局部作用域。我现在彻底搞糊涂了，\TeX{}的原
+理很简单，但是一旦搞到\LaTeX{}上面去的话，就各种奇怪的现象都出来了。
+
+\subsection{关于environment中的作用域}
+
+我声明了一个环境：
+\begin{lstlisting}
+\newenvironment{test}{
+    \def\day{TEST TEST TEST}
+}{}
+\end{lstlisting}
+
+我发现在环境中使用和脱离环境后，\vb|\day|是不一样的。那\vb|\begingroup|到底有什
+么用呢？
+
+\subsection{环境中使用\verb|bgroup|和\verb|egroup|}
+
+不是每一个都支持这两个命令的，但是最基本的\vb|\hbox|和\vb|\vbox|是毫无疑问支持的
+，为了在这里面使用这两个命令，我定义了如下的环境：
+\begin{lstlisting}
+\newbox\fuckbox
+\newenvironment{fuck}{
+    \setbox\fuckbox=\hbox\bgroup
+}{%
+    \egroup
+    {}\hfill%
+    \parbox{0.8\textwidth}{\leavevmode\box\fuckbox}
+}
+\end{lstlisting}
+
+忽略不雅词汇，我们可以看到我们巧妙的让\vb|\hbox|接受了\vb|\bgroup|和\vb|\egroup|。
+这是一个好事情。它把盒子储存在盒子变量里面。
+
+可以看到！它利用\vb|\bgroup|和\vb|\egroup|用来接受所有的字符，然后最后的时候突然
+来跳出来画一个盒子。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{停机问题}
+
+我这次又听说了停机问题，干脆趁这个时候随便做出来一哈。
+
+在了解停机问题之前我们需要理解理发师悖论。
+
+\subsection{理发师悖论}
+
+举一个例子，我们有一个集合$A$，它的元素是所有不包含自己的元素。
+比如说$1$中不包含自己，所以它属于$A$，空集$\varnothing=\{\}$中不包含任何
+元素，当然也不可能包含自己，所以空集也属于集合$A$。
+
+而对于反例来说，比如说$B=\{B,\{\}\}$而言，它就包含了自己（当然也包含了空集）
+，就不能进入$A$的集合。
+
+现在的问题是：$A$能不能包含自己？分类讨论：
+
+\begin{enumerate}
+    \item \emph{$A$包含自己}：\par
+        如果$A$包含自己的话，那么$A$就不能进入自己的集合，就和集合$B$一样。
+        \pltred 于是$A$不包含自己，矛盾。\pltblack
+    \item \emph{$A$不包含自己}：\par
+        如果$A$不包含自己的话，那么显然和空集一样应该纳入$A$中成为$A$中的
+        一个元素。\pltred 于是$A$包含自己，矛盾。\pltblack
+\end{enumerate}
+
+所以说集合论的基础因为罗素悖论\footnote{这是罗素悖论，它本质上和理发师
+悖论等价，但是利用使用用数学语言的罗素悖论会更好描述后面的停机问题。}%
+而发生了崩塌，即，集合论在处理包含自己的集合的时候会存在一定的逻辑漏洞。
+
+\subsection{停机问题}
+
+停机问题和罗素问题的落脚点都很像，主要落脚在处理自己上从而找到逻辑漏洞。
+
+我们先假设有一个图灵机$T$，它能判断另外的一个图灵机对于特定输入会不会
+停机（\emph{halt}）。既有：
+
+$$T(S,i) \Longrightarrow \text{\verb|<bool>|}$$
+
+其中$S$是另一个图灵机，而$i$是特定的输入。
+
+于是我们模仿罗素悖论中的“包含着所有不包含自己的对象的集合对象”和
+“给所有不给自己理发的同学理发的同学”一样，我们构建一个本质上和它一样的图灵机：
+\begin{lstlisting}[language=Python]
+U(S: function) -> None:
+    # if S will halt for input S
+    if T(S, S):
+        # non-halt
+        while True: pass
+    # if S will not halt for input S
+    else:
+        # halt
+        return
+\end{lstlisting}
+
+可以看到，$T$是用来判断是否图灵机$S$会对输入$i$停机的图灵机。
+所以$U$的意思就是：“如果输入是不停机的图灵机，那本身就停机
+（同时，如果输入是会停机的图灵机，则自己就不停机）”。模仿罗素悖论，
+我们给它传入自己：
+
+$$U(U)$$
+
+我们开始在外面观察它是否会停机（因为我们是全知全能的神，当然能判断它
+到底停没有停机）。$U$对函数$U$而言显然有两种结果，列表如下：
+
+\begin{enumerate}
+    \item \emph{$U$对于输入$U$不停机}：\par
+        这说明$U$对于输入$U$会停机。%
+        \pltred 但我们的观察结果是$U$对于输入$U$不会停机，矛盾。\pltblack%
+    \item \emph{$U$对于输入$U$停机}：\par
+        这说明了$U$对于输入$U$不会停机。{\pltred%
+        但是我们的观察结果是$U$对于输入$U$会停机，矛盾。}%
+\end{enumerate}
+
+所以说，不可能存在一个图灵机，可以判断出任何图灵机是否停机。
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

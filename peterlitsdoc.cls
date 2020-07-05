@@ -410,6 +410,7 @@
         \ttfamily
         \fontsize{\the\plt@verb@height}{\the\plt@verb@height*0.95}
         \selectfont,
+    commentstyle=\color{white!65!black}\slshape,
     breaklines,
     frame=tRBl,
     xleftmargin=2.5em,
@@ -461,27 +462,27 @@
 % section title setting
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\titleformat{\section}[frame]
-    {\normalfont}
-    {\filright\bfseries\footnotesize\enspace SECTION \thesection\enspace}
-    {4pt}
-    {\LARGE\filcenter}
-    [\vspace{4pt}]
-
-\titleformat{\subsection}
-    {\normalfont}
-    {\underline{\bfseries\Large\thesubsection.} }
-    {3pt}
-    {\Large}
-
-\titleformat{\subsubsection}
-    {\normalfont}
-    {\underline{\bfseries\normalsize\thesubsubsection.} }
-    {2pt}
-    {\normalsize}
-
-\titlespacing{\section}{0pt}{7em}{2em}
-\titlespacing{\subsection}{0pt}{3em}{1em}
-\titlespacing{\subsubsection}{0pt}{1em}{0em}
+% \titleformat{\section}[frame]
+%     {\normalfont}
+%     {\filright\bfseries\footnotesize\enspace SECTION \thesection\enspace}
+%     {4pt}
+%     {\LARGE\filcenter}
+%     [\vspace{4pt}]
+% 
+% \titleformat{\subsection}
+%     {\normalfont}
+%     {\underline{\bfseries\Large\thesubsection.} }
+%     {3pt}
+%     {\Large}
+% 
+% \titleformat{\subsubsection}
+%     {\normalfont}
+%     {\underline{\bfseries\normalsize\thesubsubsection.} }
+%     {2pt}
+%     {\normalsize}
+% 
+% \titlespacing{\section}{0pt}{7em}{2em}
+% \titlespacing{\subsection}{0pt}{3em}{1em}
+% \titlespacing{\subsubsection}{0pt}{1em}{0em}
 
 
