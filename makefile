@@ -29,7 +29,7 @@ fuck2: run2 look
 
 .PHONY: git
 git:
-	git add .
-	git commit
-	git push
+	-git add .
+	-git commit
+	-git push
 
