@@ -481,7 +481,7 @@
 %     {2pt}
 %     {\normalsize}
 % 
-% \titlespacing{\section}{0pt}{7em}{2em}
+\titlespacing{\section}{0pt}{5em}{1em}
 % \titlespacing{\subsection}{0pt}{3em}{1em}
 % \titlespacing{\subsubsection}{0pt}{1em}{0em}
 

@@ -8,6 +8,7 @@
 \usepackage[stable]{footmisc}
 \usepackage{transparent}
 \usepackage{mathtools}
+\usepackage{lipsum}
 
 % 自定义的 marco
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,27 +22,58 @@
 % 简短的vb，给 2020/6 使用。
 \def\vb{\verb}
 
+% 类似公式的变量定义。
+\def\ttva|#1|{ \verb|#1| }
+
 % 不被污染的导入
 \def\inp#1{\begingroup\input#1\endgroup}
 
+% 重点。
+\def\impt#1{\par\smallskip\noindent{\bf #1}\par}
+
 % 示例
+\newbox\ExpleTotal
+\newbox\ExplePart
+
+\long\def\ExpleSplitable#1{%
+    \setbox \ExpleTotal = \vbox{%
+        \hsize = \SubSep%
+        #1%
+    }%
+    \ExpleSplitableMainLoop}
+
+\def\ExpleSplitableMainLoop{\null
+    \dimen255 = \dimexpr \pagegoal - \pagetotal - \pageshrink \relax%
+    \ifdim \dimen255 < 0pt%
+        \eject
+        \ExpleSplitableMainLoop
+    \else\ifdim \ht\ExpleTotal < \dimen255%
+        \indent\hbox to \MainSep{%
+            \hfil\Rule\hfil\hfil%
+            \box\ExpleTotal%
+        }\par%
+    \else%
+        \the\dimen255\par
+        \setbox \ExplePart = \vsplit \ExpleTotal to \dimen255%
+        \indent\hbox to \MainSep{%
+            \hfil\Rule\hfil\hfil%
+            \vbox{\unvbox\ExplePart}%
+        }\par%
+        \eject%
+        \ExpleSplitableMainLoop%
+    \fi\fi}
+
 \long\def\exple#1#2{\begingroup
     % the begining definition
-    \edef\MainSkip{\dimexpr\textwidth - \parindent}
-    \edef\SubSkip{\dimexpr\textwidth - \parindent - 1.5em}
-    \def\Rule{\vrule width 1pt}
-    \def\impt##1{\par\smallskip\noindent{\bf ##1}\par}
-    \def\SplitedRuleVbox##1{{%
-        \newbox\totalbox
-        \newbox
-        \setbox
-    }}
+    \edef\MainSep{\dimexpr\textwidth - \parindent}%
+    \edef\SubSep{\dimexpr\textwidth - \parindent - 1.5em}%
+    \def\Rule{\vrule width 1pt}%
     % the main part
     \par\smallskip
-    {\bf 示例：}\par\smallskip
-    \indent\hbox to \MainSkip{\hfil\Rule\hfil\hfil\hbox{\hsize=\SubSkip\vbox{#1\par}}}\par
-    {\bf 解答：}\par\smallskip
-    \indent\hbox to \MainSkip{\hfil\Rule\hfil\hfil\hbox{\hsize=\SubSkip\vbox{#2\par}}}\par
+    {\bf 示例：}\par
+    \ExpleSplitable{#1\par}\par
+    {\bf 解答：}\par
+    \ExpleSplitable{#2\par}\par
     \smallskip\par
     \endgroup}
 

@@ -1,0 +1,112 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{HDU-6581题解}
+
+今天打比赛，感觉脑袋晕晕呼呼的。状态的确有点点不太好。但是
+好歹算是做出来了。
+
+这道题是HDU-6581\footnote{原网址是\url{http://acm.hdu.edu.%
+cn/showproblem.php?pid=6581}。}。
+
+\subsection{题干}
+Tom and Jerry are going on a vacation. They are now
+driving on a one-way road and several cars are in
+front of them. To be more specific, there are $n$ cars
+in front of them. The $i$-th car has a length of $l_i$,
+the head of it is $s_i$ from the stop-line, and its
+maximum velocity is $v_i$. The car Tom and Jerry are
+driving is $l_0$ in length, and $s_0$ from the stop-line,
+with a maximum velocity of $v_0$.
+
+The traffic light has a very long cycle. You can assume
+that it is always green light. However, since the road
+is too narrow, no car can get ahead of other cars. Even
+if your speed can be greater than the car in front of
+you, you still can only drive at the same speed as the
+anterior car. But when not affected by the car ahead,
+the driver will drive at the maximum speed. You can
+assume that every driver here is very good at driving,
+so that the distance of adjacent cars can be kept to be 0.
+
+Though Tom and Jerry know that they can pass the
+stop-line during green light, they still want to know
+the minimum time they need to pass the stop-line. We
+say a car passes the stop-line once the head of the car
+passes it.
+
+Please notice that even after a car passes the stop-line,
+it still runs on the road, and cannot be overtaken.
+
+\impt{Input}
+This problem contains multiple test cases.
+
+For each test case, the first line contains an integer
+$n$ ($1\le n\le 10^5,\sum n\le 2\times 10^6$), the number
+of cars.
+
+The next three lines each contains $n+1$ integers, $l_i$,
+$s_i$, $v_i$ ($1\le s_i,v_i,l_i\le 10^9$). It's guaranteed
+that $s_i\ge s_{i+1}+l_{i+1},\forall i\in[0,n−1]$.
+
+\impt{output}
+for each test case, output one line containing the answer.
+your answer will be accepted if its absolute or relative
+error does not exceed $10^{−6}$.
+
+formally, let your answer be $a$, and the jury's answer
+is $b$. Your answer is considered correct if ${|a−b|\over
+\max(1,|b|)}\le 10^{−6}$.
+
+The answer is guaranteed to exist.
+
+\subsection{我的见解}
+
+我认为这个题目学长说应该用贪心算法来做，但是我其实不是很清楚
+什么是贪心。
+
+我认为对于第$i$-th的车子来说，它能完全过完所谓的stop-line的
+所耗时间，其实取决于两点。第一点，就是它本身到停车线的时间，
+也就是说应该为$s_i\over v_i$，另外一点，就是需要考虑到前面
+一辆车从一开始出发到完全越过stop-line的时间了，也就是说应该
+为$t_{i+1}(s_{i+1}+l_{i+1})=\max\left({s_{i+1}+l_{i+1}\over
+v_{i+1}}, \ldots\right)$\footnote{这里$t_{i+1}$为一个函数。}。
+只有从这两点出发都够到线的时候，才是真正的所花最短时间，我
+将其定义为$t_i(s_i)$。其中参数$s_i$表示了研究路程的长度。
+
+综上，有关系式$$t_i(s_i)=\max\left({s_i\over v_i}, t_{i+1}
+(l_i+s_{i+1})\right)=\max\left({s_i\over v_i}, {l_{i+1}+
+s_{i+1}\over v_{i+1}}, \ldots, {\sum_{g=i}^k l_g + s_k\over
+v_k}, \ldots\right)$$以上可以刻画对于$s_i$路程的$i$-th的车子
+而言，它的最短时间。
+
+\def\ttsum{\text{\verb|sum|}}
+不妨设置一个结构来表示车子，其中\ttva|l|是车长，\ttva|s|%
+是车子到停车线的距离，\ttva|v|是车子的速度。这三个变量是由
+输入提供的，而\ttva|sum|则表示了$k$-th的车子从出发行进距离$
+\sum_{g=i}^kl_g + s_k$比距离$s_k$所多走的距离，即有$\sum_{
+g=i}^kl_g$，很明显有，$\ttsum_{i+1} = \ttsum_{i} + l_{i+1}$。
+而${\ttsum_k+l_k\over v_k}={\sum_{g=i}^k l_g + s_k\over v_k}$
+
+有伪代码：
+
+\begin{lstlisting}
+struct Car {
+    int l, s, v, sum
+}
+
+vector<Car> cars
+PER(i, n) cin >> cars[i].l
+PER(i, n) cin >> cars[i].s
+PER(i, n) cin >> cars[i].v
+
+cars[0].sum = 0
+FOR(i, 1, n) cars[i].sum = cars[i-1].sum + cars[i].l
+
+double result = 0.0
+PER(i, n) result = max(result, (cars[i].s + cars[i].sum) / cars[i].v)
+
+cout << result
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

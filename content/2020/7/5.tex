@@ -4,7 +4,7 @@
 \def\go{GoLang}
 \def\ver|#1|{ \verb|#1| }
 
-本笔记仅仅基于\go 的标准库\ver|testing|\footnote{官方文档在\url{https:
+本笔记仅仅基于\go 的标准库\ver|testing|\footnote{官方文档在\url{https:%
 //golang.org/pkg/testing/}}。
 
 该测试库，可以使用\ver|go test|来进行测试\footnote{记得之前说了要看Rust，
@@ -65,9 +65,78 @@ func TestAbs(t *testing.T) {
 \section{\LaTeX{}中可断开的vbox}
 
 大家都知道\LaTeX{}中的盒子是不可被分页算法分割的，除非把一个盒子变成两个
-分别的盒子\footnote{本节参考：\url{https://tex.stackexchange.com/quest
-ions/20901/breakable-vboxes}}。所以一个，递归的、一次断裂的\verb|vbox|的
+分别的盒子\footnote{本节参考：\url{https://tex.stackexchange.com/quest%
+ions/20901/breakable-vboxes}}。所以一个，递归的、一次断裂的 \verb|vbox| 的
 重要性就越来越显著了。
+
+\subsection{vsplit命令}
+
+\def\num{ \verb|<number>| }\def\dim{ \verb|<dimen>| }
+命令\verb|\vsplit <number> to <dimen>|可以把\num 对应和盒子切割成两个部
+分，第一部分的会输出而第二部分的则会保存到\num 对应的盒子。（注，\num 可
+能之后会变成空盒子。
+
+如：
+\begin{lstlisting}
+\setbox 20 = \vsplit 30 to 7in
+\end{lstlisting}
+
+\subsection{pagegoal和pagetotal命令}
+
+背景知识：\ttva|\vsize|是定义单个页面的主方框的高度，\ttva|\hsize|则是设定
+主方框的宽度\footnote{但是奇怪的是，我好像没有办法使用\ttva|\vsize|来设定
+之后页面的高度，相反，使用\ttva|\pdfpageheigtht|倒是很有帮助。见页面\url{%
+https://tex.stackexchange.com/questions/299005/automatic-page-size-to-fit%
+-arbitrary-content}}。
+
+命令\ttva|\pagetotal|提供了当前页面的累计高度。而\ttva|\pagegoal|则指明了
+当前页面所需要的高度。\ttva|\pagegoal|在一个页面开始时会检查并赋值自身为%
+\ttva|\vsize|。
+
+\subsection{示例}
+
+我们打算分割段落，所以我们打算用\ttva|\splitable|来制作宏命令。
+\begin{lstlisting}
+\newbox\splitablebox
+\def\splitable#1{%
+    \setbox \splitablebox = \vbox{#1}%
+    \box \splitable
+}
+\end{lstlisting}
+
+目前为止还是中规中矩的一个不能分段的\ttva|\vbox|，为了实现分段我们也把
+一个\ttva|box|分为两个\ttva|box|，分别是\ttva|\totalbox|和\ttva|\partialbox|%
+。
+\begin{lstlisting}
+\newbox\splitableTotalbox
+\newbox\splitablePartialBox
+\def\splitable#1{%
+    \setbox \splitableTotalbox = \vbox{%
+        \advance\hsize by -2\fboxsep
+        #1%
+    }%
+    \ifvoid \splitableTotalbox \else \splitableMainLoop \fi
+}
+\def\splitableMainLoop{%
+    % \pageshrink 是目前页面的所有的胶水。
+    \dimen255 = \dimexpr \pagegoal - \pagetotal - \pageshrink - 2\fboxsep \relax
+    \ifdim\ht\splitableTotalbox < \dimen255
+        \noindent\fbox{\box \splitableTotalbox}%
+    \else
+        \setbox \splitablePartialBox = \vsplit \splitableTotalbox to \dimen255
+        \noindent\fbox{\box \splitablePartialBox}%
+        \eject % eject 用来强制分页
+        \splitableMainLoop
+    \fi
+}
+\splitable{\longtext\longtext\longtext\longtext\longtext\longtext}
+\end{lstlisting}
+
+太棒了，我就是分割\ttva|vbox|大师！（话说，有的时候需要加上\ttva|\null|，
+我也不知道为什么欸，总之，用递归来实现循环，总感觉怪怪的）。
+
+有的时候，\ttva|\dimen255|甚至可能是个负数！这个太可怕了，请务必要试着
+先判断一下。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -128,6 +197,5 @@ Paragraph ended before \mymacro complete.
     那么从这个为起点，那么要选择从什么地方断开就最好了。
 
     既然要断开的话，那么就要选择在中间最大的地方、在两端断开。
-    
     }
 
