@@ -1,7 +1,278 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{HDU-1358题解}
+\section[HDU-1358题解]{HDU-1358题解\footnote{更多信息参见：\url{%
+http://acm.hdu.edu.cn/showproblem.php?pid=1358}。}}
+
+看了一看这道题我在比赛的时候搞了有那么久，但是好像都没戏。
+好像是构建了一个自动机解决但是他说是TLE，这太奇怪了，毕竟
+一个不放回的自动机的时间复杂度按理来说应该是$O(n)$才对呀。
+
+\subsection{题干}
+
+For each prefix of a given string $S$ with $N$ characters
+(each character has an ASCII code between 97 and 126,
+inclusive), we want to know whether the prefix is a periodic
+string. That is, for each $i$ ($2 \le i \le N$) we want to
+know the largest $K > 1$ (if there is one) such that the
+prefix of $S$ with length $i$ can be written as $A^K$ ,
+that is $A$ concatenated $K$ times, for some string $A$.
+Of course, we also want to know the period $K$.
+
+\impt{Input}
+The input file consists of several test cases. Each test
+case consists of two lines. The first one contains $N$
+($2 \le N \le 1,000,000$) – the size of the string $S$.
+The second line contains the string $S$. The input file
+ends with a line, having the number zero on it.
+
+\impt{Output}
+For each test case, output “\verb|Test case #|” and the
+consecutive test case number on a single line; then, for
+each prefix with length $i$ that has a period $K > 1$,
+output the prefix size $i$ and the period $K$ separated by
+a single space; the prefix sizes must be in increasing
+order. Print a blank line after each test case.
+
+\subsection{自己的思考}
+
+一开始看到这个题的时候，就马上构建了一个有限状态自动机，
+很明显之后就错掉了啦。
+
+想了一想可能的确和字符串算法有关吧？
+
+我的想法如下：
+\begin{lstlisting}
+int $K$ = 1        // $K\ge 1$ is the loop times of $A$, initally as 1
+string $A$ = ""    // the loop basic part
+for index, character in $S$:
+    // if all thing is at the state of inital
+    if $A$ == "":
+        $A$ += character
+    // if the index-th character match the $A$
+    elif character == $S$[index % $A$.len]:
+        if (index + 1) % $A$.len == 0:
+            $K$ += 1
+    // if the index-th do not match $A$
+    else:
+        $A$ = $S$[:index]
+        $K$ = 1
+
+    // output
+    // ...
+\end{lstlisting}
+
+（附注：后来重新上传了一次，结果他们都是用的KMP算法来构建next数组。
+我不是很喜欢，而且也不会，更重要的是，我不知道我到底错在哪里了
+啦。唉。真的搞不懂。）
+
+（附注：之后是一次WA的submit，问了问同学，对于循环节 “\verb|aaba|”
+之类的来说，就会有判断错误，换言之，对于proper suffix和proper perfix相
+同的循环节来说，这个算法判断不了在什么时候断开循环节。它会在开始的时候
+把proper suffix和proper perfix错误匹配，如果匹配过多的话就会错过断开循
+环节的时机。而历史的车轮是不允许开倒车的。下面还是看看KMP和如何构造KMP的
+partial match table）
+
+\subsection[KMP算法原理]{KMP算法原理\footnote{更多信息参见：\url{%
+http://jakeboxer.com/blog/2009/12/13/the-knuth-morris-pra%
+tt-algorithm-in-my-own-words/}。}}
+
+题解说这个涉及到了KMP算法。所以我们应该先了解一下所谓的KMP算法
+到底是什么。
+
+KMP算法是一种字符匹配算法。它和依次比较的算法不同，它充分使用了
+匹配中的额外信息进行更好的匹配。
+
+直观性解释。KMP算法是一种字符匹配算法，比较而言，最差的情况是遍历
+然后逐字符比较，所以说，真正nice的方法是尽量少比较（每个最多匹配
+一次），能跳就跳，在这个基础上我们可以构建一个辅助数组能满足下
+列操作：
+\begin{lstlisting}
+abccbaabacabababababca
+||)                      // match 2 characters -> skip (2 - 0) = 2
+abababca
+
+abccbaabacabababababca
+xx....|||)               // match 3 characters -> skip (3 - 1) = 2
+      abababca
+
+abccbaabacabababababca
+      xx=)               // match 1 characters -> skip (1 - 0) = 1
+        abababca
+
+abccbaabacabababababca
+        x.||||)          // match 4 characters -> skip (4 - 2) = 2
+          abababca
+
+abccbaabacabababababca
+          xx==||||)      // match 2 characters -> skip (6 - 4) = 2
+            abababca
+
+abccbaabacabababababca
+            xx====||||   // OK
+              abababca
+\end{lstlisting}
+
+很明显，如果是原来的那种糟糕的比较方式的话，那么对$n$的文章和$m<n$的搜索字符串
+的复杂度为$O(mn)$，而采用KMP比较方法的话，则复杂度为$O(m+n)$。
+
+\def\ttstr{\text{\verb|string|}}
+
+观察可知，对于 $\ttstr = [a_1, a_2, \ldots, a_i, \ldots, a_n]$而言，
+有（相应而言和）后缀$[a_i, \ldots, a_{i+k}] = $前缀$[a_1, \ldots, 
+a_{1+k}]$，而且在匹配过程中这些位数匹配，但是接下来的
+那一个位数不匹配的时候，那么我们可以向前移位$i-1$位\footnote{为什么？
+：因为移位之后，前$1+k$位仍然匹配。很明显前一项是proper suffix，而后一项
+是proper perfix，这两个相等。}然后接着继续上一个匹配的地方继续匹配。
+
+最重要的就是建表，只要的核心是前缀和后缀是否匹配。为了这个patrial match table。
+建表的意义就是让最大的proper suffix和proper prefix匹配对用上合理的地方。
+
+举个例子，proper suffix就是字符串中为前缀但不是字符串本身的字符串，比如对于“$abcd$”
+的前缀就有“$abc$”，“$ab$”，“$a$”。同理它的proper suffix应该是“$bcd$”，“$cd$”，“$d$”。
+如果这个时候，已经匹配过的地方中的有一个proper suffix和proper perfix最长匹配对，而下
+一个又没有匹配上的话，那么自然让他们这个匹配对重合，然后接着匹配就vans了。自然跳
+过 \verb|matched.len - suffix.len| 个单位就没事了。
+
+我感觉讲明白KMP算法很困难。但是我感觉我应该是理解了吧。我在这里只说了一下
+为什么可以得到这个匹配的位置，但是没有谈到为什么第一个匹配的就一定是它。
+
+\subsection{KMP算法的next数组}
+
+目前我们知道了next数组表达的是什么\footnote{即，最长的匹配对的长度。}%
+。但是我们还不知道如何能够快速构建next数组。而快速构建next数组正是KMP算法
+的核心\footnote{我的天！这么厉害的吗！是核心吗？}。
+
+我们先预先构建一张典型的表如表\ref{KMP next table}。
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l|llllllll}
+        \toprule
+            index & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+        \midrule
+            char  & a & b & a & b & a & b & c & a \\
+            value & 0 & 0 & 1 & 2 & 3 & 4 & 0 & 1 \\
+        \bottomrule
+    \end{tabular}
+    \caption{KMP算法的next数组示例}
+    \label{KMP next table}
+\end{table}
+
+对$index$为4的地方寻找它的$value$为例，我们可以看到一个非常具有代表性的
+PMT构建实例：我们假设已经构建出了前面$index$为$0\sim 3$的字符的$value$，
+很明显对于$index$为3的字符而言：存在长度为2的匹配前后缀：“\verb|ab|”。
+我们依次向后面多看一位，有情况“\verb|abx|”和“\verb|aby|”。我们可以看到
+\verb|x|$=$\verb|y|$=$\verb|a|，那么对于$index=4$的前缀字符串而言，他有
+匹配的字符串 \verb|aba|$=$\verb|aba|。那么此时有$value_4=value_3+1$。
+
+从上面的一个实例而言我们有：$value_n=value_{n-1}+1$，当$char_{
+value_{n-1}}=char_n$的时候（这个实例中，正是因为$char_2=char_4$，所以
+$value_4=value_3+1$）。
+
+和这个实例不一样的是：如果下一个字符串 \verb|x|$\ne$\verb|y| 了该怎么办？
+看向index为6的字符“\verb|c|”，在它前面的字符“\verb|b|”根据它的对应value，
+我们知道了$S[0\sim5]$字符串的匹配对为长度为4的“\verb|abab|”，但是它这个
+前缀的下一位是“\verb|a|”，和index为6的“\verb|c|”严重不符。我们可以这么想：
+$S[0\sim3]=S[2\sim5]=\text{\verb|abab|}$，而我接下来的任务是在这个前后
+匹配的字符串中寻找一个更小的字符串，有$S[0\sim x]+S[x+1]=S[5-x\sim5]+
+\text{“\verb|c|”}$。值得注意的是，由于匹配对的性质，所以它们是完全一样的，
+既有：$S[5-x\sim5]=S[3-x\sim3]$，所以最快速的做法是在$S[0\sim3]$中先预先
+快速寻找到最长的匹配字符串，而这恰恰是之前已经做过的 --- 长度为2的字符串
+“\verb|ab|”，可惜$S[3]\ne \text{\verb|c|}$，所以接下来的任务就是寻找“\verb|ab|”
+中的子串，然后依次递归解体。
+
+\subsection{题解}
+
+这道题主要是判断周期性字符串。那么已知了next数组的情况下，怎么才可以判断
+是否前面和本身一起构建了一个周期性字符串呢？我们可以从最长前缀后缀匹配对
+来入手。就像奇函数和偶函数一样，很容易就可以知道，当字符长度$len$和最长匹配
+前后缀对的长度$len'$满足$len'\mod (len-len') = 0$的情况下，它是一个周期性字
+符串。
+
+所以这道题的主流做法就是构建next数组+寻找合适的位置。
+
+Python代码：
+\begin{lstlisting}
+def get_next(string):
+    # inital state
+    next = [0 for i in range(len(string))]
+    ok = False
+
+    # calc the next[i, from 1 to string.len]
+    for i in range(1, len(string)):
+        # firstly, the inital temp is the character before self.
+        temp = i - 1
+
+        # then if self do not match the prefix's next character, then
+        # smallen variable `temp` as the substring's end index.
+        while string[i] != string[next[temp]]:
+            if temp != 0:
+                temp = next[temp] - 1
+            else:
+                next[i] = 0
+                ok = True
+                break
+
+        # if the variable `temp` point the begin, we need to be sure
+        # if self really match 0-index character.
+        if not ok:
+            next[i] = next[temp] + 1
+
+    return temp
+\end{lstlisting}
+
+当然这个非常符合逻辑，但是每一次都需要重新计算一次 \verb|temp| 的值，
+所以有一个通用的计算方式，用来固定住它，获得更高的效率：
+\begin{lstlisting}
+def get_next(string):
+    next = [0 for i in range(len(string))]
+    self = 1
+    now = 0
+
+    while self < len(string):
+        if string[self] == string[now]:
+            now += 1
+            next[self] = now
+            self += 1
+        elif now:
+            now = next[now - 1]
+        else:
+            # now == 0
+            self += 1
+\end{lstlisting}
+
+其中的变量 \verb|now| 既是next数组中对应的下标，也是 \verb|self| 对应
+的最长的匹配对的长度。
+
+\subsection[扩展]{扩展\footnote{更多信息参见：\url{http://%
+acm.hdu.edu.cn/showproblem.php?pid=3336}。}}
+
+It is well known that AekdyCoin is good at string problems
+as well as number theory problems. When given $a$ string $s$,
+we can write down all the non-empty prefixes of this string.
+For example:
+\begin{lstlisting}
+s: "abab"
+The prefixes are: "a", "ab", "aba", "abab"
+\end{lstlisting}
+
+For each prefix, we can count the times it matches in $s$.
+So we can see that prefix \verb|"a"| matches twice, \verb|"ab"|
+matches twice too, \verb|"aba"| matches once, and \verb|"abab"|
+matches once. Now you are asked to calculate the sum of the
+match times for all the prefixes. For \verb|"abab"|, it is $2
++ 2 + 1 + 1 = 6$.
+
+The answer may be very large, so output the answer $\mod 10007$.
+
+\impt{Input}
+The first line is a single integer $T$, indicating the number of
+test cases.
+
+For each case, the first line is an integer $n$ ($1 \le n \le 200000$),
+which is the length of string $s$. A line follows giving the
+string $s$. The characters in the strings are all lower-case letters.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

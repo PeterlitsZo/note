@@ -410,7 +410,7 @@
         \ttfamily
         \fontsize{\the\plt@verb@height}{\the\plt@verb@height*0.95}
         \selectfont,
-    commentstyle=\color{white!65!black}\slshape,
+    commentstyle=\slshape,
     breaklines,
     frame=tRBl,
     xleftmargin=2.5em,

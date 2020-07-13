@@ -9,6 +9,20 @@
 \usepackage{transparent}
 \usepackage{mathtools}
 \usepackage{lipsum}
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+% 编程环境
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\lstset{
+    mathescape,
+    morecomment=[l]{//},
+    morecomment=[l]{\#},
+}
+
+% 过长的url
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
 
 % 自定义的 marco
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,9 +35,6 @@
 
 % 简短的vb，给 2020/6 使用。
 \def\vb{\verb}
-
-% 类似公式的变量定义。
-\def\ttva|#1|{ \verb|#1| }
 
 % 不被污染的导入
 \def\inp#1{\begingroup\input#1\endgroup}
@@ -42,18 +53,17 @@
     }%
     \ExpleSplitableMainLoop}
 
-\def\ExpleSplitableMainLoop{\null
-    \dimen255 = \dimexpr \pagegoal - \pagetotal - \pageshrink \relax%
+\def\ExpleSplitableMainLoop{
+    \dimen255 = \dimexpr \pagegoal - \pagetotal - \pageshrink \relax
     \ifdim \dimen255 < 0pt%
-        \eject
+        \null
         \ExpleSplitableMainLoop
     \else\ifdim \ht\ExpleTotal < \dimen255%
         \indent\hbox to \MainSep{%
             \hfil\Rule\hfil\hfil%
-            \box\ExpleTotal%
+            \vbox{\unvbox\ExpleTotal}%
         }\par%
     \else%
-        \the\dimen255\par
         \setbox \ExplePart = \vsplit \ExpleTotal to \dimen255%
         \indent\hbox to \MainSep{%
             \hfil\Rule\hfil\hfil%
@@ -71,9 +81,9 @@
     % the main part
     \par\smallskip
     {\bf 示例：}\par
-    \ExpleSplitable{#1\par}\par
+    \ExpleSplitable{#1}\par
     {\bf 解答：}\par
-    \ExpleSplitable{#2\par}\par
+    \ExpleSplitable{#2}\par
     \smallskip\par
     \endgroup}
 

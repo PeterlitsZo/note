@@ -1,0 +1,184 @@
+
+\section{\LaTeX{}的listing宏包选项mathescape}
+
+在 \verb|listing| 宏包中奇怪的是，被mathescape的数学表达式都表达为了 \verb|basicstyle|
+而不是其他的。这太神奇了，即使在 \verb|commant| 之中；也不例外。
+
+困扰，特此记过。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section[\LaTeX{}中的标题脚注]{\LaTeX{}中的标题脚注\footnote{更多信息参见：\url{%
+https://texfaq.org/FAQ-ftnsect}}}
+
+为了在标题中引入脚注，我特地用了包 \verb|footmisc| 的 \verb|stable| 版本，
+但是一旦需要使用 \verb|\url| 命令的时候，又会因为footnote过于脆弱而失败。
+
+要点就是要避免标题中有脆弱命令，这有一个简单的办法：使用
+\begin{lstlisting}
+\section[TITLE]{TITLE\footnote{FOOTNOTE}}
+\end{lstlisting}
+
+而其中只需要保证用来建立引索文件的方括号内容里面没有脆弱命令就OK了，而真正显示的
+文本信息则放在后面就没事啦，比如像这样写：
+\begin{lstlisting}
+\def\petersection#1#2{\section[#1]{#1\footnote{#2}}}
+\end{lstlisting}
+也是一个办法，但是总觉得有点麻烦而且耦合度太高了。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{git的代理配置}
+
+自从换了一个非常非常良心的代理之后，我的 \verb|wsl| 的git就没有办法push了。一开始
+我以为是全局变量的问题，就在 \verb|~| 目录下修改了 \verb|HTTP_PROXY| 和\ %
+\verb|HTTPS_PROXY| ，但是还是不行。它说 {\tt Failed to connect to 127.0.0.1 port 1080}
+，我本身倒是晕晕乎乎的，使用了一些工具来检测端口 \verb|1080| 但是没有程序占用，
+那为什么git还是傻乎乎的用之前的端口来push呢？
+
+后来我用 \verb|git config --global --edit| 来操作，发现只修改git的 \verb|https.proxy|
+是不够的。有的时候它还会有形如 \verb|https.https://github.com.proxy| 的属性。
+这种属性，会在连接 {\tt https://github.com} 的时候优先使用。
+
+修改即可。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section[GoLang的映射]{GoLang的映射\footnote{更多信息参见：\url{https://blog.golang.org/maps}。}}
+
+GoLang的映射和Python一样，也是内建的，但是同时它也有很多不一样的性癖。本节只探讨
+不存在的键和map自身的默认初始值等基本情况。
+
+\subsection{不存在的键}
+
+在Python中，使用不存在的键来引用时，会发出 \verb|KeyError| 的错误，在JavaSript中
+则是一个 \verb|undefined|（我的天我真的很喜欢这个 \verb|undefined|），在Lua中则会
+输出 \verb|nil| 当然这些是动态语言，实现感觉会比静态要好实现一些。
+
+在GoLang中，它则会抛出对应值类型的初始值。（其实我觉得初始值不太好，因为根本不知道
+它到底存不存在这个键）。
+
+和一些操作符一样，GetItem操作也有两种返回形式，第一种如上所述，第二种是返回对应
+键的值和是否存在，
+\begin{lstlisting}
+i, ok := Alpha["key"]
+\end{lstlisting}
+如果不存在的话，那么第二个参数就会被赋值为\verb|false|\footnote{其实我还是觉得用GoLang
+语言有点点不太舒服。}。
+
+\subsection{默认初始值}
+
+在GoLang中，\verb|map| 和 \verb|slice|、\verb|pointer| 一样，都是一个引用，所以
+它的初始值和这些引用类型一样都是 \verb|nil|，为了新建一个 \verb|map| 并在抛出
+其对应的引用，可以使用 \verb|make(<type>)|，比如：
+\begin{lstlisting}
+a := make(map[string]string)
+\end{lstlisting}
+
+\subsection{基本操作}
+
+基本操作见表\ref{golang::basic map op}。
+
+\begin{table}
+    \centering
+    \begin{tabular}{ll}
+    \toprule
+    op               & function/buildin opertar                          \\
+    \midrule
+    inital           & \verb|make(<map type>)| or \verb|<map literal>|   \\
+    create           & \verb|<map>[<key>] = <value>|                     \\
+    delete           & \verb|delete(<map>, <key>)|                       \\
+    range-based loop & \verb|for key, value := range <map> {<body>}|     \\
+    length           & \verb|len(<map>)|                                 \\
+    \bottomrule
+    \end{tabular}
+    \caption{GoLang映射的基本操作}
+    \label{golang::basic map op}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section[GoLang的slice]{GoLang的slice\footnote{更多信息参见：\url{https://blog.%
+golang.org/slices-intro}。}}
+
+GoLang提供了一种不寻常的不定长数据控制方法。在Python中习惯使用类型不敏感的列表，
+在C++中习惯使用基于 \verb|new| 和 \verb|delete| 的 \verb|vector|。这些都是一些
+封装好的便携的容器。
+
+但是在GoLang中却提供了一种内建于语言的（其实Python的列表也是构建在内部的，只是向外
+提供了 \verb|.pyi| 文件而已）切片来使用这种不定长的列表。
+
+C++的列表的底部是数据块，而GoLang的切片的底部则是已经抽象过一次的数组。数组是不可变
+的，所以说改变切片可能会改变底部的数组。因为切片和map一样都是引用，所以说它的zero value
+是 \verb|nil|，当且仅当 \verb|len(<slice>) == 0 && cap(<slice>) == 0| 成立的时候。
+当 \verb|len(<slice>)  > cap(<slice>)| 的时候，就会新建一个更大的数组。
+
+\subsection{切片的切片}
+
+在Python中，我们习惯使用切片来获得一个全新的数组（这说明了底层的内存结构是全新的、
+复制过来的）。比如我们可以用这个性质来进行一次浅复制：
+\begin{lstlisting}
+b = [1, 2, [3, 6]]
+a = b[:]
+a[0] = 314
+a[2][0] = 12
+print(a, b)
+# Output:
+#   | [314, 2, [12, 6]] [1, 2, [12, 6]]
+\end{lstlisting}
+
+在GoLang中，使用切片，这会基于原来的内存模型（其实只要在Python中定性为不可变对象，
+比如 \verb|int| 之类的话才会按值传递，不然就会按照引用传递）。但是值得注意的是，
+当它超过了可变期限的话，就如之前所说的一样。
+
+其实这样的话，为了稳定期间，还是最好不要以切片来操作数组了，用指针倒是蛮好的。
+
+默默的想了一想，这其实用C语言的双重指针也能搞出这个效果，当然内建的当然会更舒服一点
+啦。
+
+\subsection{关于复制，与其增长}
+
+使用 \verb|copy| 实现浅复制，它的声明如下：
+\begin{lstlisting}
+func copy(dst, src []T) int
+\end{lstlisting}
+
+\verb|copy| 是一个内置函数，返回复制的元素个数。我们可以这样简单的实现增长前最关键
+的一步：即复制到一个更大的内存空间里面：
+\begin{lstlisting}
+t := make([]byte, len(s), (cap(s) + 1) * 2)
+copy(t, s)
+s = t
+\end{lstlisting}
+
+更高层次的增长从属于函数 \verb|append([]interface{}, date ...interface{})|，它用来在
+slice的末尾增加原始，在需要增长内存空间的时候增长。它不对原切片进行操作，因为它害怕
+污染到底部的数组，它返回一个新的slice引用，所以可以选择：
+\begin{lstlisting}
+s = append(s, 1, 2, 3, 4)
+s = append(s, a...)
+\end{lstlisting}
+
+因为可以用 \verb|...| 来裂开数组或引用，所以使用也很方便。
+
+\subsection{它说需要循环}
+
+使用循环：
+\begin{lstlisting}
+for i, v := range s {<body>}
+\end{lstlisting}
+
+和map一样，不同的是，\verb|i|表示的不再是键了，而是一个下标。这种特性很容易想到
+Lua语言，Lua语言使用 \verb|table| 来表示数组和映射，所以使用相同的办法来进行循环，
+GoLang虽然本质上不是这样，但是还是在大体上保持了一致性，就像Python的 \verb|__iter__|
+方法一样令人讨喜。
+
+\section{有人说关于range}
+
+在Python中，只要这是一个可迭代的对象，就可以使用 \verb|for| 来循环遍历，但是在GoLang中
+却好像不太一样。在GoLang中，一个实现了 \verb|String()| 方法的结构体就可以支持一般的
+\verb|fmt| 包，但是对于关键字 \verb|range| 而言只能用于迭代 \verb|array|，\verb|slice|、%
+\verb|map| 和 \verb|channal| 而已。
+
+好吧弱弱的说一句这我可不太喜欢哦。
+

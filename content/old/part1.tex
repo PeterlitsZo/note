@@ -1,0 +1,50 @@
+\section{cf's 4A problem}
+\timetx{2020-01-12 09:19:39.244631}
+
+divide a even ingeter into two parts, each of them is even
+
+这说明了这个整数能被2整除（因为$\text{even}+\text{even}=\text{even}$)，且不能为2.
+
+
+\section{Python的编码问题}\timetx{2020-01-12 12:17:27.624951}
+
+尝试用\vb|print('...', file=out\_put\_file)|来进行文本输出，
+发现输出的文本不是用\vb|UTF-8|来编码的，
+而是好像用的国标（国家的标准？）
+
+在\vb|str|中字符是用\vb|unicode|来编码的，是没有被\vb|encode|的二进制数据，
+输出到文件，输出的内容编码是由系统的配置决定的。
+
+猜想：\vb|open|时会指定\vb|encoding|可以解决这个问题。
+
+\vb|open|时指定\vb|encoding|会有带有编码信息的属性的文本对象。
+因为有状态的影响，所以该对象的\vb|write method|会用编码下的二进制实现去写文件。
+
+而\vb|print|可以指定\vb|file|，但是它（应该）不会读取文件内部的编码状态，
+（这个时候我想起来了，有时用\vb|u8|编码的时候好像会在文件头留下一个特别的标记？）
+而是直接用系统指定的编码格式去输出二进制数据去写数据。
+
+猜想：\vb|print|是把文件输出到\vb|sys.stdout|上（应该，至少意思是这样）。
+输出的环境是由系统的配置/环境决定的，为了环境能够正常显示文本数据，
+就应该会用配置下的文件编码格式来编码\vb|Unicode|的数据流，
+这也是为什么它不会去读取文本文件的编码状态的原因吧？
+（甚至还没有参数可以调节输出的编码状态，这样）
+
+
+\section{matplotlib的字体输出}\timetx{2020-01-12 12:19:30.764825}
+
+这个问题我之前也记在白皮书上了的，但是在写一点也ok。
+
+\vb|matplotlib|以什么字体输出是根据\vb|cont.family|，\vb|font.serif|，\vb|font.sans-serif|等决定的。
+（\vb|text.usetex = True|是指排版用\TeX ，字体用配置指定的，还是全部由\TeX 自己决定的？）
+
+\vb|font.family|指定输出的字体的字系，有诸如\vb|serif|可以选择。
+
+一般\vb|serif|，中文字体感觉不错的有经典的\vb|SimSun|（宋体），
+而\vb|sans-serif|，用于编程的\vb|Consolas|也不错。
+
+关于修改配置，可以在文件中修改，或者用\vb|plt.rcParams['xxxx.yyyy'] = data|来修改的。
+（当然可能有其他的修改输出格式的办法）
+
+在\vb|axes.texta|中，用\vb|family|参数可以临时指定字系。应该也可能有其他的方法可以。
+

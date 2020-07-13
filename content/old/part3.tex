@@ -1,0 +1,243 @@
+
+\section{cf's 71A problem}\timetx{2020-01-12 09:50:00.711916}
+
+在C++中因为对象没有特殊方法（当然，构造方法和解构方法除外，还有运算符重载，如果这也算的话）
+
+所以说并不是所有对象都可以转化为字符串的。从另一个方面来讲，如果过于底层的话，的确不需要用到这种方法
+（比如Python的\vb|\_\_str\_\_|方法）。
+
+（话说，我是在说服自己吗？？）
+
+对于基本的数据，\vb|std::string|提供了特殊的方法，
+在std的命名空间里，提供了方法\vb|std::to\_string(number\_type)|，
+
+另外，如果输出要换行的话，也不能忘掉。
+
+p.s. 在上一题中，我也要时刻注意输入数据的范围。
+
+
+\section{cf's 118A problem}\timetx{2020-01-12 15:35:41.865311}
+
+ 遇到了几个有意思的问题。
+
+ 首先时如何把字符串转换为小写的字符串。
+ 在python中只需要使用\vb|str.lower()|就可以得到一个拷贝了。
+ （谢天谢地，我现在特别怀念python）
+ 但是很明显这在C++中时行不通的。
+
+ 第一种转换方法是使用\vb|transfrom|函数再配上一个lambda函数。
+ transfrom是由标准库algorithm提供的，如关于它的介绍网站%
+ \footnote{在https://en.cppreference.com/w/cpp/algorithm/transform中}%
+ 说的那样，它的几个声明之一是：
+
+ \begin{lstlisting}
+template< class InputIt, class OutputIt, class UnaryOperation >
+OutputIt transform( InputIt first1, InputIt last1, OutputIt d_first,UnaryOperation unary_op );
+\end{lstlisting}
+
+它会把unary\_op作用到这些$[frist1, last1)$上去，而输出到$[frist2, +\infty)$上去。
+
+而lambda函数，最简单的形式是这两种：
+
+\begin{lstlisting}
+[ captures ] ( params ) { body }
+[ captures ] { body }
+\end{lstlisting}
+
+回到主题来，这个函数就是为了封装住来自cctype的函数\vb|std::tolower|的函数原型是
+\vb|int tolower(int ch);|
+
+以上是第一种方法。
+
+第二种方法是使用boost库，不表。
+
+之后遇到了有多个使用或和等于的逻辑判断符，换个思路，其实用set可能也是一个不错的思路。
+有一点很有意思，如果找不到，一般会返回该容器的\vb|.end()|的值。
+
+
+
+\section{cf's 85A problem}\timetx{2020-01-13 01:32:53.936011}
+
+和上次那道关于字符串的题很像。都涉及到了把字符串转换为相应的小写形式。
+
+关于转换的函数，应该是下列的样子：
+
+\begin{lstlisting}
+std::string lower(std::string str){
+    std::transform(str.begin(), str.end(), str.begin(),
+            [](unsigned char c){return std::tolower(c)};
+    return str;
+}
+\end{lstlisting}
+
+我自己在使用中的时候，lambda函数没有加上\vb|return|语句，下次一定。
+（lambda函数是一个黑盒，必须要有输入有输出）。
+
+
+\section{关于C++中的using和typedef}\timetx{2020-01-13 17:25:19.221487}
+
+总是因为泛型的原因要声明很长的变量类型，但是其实有为变量类型设置别名的方法。
+
+第一点是使用\vb|typedef|来重命名变量。格式如下：
+
+\begin{lstlisting}[language=C++]
+    typedef org new;
+\end{lstlisting}
+
+另外的方法是使用\vb|using|来进行命名变量的工作。
+这是C++11起才开始支持的，语法会更好一些，更统一化一些。
+另外它还支持模板操作。
+普通的用法是这样：
+
+\begin{lstlisting}
+    using new = org;
+\end{lstlisting}
+
+或者说这样：
+
+\begin{lstlisting}
+template <typename T> using my_type = whatever<T>;
+
+my_type<int> my_var;
+\end{lstlisting}
+
+这样相较而言，typedef就好像是宏定义的一样（当然并不是）。
+
+
+\section{Python中的\_\_new\_\_方法}\timetx{2020-01-14 09:28:06.576783}
+
+在Python中的\vb|__init__|方法一般只是用来设置属性用的。
+换言之，\vb|__init__|只是在使用\vb|__new__|后获得对象后给对象加属性
+而使用的特殊方法。
+
+所以说，真正可以获得对象的方法，还是要用到\vb|__new__|的特殊方法。
+
+而一般的类设计是不需要定义\vb|__new__|特殊方法的，
+原因是对于它们来说继承属于\vb|object|类的\vb|__new__|方法就OK了
+（事实上是没有object这个类型的声明的，
+但是关于这个概念，每个设计类的人都要理解，因为它是用Python的解释器实现的，
+是一切类的基石，就像内建类型一样，不过话说，object也的确是内建类型）。
+
+所以可以认为\vb|__new__|是特殊方法中的特殊方法。
+是调用类之后的之后第一个被调用的类方法。
+而它生成的对象更是其他方法的基础。
+
+因为这个，\vb|__new__|不同与其他方法一样，反之，
+它被传入的第一个参数是\vb|cls|，是类对象，
+而不像其他方法一样传入的是实例对象，也就是\vb|self|。
+在最后的最后，\vb|__new__|会返回一个类对象所对应的实例对象。
+
+从类到对象，一般而言只需要调用\vb|object.__new__(cls)|方法就可以了。
+如果想对自己的对象加入更多的细节，
+都可以在自己的类下的\vb|myclass.__new__|定义余下的，
+甚至还可以实现元类。
+
+当然如果有选择的话，在自己的对象下实现\vb|__init__|来定义，
+这永远是最优选择，就如Python之禅所说的一样。
+当然从另一个方面来看的话，我们会发现\vb|__init__|并没有我们想象的那么必不可缺。
+很多时候甚至可以找到其他的办法来实现\vb|__init__|方法所能办到的。
+但是其他的方法一般来说完全没必要，
+简单的\vb|__init__|已经简单得够招人喜欢了。
+
+在\vb|__new__|中，为了使用父类所已经完成了的工作，
+也可以使用强有力的\vb|super()|，它的参数还有几个可以传值呢，
+从而为继承提供了更好的基础。
+
+
+\section{Python中的hash}\timetx{2020-01-15 02:24:11.383948}
+
+想要完成的功能：
+为不同的类型的对象进行一个独一无二的hash标记。
+
+为了完成这个功能，我看了看Python的标准库，\vb|hashlib|库。
+\vb|hashlib|库为hash算法提供了良好的支持，
+比如说要计算my-object的sha-1的哈希值，可以这样：
+
+\begin{lstlisting}[language=Python]
+m = hashlib.sha1()          # 新建sha1对象
+m.update(str(my_object))
+m.digest()                  # sha-1值
+m.hexdigest()               # 表示为16进制字符串的sha-1值
+\end{lstlisting}
+
+(?):update可以直接接受字符串吗？它不用被编码吗？
+
+
+\section{cf's 1288A problem}\timetx{2020-01-15 07:11:57.073754}
+
+看了看其他人的回答，发现了有人求最小值的时候没有用循环，
+还用到了莫名奇妙的变量，我想，莫非这是用导数算出来的吗？
+
+于是我找到了导数等于0的点，然后带入原函数，发现了眼熟的变量......
+我的天呐，我竟然看到别人用数学解题，这算不算优化过度？
+我蛮喜欢数学的，但是我也喜欢简单直接的可读性，
+我就佩服佩服一下了。
+我还是用循环来做题吧。
+
+还有人写了一行Perl代码，而相比之下我写了31行才搞出来。
+先生真若神人也。
+
+在我自己的代码里也有不少的问题，希望在C++里变量重用，
+导致一些判断的时候出了不想出现的结果，
+毕竟原值已经被更改了。
+
+这是一个问题，我下次一定要仔细看看，多做题，争取养成0bug的习惯。
+
+（又看了若干道，用数学方法来做的数不胜数，但是也看到了一些有趣的工具）
+
+在\vb|cmath|中提供的\vb|std::ceil|和\vb|std::floor|，
+它们可以把float类型的值转换为相近的类整型浮点数。
+其中\vb|std::ceil|负责把数进行``上升''，
+而\vb|std::floor|负责把数进行``下降''。
+
+除此之外还有\vb|std::round|和\vb|std::trunc|。
+都是对浮点数进行离散的函数。
+
+我自己是自己写了一个函数来实现\vb|std::ceil|的功能，性能不知道会差多少，但应该没差多少。
+
+
+\section{cf's 1288B problem}\timetx{2020-01-15 09:01:57.170873}
+
+数学真香，我爱数学，数学爱我。
+
+这道题的题目定义了一个函数，叫做\vb|conc|，实例如下：
+
+\begin{lstlisting}[language=python]
+>>> conc(314, 15926535)
+31415926535
+>>> conc(5741, 59635)
+574159635
+\end{lstlisting}
+
+原文是，``\vb|conc(a, b)| is the concatenation of a and b.''
+也就是说，\vb|conc|把a和b拼接起来得到一个新的数，
+有关系式$$conc(a, b) = a\times 10^{\text{len of }b\text{ in base 10}} + b$$
+目前看来为了得到b在base 10下的长度只能用算法试出来。
+
+如果有关系式满足$$conc(a, b) = a\cdot b + a + b$$化简后则恒有:
+$$10^{\text{len of }b\text{ in base 10}} = b + 1$$
+
+也就是说如果要在$(1\ldots A)$和$(1\ldots B)$中找到所有符合条件的a，b，
+只需要求出$10^{\text{len of }b\text{ in base 10}} = b + 1$的b，
+然后乘以A（因为所有的a都是满足条件的），答案就出来了。
+
+当然除了数学问题，还有其他的很多问题，
+比如说：
+
+\begin{lstlisting}[language=C++]
+while(temp--)
+    ;//change the value of value;
+\end{lstlisting}
+
+上面这个代码可能不会运行temp遍的，因为temp在头部和循环题中用的都是同一个内存空间。
+
+\subsection{后记}
+（看来别人的回答后\ldots\ldots ）
+
+我对不起我的数学老师！
+我单知道在Python里面是简单直接用\vb|len(str(num))|来获取长度，获取在十进制下的长度，
+我不知道其他的函数还有更数学化的\vb|log10|！
+我真傻，真的！
+
+(手动狗头）
+

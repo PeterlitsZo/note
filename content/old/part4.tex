@@ -1,0 +1,176 @@
+
+\section{cf's 1288C problem}\timetx{2020-01-16 06:55:23.613204}
+
+这道题的题意经分析之后可以知道，主要是为了求得单调递增数列的可能排列数。
+
+它给出了一个数列的长度$len$和每个元素的可能取值$1\le a_i\le n$。
+我设可能排列数为$f(len, range)$，其中$range$是$n-1+1$的值，$a_i$只能取整数。
+比如说，$f(2, 2)$是${1, 1}$，${1, 2}$，${2, 2}$三的排列的排列数，
+故值为3。
+
+注意到，$f(len, range)$在一般情况下，可以分为两种方面考虑，
+第一种是数组的第一个元素取到了$range$对应的第一个元素，
+所以剩下数组剩下的元素长度减一，元素取值范围不变（因为不是严格单调），
+总的排列数为$f(len-1, range)$。
+
+另一种是数组的第一个元素没有取到$range$对应的第一个长度，
+这个时候总的排列数为$f(len, range-1)$。
+
+故$f(len, range)$满足下式：
+
+\[f(l, r)=
+\begin{cases}
+    1, & \text{if } r=1, \\
+    r, & \text{if } l=1,\\
+    f(l-1, r) + f(l, r-1), & \text{if } l\ne 1 \text{ and } r\ne1.
+\end{cases}\]
+
+所以建立一个$len\times range$的二维数组，自底向上把数组填满到$f(len, range)$，
+就可以求出答案了。
+
+这个之外我还犯了一个小问题，\vb|10e9+7|不是$10^9+7$，
+因为在代码中那个\vb|e|就已经有10的意思了，所以正确写法是\vb|1e9+7|，
+昨天找这个找了好久欸，真是太笨了。
+
+\subsection{关于排列组合}
+
+看了其他人的做法，发现有不少人用的方法是通过排列组合，
+也就是通过$f(len, range)=C_{len+range-1}^{range}$来解决问题的。
+我能理解，但是如果我一开始没有想到，那这样才可以把
+$f(len, range)=f(len-1, range) + f(len, range-1)$
+解成我想要的$C_{len+range-1}^{range}$呢？
+
+
+\section{XeTeX 的命令行乱码}\timetx{2020-01-17 06:30:12.541703}
+
+发现在命令行里XeTeX 中的信息输出老是乱码，
+乱码总是会怀疑到编码的问题上来。
+
+仔细在网上找了找，用\vb|cmd|的命令\vb|chcp 65001|改变了它的输出编码，
+顿时输出的东西就正常了
+（\vb|chcp 65001|是把编码页改到UTF-8上面去）。
+
+现在有一个问题，是XeLaTeX 编码格式本身就是输出的UTF-8格式，
+还是调用它的\vb|subprocess|的输出格式是UTF-8？
+
+而且，我认为程序和shell之间用的是编码后的二进制数据流进行交流的，
+是这么一回事吗？
+
+
+\section{cf's 1285B problem}\timetx{2020-01-17 17:06:11.000355}
+
+有点伤心，这道题我没有做出来。
+
+这道题是为了求取最大的连续子串之和，令其为$f(list, start, end)$，
+有三种可能情况。
+第一种，数组串本身就是最优子串，其值为$sum(list.begin\to list.end)$。
+第二种，最优子串不含有数组串最后一个元素，
+所以其值为$f(list, start, end-1)$。
+第三种和第二种类似，为$f(list, start+1, end)$。
+
+可以注意到其中第二种和第三种有重复的地方，
+比如$f(list, start+1, end-1)$就同时是第二和第三种情况的子串。
+
+为了降低时间复杂度，可以使用动态规划。
+我采用了自底向上的设计模式，所以每个子问题的解都依赖与之前的子子问题之解。
+每个子问题都用了一块内存来存储其的最大的连续子串之和。
+（我甚至还记录了它们对应的$sum(list.begin\to list.end)$！）
+这样，计算每个子问题的时间复杂度为$O(1)$，
+一共的复杂度为$O(n^2)$。
+
+结果过不了？我晕了。
+
+接下来说一些这个题揭露出来的问题。
+
+\subsection{segmentation fault}
+在编译后运行时直接跳出了这个错误，并提示发生了段错误。
+
+它的意思是访问了不应该访问的地址，操作系统及时阻止了（干得好），
+并抛出了错误原因。
+
+\subsection{max}
+关于求取最值，在之前有认识过求取容器中最值的标准库函数\vb|std::max_element|，
+今天要用到其他的函数方法。
+
+在非容器中，使用可以使用、\vb|std::max|，
+它的一个原型如下：
+\begin{lstlisting}[language=C++]
+template< class T >
+const T& max( const T& a, const T& b );
+\end{lstlisting}
+而另一个原型则如下：
+\begin{lstlisting}[language=C++]
+template< class T >
+T max( std::initializer_list<T> ilist );
+\end{lstlisting}
+
+这个函数可以表示两个数的最大值，也可以表示一个initializer\_list的最大值。
+
+比如说为了取得三者之间的最大值，可以使用：
+\begin{lstlisting}[language=C++]
+std::max(std::max(x, y), z);
+\end{lstlisting}
+或者使用更简单的语法结构：
+\begin{lstlisting}[language=C++]
+std::max({x, y, z});
+\end{lstlisting}
+
+\subsection{accumulate}
+求和。
+
+从第一个迭代器开始，一直求到最后一个迭代器。
+包含第一个迭代器的值，但不包含最后一个。
+
+所以说要表达类似Python中的\vb|[:]|，可以使用\vb|v.begin()|和\vb|v.end()|。
+如果要表达\vb|[a:]|，则可以使用\vb|v.begin()+a|，而\vb|end|不变。
+但是如果要表达\vb|[a:b]|的话，则应该表达为：
+\vb|v.begin()+a|，而结尾则变为\vb|v.begin()+b|，
+效果是一样的，都取不到最后一个值。
+
+\subsection{最后，这道题的答案}
+我的想法是把Yasser的和算出来，然后把Adel的最优子串算出来。
+两者相互比较，最后判断输出答案。
+
+但是他们的答案却不是这样。
+
+他们的想法是：
+
+对于给定数组$\{a_1, a_2, \ldots, a_i, \ldots, a_n\}$，
+全部的和明显是$S_A = sum(\{a_1, a_2, \ldots, a_n\})$。
+
+如果开始的部分和$sum(\{a_1, a_2, \ldots, a_i\}) \le 0$，
+则明显有$sum(\{a_{i+1}, \ldots, a_n\}) \ge S_A$。
+
+同理，结尾部分存在该子列，或者开头和结尾都存在这种子列，
+都很明显满足这个条件。
+
+逆否命题也成立。故原条件可以推广到更容易求解的状态。
+
+所以说只需要在前后处寻找是否有符合条件的子列。
+时间复杂度从$O(n^2)$变成了$O(n)$，只是求不出来最优子列的值了，
+只能判断有无最优子列。
+
+
+\section{cf's 1285C problem}\timetx{2020-01-23 09:41:49.392911}
+
+现在还在\vb|running on test 36|，都不知道发生了什么。
+
+\subsection{关于题面}
+首先题面说了有$LCM(a,b)=X$，其中``$LCM(a,b)$ is the smallest positive integer
+that is divisible by both a and b''。
+很明显，如果存在数$x$，有$x|a$，$x|b$的时候，也就有$LCM(a,b)=LCM(\frac{a}{x},b)$，
+因为$LCM(a,b)=\frac{ab}{gcd(a,b)}$，而又有$LCM(\frac{a}{x},b)=\frac{ab}{gcd(a,xb)}$，
+两式等价。
+
+所以对于$a$，$b$，很容易可以找到互质的两个数$c$，$d$，使得$LCM(a,b)=LCM(c,d)=cd$，
+这时$c$，$d$最小，所以$max(c,d)$相对最小。
+
+现在给定$N=cd$，不妨假定$c\le d$，则有$c\in [1,\lfloor\sqrt{N}\rfloor]$，
+此时不难看出$N(\text{mod }c)=0$，也就是$c|N$，
+且$gcd(c,d)=1$，不然得到的数为$\frac{cd}{x}$，而不为$cd$。
+
+迭代一次，寻找满足条件的$c$的最大值，答案也就出来了。
+
+\subsection{其他答案}
+有一点点改进的空间，那就是逆向寻找，找到一个值就可以输出了。
+

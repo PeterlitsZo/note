@@ -1,0 +1,40 @@
+
+\section{在WSL上安装MySQL}
+
+试着在WSL 1上安装MySQL来学习的，但是比我想象得要麻烦很多。有很多历史故事和特殊安
+装方法，所以还是写一篇笔记比较好。
+
+\subsection{一点小知识}
+
+MySQL虽然还是开源的，但是因为它被一家商业公司给购买了，所以为了防止以后出于公司经
+营角度而闭源，所以社区搞了一个分支叫做Mariadb来避免这种情况。Mariadb目前是百分百
+的支持MySQL。
+
+\subsection[开始安装]{开始安装\footnote{更多详情请参见：\url{https://medium.com%
+/@harshityadav95/installing-mysql-in-ubuntu-linux-windows-subsystem-for-linux-f%
+rom-scratch-d5771a4a2496}。}}
+
+第一步，为了防止之前安装造成的影响，需要把之前的安装都删掉：
+\begin{lstlisting}
+sudo apt-get remove --purge *mysql*
+sudo rm -rf /etc/mysql /var/lib/mysql
+sudo apt-get remove --purge *mariadb*
+\end{lstlisting}
+
+\subsection{意外情况}
+
+虽然是按照教程来一步一步走的，但是还是出现了一些意外情况。
+
+\subsubsection{Unable to locate package ...}
+
+在使用 \verb|apt-get remove| 的时候，出现了提示 \verb|Unable to locate package|%
+。这让我大感疑惑：一般而言，这是在在安装的时候，找不大软件和它对应的来源的时候才
+对抛出的错误，咋删除还需要呢？
+
+一般而言在安装的时候出现这种错误的时候，就需要在 \verb|/etc/apt/sources.list| 中
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{}
+

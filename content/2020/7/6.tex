@@ -81,9 +81,9 @@ v_k}, \ldots\right)$$以上可以刻画对于$s_i$路程的$i$-th的车子
 而言，它的最短时间。
 
 \def\ttsum{\text{\verb|sum|}}
-不妨设置一个结构来表示车子，其中\ttva|l|是车长，\ttva|s|%
-是车子到停车线的距离，\ttva|v|是车子的速度。这三个变量是由
-输入提供的，而\ttva|sum|则表示了$k$-th的车子从出发行进距离$
+不妨设置一个结构来表示车子，其中 \verb|l| 是车长， \verb|s| %
+是车子到停车线的距离， \verb|v| 是车子的速度。这三个变量是由
+输入提供的，而 \verb|sum| 则表示了$k$-th的车子从出发行进距离$
 \sum_{g=i}^kl_g + s_k$比距离$s_k$所多走的距离，即有$\sum_{
 g=i}^kl_g$，很明显有，$\ttsum_{i+1} = \ttsum_{i} + l_{i+1}$。
 而${\ttsum_k+l_k\over v_k}={\sum_{g=i}^k l_g + s_k\over v_k}$

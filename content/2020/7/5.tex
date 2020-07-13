@@ -83,19 +83,19 @@ ions/20901/breakable-vboxes}}。所以一个，递归的、一次断裂的 \verb
 
 \subsection{pagegoal和pagetotal命令}
 
-背景知识：\ttva|\vsize|是定义单个页面的主方框的高度，\ttva|\hsize|则是设定
-主方框的宽度\footnote{但是奇怪的是，我好像没有办法使用\ttva|\vsize|来设定
-之后页面的高度，相反，使用\ttva|\pdfpageheigtht|倒是很有帮助。见页面\url{%
+背景知识： \verb|\vsize| 是定义单个页面的主方框的高度， \verb|\hsize| 则是设定
+主方框的宽度\footnote{但是奇怪的是，我好像没有办法使用 \verb|\vsize| 来设定
+之后页面的高度，相反，使用 \verb|\pdfpageheigtht| 倒是很有帮助。见页面\url{%
 https://tex.stackexchange.com/questions/299005/automatic-page-size-to-fit%
 -arbitrary-content}}。
 
-命令\ttva|\pagetotal|提供了当前页面的累计高度。而\ttva|\pagegoal|则指明了
-当前页面所需要的高度。\ttva|\pagegoal|在一个页面开始时会检查并赋值自身为%
-\ttva|\vsize|。
+命令 \verb|\pagetotal| 提供了当前页面的累计高度。而 \verb|\pagegoal| 则指明了
+当前页面所需要的高度。 \verb|\pagegoal| 在一个页面开始时会检查并赋值自身为%
+ \verb|\vsize| 。
 
 \subsection{示例}
 
-我们打算分割段落，所以我们打算用\ttva|\splitable|来制作宏命令。
+我们打算分割段落，所以我们打算用 \verb|\splitable| 来制作宏命令。
 \begin{lstlisting}
 \newbox\splitablebox
 \def\splitable#1{%
@@ -104,8 +104,8 @@ https://tex.stackexchange.com/questions/299005/automatic-page-size-to-fit%
 }
 \end{lstlisting}
 
-目前为止还是中规中矩的一个不能分段的\ttva|\vbox|，为了实现分段我们也把
-一个\ttva|box|分为两个\ttva|box|，分别是\ttva|\totalbox|和\ttva|\partialbox|%
+目前为止还是中规中矩的一个不能分段的 \verb|\vbox| ，为了实现分段我们也把
+一个 \verb|box| 分为两个 \verb|box| ，分别是 \verb|\totalbox| 和 \verb|\partialbox| %
 。
 \begin{lstlisting}
 \newbox\splitableTotalbox
@@ -132,10 +132,10 @@ https://tex.stackexchange.com/questions/299005/automatic-page-size-to-fit%
 \splitable{\longtext\longtext\longtext\longtext\longtext\longtext}
 \end{lstlisting}
 
-太棒了，我就是分割\ttva|vbox|大师！（话说，有的时候需要加上\ttva|\null|，
-我也不知道为什么欸，总之，用递归来实现循环，总感觉怪怪的）。
+太棒了，我就是分割 \verb|vbox| 大师！（话说，有的时候需要加上 \verb|\null| ，
+我也不知道为什么，总之，用递归来实现循环，总感觉怪怪的）。
 
-有的时候，\ttva|\dimen255|甚至可能是个负数！这个太可怕了，请务必要试着
+有的时候， \verb|\dimen255| 甚至可能是个负数！这个太可怕了，请务必要试着
 先判断一下。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,17 +156,53 @@ Paragraph ended before \mymacro complete.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{CF1374E1题解}
+\section[CF-1374E1题解]{CF-1374E1题解\footnote{更多信息参见：\url{htt%
+ps://codeforces.ml/problemset/problem/1374/E1}。}}
 
 我感到很挫败，没有想到100题计划的第一题都这么出乎我的意料。
+
+\subsection{题干}
+
+Summer vacation has started so Alice and Bob want to play and joy, but... Their mom doesn't think so. She says that they have to read some amount of books before all entertainments. Alice and Bob will read each book {\bf together} to end this exercise faster.
+
+There are $n$ books in the family library. The $i$-th book is described by three integers: $t_i$ — the amount of time Alice and Bob need to spend to read it, $a_i$ (equals $1$ if Alice likes the $i$-th book and $0$ if not), and $b_i$ (equals $1$ if Bob likes the $i$-th book and $0$ if not).
+
+So they need to choose some books from the given $n$ books in such a way that:
+
+\begin{enumerate}
+    \item Alice likes {\bf at least} $k$ books from the chosen set and Bob likes {\bf at least} $k$ books from the chosen set;
+
+    \item the total reading time of these books is {\bf minimized} (they are children and want to play and joy as soon a possible).
+\end{enumerate}
+
+The set they choose is {\bf the same} for both Alice an Bob (it's shared between them) and they read all books {\bf together}, so the total reading time is the sum of $t_i$ over all books that are in the chosen set.
+
+Your task is to help them and find any suitable set of books or determine that it is impossible to find such a set.
+
+\impt{Input}
+The first line of the input contains two integers $n$ and $k$ ($1\le k\le n\le 2\cdot 10^5$).
+
+The next $n$ lines contain descriptions of books, one description per line: the $i$-th line contains three integers $t_i$, $a_i$ and $b_i$ ($1\le t_i\le 10^4$, $0\le a_i$, $b_i\le 1$), where:
+
+\begin{enumerate}
+\item $t_i$ --- the amount of time required for reading the $i$-th book;
+\item $a_i$ equals $1$ if Alice likes the $i$-th book and $0$ otherwise;
+\item $b_i$ equals $1$ if Bob likes the $i$-th book and $0$ otherwise.
+\end{enumerate}
+
+\impt{Output}
+If there is no solution, print only one integer -1. Otherwise print one integer T — the minimum total reading time of the suitable set of books.
 
 \subsection{贪心算法}
 
 没有看懂源代码，但是评论区中有人说和贪心算法有关。所以就先预习一下贪心算法。
 
 贪心算法，总的来说，就是只要每次都选出最优解，那么他就一定是最优解。而相对
-而言，DP问题就是子问题不一定是最优解，但是可以让其成为最优解。这个题目我是
+而言，DP问题就是子问题不一定是最优解，但是可以让其成为最优解。换句话说，局部最优
+不一定是全局最优。但是对于贪心来说恰好就是局部最优意味着全局最优。这个题目我是
 有想过用动态规划的。但是维护什么书借过什么没有的话，对我来说还是太困难一点了。
+
+贪心算法的效率比用DP来得快很多。
 
 下面是IO网站说是贪心算法的一个例题。
 
@@ -197,5 +233,56 @@ Paragraph ended before \mymacro complete.
     那么从这个为起点，那么要选择从什么地方断开就最好了。
 
     既然要断开的话，那么就要选择在中间最大的地方、在两端断开。
+
+    这个真的是贪心算法吗，emmm。
     }
+
+我感觉，贪心算法就是子问题最优总问题就最优。有的时候这个贪心还需要先排序。（不
+过我听说使用最大堆或者最小堆的话会比较快一点）。
+
+\subsection{题解}
+
+我看了看别人的题解，感觉不是很难，先上伪代码：
+\begin{lstlisting}
+[]int all, aonly, bonly
+
+switch cin >> t >> a >> b; (a, b) {
+case (1, 1):
+    all.append(t)
+case (1, 0):
+    aonly.append(t)
+case (0, 1):
+    bonly.append(t)
+}
+
+aonly.sort()
+bonly.sort()
+for i in min(aonly.len, bonly.len) {
+    all.append(aonly[i] + bonly[i])
+}
+all.sort()
+
+if all.len < k {
+    cout << -1
+} else {
+    sum = 0
+    for i in range(k) {
+        sum += all[i]
+    }
+    cout << sum
+}
+\end{lstlisting}
+
+主要来说，就是Alice和Bob两个人，按照贪心来说肯定是要时间越少越好，但是有一点不知
+所措，那就是这个有两个属性：Alice是否感兴趣和Bob是否感兴趣。我想了一下，Alice感
+兴趣，Bob感兴趣和都感兴趣的书并不是泾渭分明的，它们可能互相交叉，后来我就不知道
+该怎么做了。
+
+后来想了一下，看了看题解，因为Alice和Bob需要的都是$k$本感兴趣的书，所以读一本感兴趣
+的书和读两本各自感兴趣的书在理论上相等。
+
+所以我们可以先排序，排完序之后就可以把两本书合并成一本。然后把所有处理完后剩下的书
+排序输出即可。
+
+不过这有点巧，如果他们感兴趣的书的个数不相同呢？
 

@@ -1,0 +1,124 @@
+
+\section{关于C++的{\tt delete}}
+
+C++的 \verb|delete| 可以用来干很多很多的事情，比如：
+\begin{enumerate}
+\item 释放 \verb|new| 声明的内存空间。
+\item 释放 \verb|malloc| 声明的内存空间。
+\item 和 \verb|NULL| 尝试友好相处。
+\item 释放 \verb|new| 声明的数组内存空间。
+\end{enumerate}
+
+比如我不是很常用的释放数组内存空间如下：
+\begin{lstlisting}
+int* array = new int[10];
+delete[] array;
+\end{lstlisting}
+
+或者和函数 \verb|malloc| 打配合：
+\begin{lstlisting}
+int* ptr = (int*)malloc(sizeof(int));
+delete ptr;
+\end{lstlisting}
+
+最主要的是它能代替 \verb|free| 函数的就是：它是一个操作符，支持重定义，所以能很好
+得处理用户自定义数据结构。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{C++的{\tt sizeof}关键字}
+
+\verb|sizeof| 关键字有两种表达方式，一种是用来得到值对应类型所占用的内存长度，一
+种则是直接得到类型所对应的内存空间。分别可以写为 \verb|sizeof(<$type$>)| 和 
+\verb|sizeof <$expression$>|。
+
+众所周知，计算机科学中的最小单位是 \verb|bit|，而 \verb|sizeof| 返回的单位是 
+\verb|byte|，也是计算机科学中最小能利用的单位。一般而言，一个 \verb|byte| 的长度
+为8个或者更多的 \verb|bits|。
+
+对于数组来说我们不妨举一个例子：
+\begin{lstlisting}
+int a[10];
+cout << sizeof a               << " "   // output: 40 (if sizeof(int) == 4)
+     << sizeof(int[10])        << " "   // output: 40 (if sizeof(int) == 4)
+     << (sizeof a / sizeof *a);         // output: 10 (whatever)
+\end{lstlisting}
+
+我们可以看到如果是一般的数组名的话，它的类型是 \verb|int[10]| 而不是 \verb|int*|，
+但是在一些情况下（快给我变！）可以进行转换。比如说 \verb|*a| 的类型就是 
+\verb|*&a[0]=a[0]| 了。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{关于JavaSricpt的压缩对象数组}
+
+这个笔记是基于Stack Overflow的一个问题\footnote{更多信息请参见：\url{https://st%
+ackoverflow.com/questions/62857540/what-is-the-simplest-solution-to-flat-an-jav%
+ascript-array-of-objects-into-an-ob}。}。
+
+虽然被关闭了，但是我觉得这个问题很有意思。
+
+\subsection{引入问题}
+
+存在一个array如下：
+\begin{lstlisting}
+a = [{x: 1}, {y: 2}]
+\end{lstlisting}
+
+我们需要的就是将所有的对象压缩成一个对象，即有：
+\begin{lstlisting}
+b = {x: 1, y: 2}
+\end{lstlisting}
+
+\subsection{一些简单知识}
+
+作为一个优秀的动态类型语言，能够通过字符串这种值来控制属性自然是JavaScript必须的%
+的内容，比如说：\verb|b['x'] == b.x|。换句话说，属性可以通过同名的字符串作为下标%
+来得到。
+
+另外我们可以array具有方法 \verb|forEach|来接受一个函数来进行遍历，惊喜的是，
+\verb|Object.keys(<obj>)| 恰好可以返回对象的Keys的字符串列表。
+
+\subsection{我的解}
+
+基于上面的一些简单知识。我尝试解出如下：
+\begin{lstlisting}
+> a = [{x: 1}, {y: 2}]
+> b = {}
+> a.forEach((obj) => {
+.....Object.keys(obj).forEach((key) => {
+.......b[key] = obj[key]
+.....})
+...})
+\end{lstlisting}
+
+\subsection{其他的解}
+
+\begin{lstlisting}
+const object = array.reduce((target, item) => {
+    return { ...target, ...item }
+}, {})
+\end{lstlisting}
+
+其中three dots(\verb|...|)有以下几种翻译：
+\begin{enumerate}
+\item 和golang一样用来在函数头部中取多余的值，以一个列表的形式返回。
+\item unpack，也是和golang一样，比如说
+\begin{lstlisting}
+const c = [...a, 12, ...b]
+\end{lstlisting}
+
+当然除了数组，对象也不在话下。
+\begin{lstlisting}
+const c = {...a, peter: 12, ...b}
+\end{lstlisting}
+\end{enumerate}
+ 
+而array的方法 \verb|reduce| 可以用来依次的对两个元素进行操作，然后最终返回一个
+nice的返回值。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{CF-1255-E1题解}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

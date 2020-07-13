@@ -1,0 +1,611 @@
+
+\section{cf's 1304 problem}\timetx{2020-02-16 10:58:40.308151}
+
+是时候学点新知识了，铛铛！\vb|struct|！
+之前忙着做题，不敢使用这个怕做错了就麻烦了，
+结果我还是完全记得这个语法结构的说。
+
+使用结构肯定比使用数组要好，
+毕竟数组是使用来储存意义相同的数据，
+而结构是用来储存意义不一样的结构。
+用来比较的话，一个相当于Python中的列表，
+另一个就像元组和类。
+
+此外，鉴于我经常在里面犯一些低级错误，
+重载输出操作符也是很有必要的，比如说：
+\begin{lstlisting}[language=C++]
+ostream& operator<<(ostream& os, const vector<p>& it){
+    os << '[';
+    for(auto &i: it){
+        os << "{" << i.t << ", " << i.h << ", " << i.l << '}, ';
+    os << ']' << endl;
+}
+\end{lstlisting}
+
+其他的和紫名大佬差不多，除了我把循环和处理和输入输出都分开了。
+
+我在想是不是没有必要再竞赛中把输入输出和处理隔开。
+
+
+\section{cf's 1296C problem}\timetx{2020-02-16 22:15:33.313424}
+
+我又被卡住啦！鼓掌！（啪啦啪啦）
+
+这道题看起来很像是dp的题嘛，
+但是没有想到不行欸，也是哈，毕竟是$O(n^2)$嘛。
+
+这道题意思如下：有一个字符串，
+要寻找它的最短的符合规则的连续子字符串，
+而所谓规则，
+就是该字符串中的\vb|'U'|和\vb|'D'|，
+\vb|'R'|和\vb|'L'|的数量两两相等。
+
+我是这么想的：
+定义一个结构体$y = f(str)$来存储$str[i..j]$的四个值，
+于是结构体满足：
+$y_{i..j}=f(str[i..j])=f(str[i..j-1]+str[j])=
+y_{i..j-1}+f(str[i])$
+
+虽然我是菜鸡，但是动态规划什么的，
+自底向上简简单单的啦。
+说着我啪嗒啪嗒敲好了代码，
+还为结构体重载了运算符。
+
+结果\vb|time limit|，也是毕竟是$O(n^2)$的算法嘛，
+暴力也是$O(n^2)$的复杂度对吧。
+
+但是真的有比这个好的算法吗\ldots\ldots
+
+\subsection{其他人的答案}
+还是有更好的方法，这道题的目的就是为了找到$i$和$j$，
+但是并没有必要找到$1\le i\le j\le len$中%
+所有满足的$a[i..j]$的数据结构，因为这样子，
+时间复杂度为$O(len^2)$。
+
+但是从另外一种方向考虑的话，
+这种题目的数据结构是有它的特点的：
+对于$a[1..i]$和$a[1..j]$来说的话，
+如果增加的\vb|'U'|和\vb|'D'|，
+增加的\vb|'R'|和\vb|'L'|两两相等的话，
+那么一定$a[i..j]$满足条件。
+
+如果把所有的$a[1..i]$都储存下来，
+当一个数据结构相等的时候，就可以肯定，
+我们找到了一个符合条件的值。
+
+综上，时间复杂度可以降到$O(n \text{lg }n)$，
+甚至是$O(n)$（如果用哈希表的话）。
+
+
+\section{cf's 1307B problem}\timetx{2020-02-18 11:42:37.636214}
+
+危\ 我\ 危！
+我差点就要掉到绿色等级去了啦！！！
+只做了一道题，第二题，第三题完全不会，
+说实话还是有点点灰心的吧。
+
+回到这道题来，我认为这道题完全就有误导我的嫌疑！
+
+给定原点$O(0,0)$和目标点$A(x_A,0)$，
+又给定了可选的距离$B=\{b_i\}$（可以在二维平面上移动）。
+然后要使用这些可选的距离从原点移动到目标点。
+
+要求取最少次数。
+
+开始我的想法是：
+如果用$m$表示最大距离，那么如果能用$m$就最好用。
+要是$m|x_A$成立，那么很明显$\frac{x_A}{m}$是所求值。
+但是不成立呢？我认为可以先以$2m$为单位地开始移动，
+到最后很明显剩下的距离有$e\in [1, 2m-1]$，
+如果$e\in B$，那么很明显最后一节一步搞完，
+不然两部搞完（用三角形两边之和大于第三边，
+那么两步可以移动的距离就是一个范围：$(0, 2m]$）。
+
+但是一开始的实例就过不去，因为当$x_A=12$时，
+$B={3, 4, 5}$时，我认为的算法给出的答案是：
+$5\to 5\to 2$(two step)，一共是4步。
+而底下的注释告诉我应该是3步：$4\to 4\to 4$。
+就是这个迷惑了我，让我以为其他的数字，
+也会参与到构建路径中，让我以为有一个最优解，
+以至于不得不使用动态规划。
+
+动态规划可是有$O(n^2)$的复杂度，这道题就很明显的堵住了我。
+
+之后看了其他人的答案后：
+我开始为他们的代码的短小精悍感到吃惊，
+结果看来反而和我一开始的想法有同工之妙。
+
+他们还是用最大距离$m$来解题，
+而最后剩下的距离和之前的$m$步长的一步加起来，
+肯定在$[m+1, 2m]$，故最后最少必定可以用到两步。
+易证明到，在这个分割点之前是最优解，
+分割点之后是最优解，而这个分割点本身也是最优分割点
+（虽然不止一个最优分割点，但其他分割点的答案
+不比它的答案还有优，也就是说，这么分割必得最优解）。
+
+
+\section{cf's 1307C problem}\timetx{2020-02-18 07:16:08.124380}
+
+老规矩先说题干。
+给定一个字符串，找到符合规矩后寻找到的出现次数最多的子字符串。
+规矩是原字符串中寻找成等差数列的有限长度下标集合
+（其中最短长度是1），然后将其按照下标提取出来。
+
+这道题的陷阱就是这个等差数列了，
+这个也正是最迷惑人的东西了，因为题解中最主要的部分和等差一点关系也没有。
+
+以下是题解原文：
+
+We observe that if the hidden string that occurs the most times has length
+longer than 2, then there must exist one that occurs just as many times of
+length exactly 2. This is true because we can always just take the first 2
+letters; there can't be any collisions. Therefore, we only need to check strings
+of lengths 1 and 2. Checking strings of length 1 is easy. To check strings of
+length 2, we can iterate across S from left to right and update the number of
+times we have seen each string of length 1 and 2 using DP.
+
+如上，证明分两步：
+一，长度$len_b>2$的字符串$b$出现次数小于等于长度$len_s=2$的字符串$s$：
+如果有字符串$b$存在的话，其对应的前缀$s$必定也满足下标成等差数列。
+故$b$出现次数必定小于等于$s$出现的次数。
+二，长度为一的字符串可能出现次数小于长度为二的字符串的出现次数：
+不同下标集合构成的长度为二的字符串，可能前缀都是同一个下标对应的字符，
+所以长度为1的字符串可能对应多个长度为2的字符串，
+但是如果存在的话，长度为2的字符串却有且只有一个对应的$len_b>2$长度字符串。
+
+如上证明了我们最主要的地方就是分析长度为1和2的字符串。
+
+
+\section{MIT 6.006 part1(unit1)}\timetx{2020-02-19 14:58:32.463955}
+
+In this course, I am interseting about the finding peak in 1D-gragh or 2D.
+
+So what is the peak in 1D-gragh?
+for a number in a 1D-array, if its left $L$(if $L$ exists) is less than it and its
+right $R$ also do it(if $R$ exists), then the number is a peak.
+
+there is a $O(\lg n)$ function that can work it out:
+firstly, look at n/2 position, if the element is a peak then break the loop;
+if it is not, and the left is bigger than itself, we can know than in the
+sub-srray $A[0..n/2-1]$ must have a peak element inside. (why?)
+else it can look for the sub-array $A[n/2+1..n-1]$.
+
+It is easy to find out the compilex is $O(\lg n)$.
+
+For the question why I assert the sub-array must have a peak at least inside,
+the answer is that the sub-array must have a max-element, and if the max-element
+is at the edge of the array, then it's easy to know that it is a peak.
+
+In a 2D-graph, the peak is bigger than or equal with its round cell numbers. the
+best function to find one of those peaks swiftly is: firstly, look at the middle
+column and the find out the max-element of the column, and if the element is a
+peak then return the answer, but if it does not and the round cell number $C$ at
+column $n/2-1$ is bigger than it, we can say that on the area from column $0$ to
+column $n/2-1$ there must be a peak at least.
+
+Why? - if the peak $P$ is on the column $n/2-1$, the peak is must bigger than
+$C$ and then is bigger than all numbers on column $n/2$, beacause if it is small
+than $C$, the max-element is not it, and we can now look at the max-element of
+the area.
+
+
+\section{cf's 1296D problem}\timetx{2020-02-20 15:30:16.633458}
+
+这是一道简单的D题，我不得不说不亏是我（骄傲）。
+
+有几个关于C++的小知识和之前复习到的小技巧：
+
+第一个是Variable-length array（VLA），还为维基百科做了一点点贡献，
+VLA是在运行时分配内存空间给数组的一个语言性质，一般是在C99之后支持。
+
+另外是复习之前的一个小技巧：如果想表达$\lceil\frac{m}{n}\rceil$，
+则可以使用：\vb|(m + n - 1)/ n|。
+
+使用标准库函数\vb|std::sort|时，作用于数组\vb|A|时，
+作用方法：\vb|sort(A, A+len-1)|。
+
+另外发现宏函数时支持多参数的。
+
+
+\section{一道数学题}\timetx{2020-02-20 19:37:50.946162}
+
+题目摘抄如下：
+
+设实数$a$，$b$满足$0<a<b$，证明：
+$$\frac{\arctan b-\arctan a}{b-a}
+>\frac{1}{\sqrt{1+a^2}\cdot\sqrt{1+b^2}}$$
+
+一开始的时候很容易看到可以把原式化为：
+$$\frac{\arctan b-\arctan a}{b-a}>
+\sqrt{(\arctan a)'\cdot(\arctan b)'}$$
+
+从而会想到使用中值定理，但是该式根本推导不到有用的中值定理上，
+而正解是使用反函数的性质。
+（说明了看见反函数按理应该使用其性质的一般套路）
+
+不妨令$x=\arctan a$，$y=\arctan b$，则根据反函数的性质有：
+（根据原题可知：$y>x>0$）
+$a=\tan x$，$b=\tan y$，所以很明显原始等价于：
+$$\frac{x-y}{\tan x-\tan y}>
+\frac{1}{|\frac{1}{\cos x}\cdot\frac{1}{\cos y}|}$$
+
+进行又一次简单的变换有：
+$$(\cos x\cos y)\cdot\frac{x-y}{\sin(x-y)}>|\cos x\cos y|$$
+
+很明显有：
+$$\frac{x-y}{\sin(x-y)}>1(y>x>0)$$
+
+故原式成立。
+
+\subsection{中值不成立的原因}
+根据中值定理该式$\frac{\arctan a-\arctan b}{a-b}$
+很明显有：$\exists \xi$，
+$(\arctan\xi)'=\frac{\arctan a-\arctan b}{a-b}$，
+所以$((\arctan\xi)')^2>(\arctan a)'(\arctan b)'$。
+
+为了利用中值定理解出该题，则只能通过对$\forall\xi\in(a, b)$，
+都有该式成立来证明。但很可惜对于$\xi\in(a, b)$，
+$\exists\xi\in(a, b)$可以令其不成立。
+
+比如因为有$0<a<b$，有当$\xi\to b$时，有：
+（因为$\arctan x$的导函数在正半轴上单调递减）
+$$\lim_{\xi\to b}((\arctan\xi)')^2=
+((\arctan b)')^2<
+(\arctan a)'(\arctan b)'$$
+
+所以使用中值定理是一种错误的选择，该方法绝对搞不出来正确答案出来。
+
+
+\section{cf's 1299A problem}\timetx{2020-02-20 23:25:24.150958}
+
+这是一道我不会做的A题。
+
+原题定义了一个函数$f(x, y)=x|y-y$，其中的符号$|$代表了进行位运算。
+又定义了一个数组$[a, b, c, d, \ldots]$的值应该为：
+$$[a, b, c, d, \ldots] = f(\ldots f(f(f(a, b), c), d), \ldots)$$
+
+现在给定了一个数组，请求得到进行调换顺序之后值最大的数组。
+
+位运算是一个我不太熟悉的东西，但是仔细分析还是很容易发现：
+对于$x$和$y$而言的第$i$-th位$x_i$和$y_i$而言，
+进行$f$变换之后，新的值$z$的第$i$-th位$z_i$仅仅与$x_i$和$y_i$相关。
+因为当$y_i$等于1时，$(x|y)_i$必定为1，所以$z_i$必定为0。
+（因为当被减数上第$i$-th位为0而减数上该位为1的话就需要借位，
+势必和其他位有关）同理可以得出当且仅当$x_i$并且$\lnot y_i$时，
+$z_i$为真，故$z_i=x_i\land\lnot y_i$。
+
+由上因为所有位均满足该运算规律，故有
+$z=x\&(\sim y)$。
+
+所以对数组而言，自然也有：
+$$[a, b, c, d, \ldots] = a\&(\sim b)\&(\sim c)\&(\sim d)\&\ldots$$
+
+因为$\&$位运算满足交换律，所以原式的值只和第一个数有关。
+且其所有被运算的数第$i$-th位为真，其才为真。
+那么什么时候需要调换以让该式的结果更大呢？
+
+从最高位开始比较，如果有且只有一个数在该位为一，
+那么让它成为第0位。因为其他位上都会取反变成1，
+而这个数本身的位上的数也保留下来了，从而取到最大。
+（太棒了）
+
+可是我对位运算不太熟悉，下面是别人的位运算语句：
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+ 
+int main(){
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for(auto& x: a)
+        cin >> x;
+    for(int bit=30; bit--;){
+        if(count_if(begin(a), end(a),
+                    [&](auto x){return x >> bit & 1;})==1){
+            swap(a[0],*find_if(begin(a), end(a),
+                               [&](auto x){return x >> bit & 1;}));
+            break;
+        }
+    }
+    for(auto x: a)
+        std::cout<<x<<' ';
+    std::cout<<'\n';
+}
+\end{lstlisting}
+
+首先有巧妙的位运算小窍门：\vb|num >> bit & 1|，
+它可以确认\vb|num|的第\vb|bit|位是否为一。
+
+其次有有意思的\vb|count_if|和\vb|find_if|。
+
+再然后是lameda函数。之前我写过的，这里就暂且不表了。
+
+
+\section{cf's 1321B problem}\timetx{2020-03-02 13:43:23.543056}
+
+在昨天的cf竞赛中，我又挂在了B题，原题是这样的：
+有人想要去旅行，每个城市都有相应的数值，
+并且第$i$个城市的数值为$d_i$，当且仅当第$j$座城市的数值满足
+$b_j-b_i=j-i$时，她才可以从城市$i$走到城市$b$中。
+
+我一开始这么想的：点，路，有价值，这不就是有权图的最长路径问题吗？
+一种有向无环图的最长路程是具有最优子结构的，无论自底向上还是至顶向下，
+都是可以满足动态规划的。
+
+我于是刷刷的写完了，虽然途中遇上了几个\vb|core dumped|说是下标溢出了，
+但是还是找到错误并且搞好了。
+
+但是罕见的遇上了\vb|memory limit exceeded|，
+其实我现在还是感觉很奇怪的，因为怎么想就只是需要用$O(n^2)$的复杂而已，
+还主要是因为储存图才这样子。
+
+但是昨天于立恒跟我说了他的思路的时候，我感到柳暗花明又一村，
+发现当且仅当$b_j-j=b_i-i$的时候才会有两个城市可以连接在一起。
+
+所以说最好的方法就是建立一个$map$，当$b_n-n=C$时，让$map_C$
+增加$b_n$。而$map$中最大的值也就是这道题的答案。
+
+
+\section{python的多项式拟合}\timetx{2020-03-03 20:57:50.277423}
+
+之前的话我想要获得一个动态的页面，可以根据不同的窗口大小来动态匹配文本大小，
+比如说在一些窗口宽度大的地方，一般的像素密度比会小一些，为了显示合适的字，
+需要把字调小（比如说，\vb|16px|），有时候在小屏幕上面，则需要把字号调大，
+比如说调成\vb|32px|。
+
+我不禁有些疑惑，像素到底是什么呢？比如说虽然移动端字的\vb|px|值调大了，
+但是实际上的字的大小却变小了，虽然说是变小了，但是设备像素，本身就高，实际的物理
+尺寸却没有随着密度变得过于小（实际上移动端的密度对于电脑来说大得吓人）。
+
+实际上，在真实的设备像素和众多的html长度之间，隔着一层CSS像素层，是一种相对像素。
+因为在移动段的ppi过于小，而且因为对应的页面指定的\vb|px|不变。
+所以说在移动端，我们需要使用更多的像素来表示一个对应的CSS像素。
+
+其中设备像素叫做DP，而CSS像素\ldots\ldots 还真叫css像素。
+
+描述物理像素和css像素之间的关系的式子就是DPR，设备像素比。
+
+而还有PPI来描述每单位的像素密度，说实话PPI的作用不大，因为不同的设备上并不是说，
+各各单位一致就可以获得一个完美的关系，一般手机屏幕小，PPI高，
+元素的绝对宽高应该是相应会减少。
+
+所以说我们可以根据宽度的css像素来确定确定根的字长。
+
+按理来说，在经典视角下我们看到的网页都会差不多一样大，
+因为css像素是在经典使用视角的长度来进行确定的。
+
+但是一般来说我们会适当的想减少信息大小来使得信息更加清楚。
+所以针对不同的屏幕css像素宽度，代表了最少可以显示的信息流，
+信息流相对较小，那么我们更应该减少信息流来获得很好的观看体验。
+来达到大小差不多的样子（应该？）
+
+为了只使用一个表达式来表达不同情况下的多项式拟合，
+使用python的numpy无疑让人心情愉悦。通过使用\vb|numpy.polyfit|和\vb|numpy.poly1d|，
+很轻松就能得到一个适当的曲线。
+
+
+\section{在wsl中编写含CJK字符的文章}\timetx{2020-03-04 18:07:35.291983}
+
+我用的wsl是Dedian发行版，尝试使用pandoc和xelatex来转换md文档时发生了不少的事情，
+比如说不支持中文，这是因为没有设置\vb|\CJKmainfont|，而且必须要设置正确，
+不然到时候调用的时候会报错说没有这个字符文件。
+
+字符文件的名字和它的文件名不一致，所以说可以会含有空格，使用\vb|fc-list|命令，
+可以获得它的正式名称。在这里可以安装一些字符包（一般来说都是开源的），当然，
+字符包的名称，字符文件的名称和字符文件的文件名是三个不同的概念。
+
+另外有一件事情有点邪门，明明来说wsl是可以让exe应用程序访问的，但是pandoc好像不行。
+这就奇了怪了。
+
+
+\section{\LaTeX 的旋转表格}\timetx{2020-03-05 13:51:19.334722}
+
+因为表格太长了，所以说有点时候需要把相关的表格横着放。
+
+google了很容易发现，有一个叫做\vb|rotating|的package提供了
+\vb|sidewaystable|环境，提供了类似于自带的\vb|table|功能，
+不过不同的只是它的表格是颠倒过来的。
+
+我这一次使用了\vb|[p]|选项让它放在新的一页。还使用了
+\vb|\caption|来生成图片，使用\vb|\label|来为引用服务。
+
+
+\section{令cmd接受参数}\timetx{2020-03-05 18:29:41.111661}
+
+在wsl中可以通过cmd.exe来进入命令行，但是也可以传入参数来运行\~{}
+
+使用类似于\vb|cmd.exe /C "command line"|来驱动程序。
+传入的命令完全是在cmd.exe中运行，所以说也可以读取到cmd.exe中的PATH。
+通过这个完全可以用来让本来运行在windows的程序套个sheel壳子从而在wsl中运行\~{}
+
+开心中\~{}
+
+
+\section{在wsl中启动jupyter-notebook}\timetx{2020-03-06 18:11:44.615188}
+
+为了在wsl中使用jupyter，那么一定需要一个浏览器。
+而wsl一开始就只有终端，并没有提供图形界面（我很喜欢）。为了使用它，
+可以使用\vb|jupyter-notebook --no-browser|，它提供了一个端口和
+一长串token。使用这两个就可以通过网络协议来使用！太棒了！
+
+但是有的时候可能之前有东西占住了端口，\vb|8888|是不行的了，
+也可以使用一个选项\vb|--port=other-port|来自己定义一个端口。
+
+
+\section{latex关于\texttt{\textbackslash end\{...\}}的报错问题}
+\timetx{2020-03-07 12:14:05.564314}
+
+做数学作业的时候latex说有一个错误发生在\vb|\end{...}|上，
+我百思不得其解，后来发现是有一个环境只写了\vb|\begin{...}|，
+但是没有写\vb|\end{...}|，这就是原因欸。
+
+所以说报错的地方可能和真实错误的地方有一定距离。
+
+
+\section{cf's 1321C problem}
+\timetx{2020-03-07 23:55:00.900381}
+
+我好像又把一道题目想复杂了欸。
+
+题意如下：给定一个字符串，如果相邻的字符恰好比它本身小，
+那么将它移去。
+
+答案是：从\vb|'z'|开始遍历到\vb|'a'|，如果遇到字符串中是
+遍历的这个数，而且恰好满足条件，那么将它移去。（欸！
+是简单的模拟！）
+
+当然也不是什么都没有学到。我学到了\vb|string|的一个
+method，\vb|erase|可以用来删除字符。
+
+当然每一次找到了之后就从头找起\ldots\ldots（妈呀我感觉好气！
+我真的是一个大笨蛋！）
+
+
+\section{cf's 1316B problem}
+\timetx{2020-03-08 14:21:58.394338}
+
+老规矩先说题意。
+这道题给定了一个字符串（长度为$l$），和一个指定的动作：\vb|reverse|子字符串。
+对数$k$而言，需要将它从$[0, k)$一格一格的走到$[l-k,l)$，
+每一次都将范围内的子字符串进行操作。
+
+说说学到的几个操作：
+
+定义别名！如何为一个STL定义别名呢？使用using：
+\begin{lstlisting}[language=C++]
+template<typename T>
+using vec=vector<T>;
+\end{lstlisting}
+
+需要注意的是\vb|vec|还是需要使用\vb|<type>|，我好像有点理解了\vb|template|的工作原理。
+
+其次有一点需要注意，\vb|string|是不能接受字符的，只能接受字符串。
+
+话说，这道题对复杂度的要求还真是宽大啊。
+
+
+\section{shell脚本中的单引号和双引号}\timetx{2020-03-09 14:47:36.004608}
+
+我想要自己搭建一个独特的promat，所以为了自己的路径提示，
+我定义了一个函数，并且使用了双引号来定义我的\vb|PROMAT|
+变量。
+
+但是这样子有一个地方出乎我的意料，当我cd到另一个目录的时候，
+promat应该进行更改，但是事实上却没有按照我的意图。
+
+在shell脚本中双引号是会首先把本身的变量和运行命令一一运行和替换，
+而单引号不会。但是zsh本身在接收一个字符串之后会每次都又运行一遍，
+所以说我们应该传入一个没有被替换的文本串\~{}
+
+
+\section{cf's 1312C problem}\timetx{2020-03-10 16:02:05.549992}
+
+给定一个目标数组，
+然后需要用指定的$base$通过$base^{p_0}+base^{p_1}+\cdots$来表示，
+如果数组里面每一个数组中的每个数构成的$p_0$，$p_1$，$\cdots$互不相同，
+而且任意两个数中的$p_i$互不相同就可以说这个数组是一个好数组。
+
+通过这个题我知道要注意两件事情：
+
+\subsection{注意上限}
+原题中说的是数组中的数的取值范围是$[0,10^{16}]$，
+但是我还是傻乎乎的使用了\vb|int|（不然这道题我就过了啦）。
+
+\subsection{关于本应该输出整数的浮点算法}
+在使用对数的时候，按理来说有点时候应该输出一个整数的，但是却输出了浮点数，
+而且之后无论本来应该是整数还是说是小数都需要过一遍\vb|floor|函数，
+所以有些整数比如说\vb|4.9999998|就会很不好意思的变成一个不应该变成的数。
+下面有三种方法：
+
+\begin{enumerate}
+\item 加上配重，比如说\vb|1e-4|或者\vb|1e-5|之类的。
+      但是这种办法总感觉蛮容易被别人hack的。
+\item 检验，得到对应的整数的时候进行检验，看看得到的符不符合预期。
+\item 使用整数算法，比如使用除法得到对应的对数的解法。
+\end{enumerate}
+
+
+\section{链表的使用}\timetx{2020-03-11 08:44:46.127475}
+
+刚开始想要建立一个链表，但是其实上对C语言的管理不清不楚，以为和python一样，
+只要有引用计数，就会一直存在，但是不然，C语言的话，只要是变量离开了它的定义域的话，
+就会被销毁，不仅仅是回收栈上面的内存，连对象的折构方法也会被一并调用。
+
+我一开始用一个指针指向了一个局部变量，结果一出局部定义域，
+这个变量的空间就被标记为自由的内存栈空间，但是值却没有初始化，只是被标记了而已。
+
+之后的话我又重新声明了一个局部变量（在另外一个定义域之内），好家伙，结果它用了前面一个的地址，
+链表就形成环了啦！我百思不得其解。
+
+\subsection{动态的分法}
+在C++中一般是通过\vb|new|和\vb|delete|来管理内存的新建和释放。
+在C语言中则是用\vb|malloc|和\vb|free|。
+
+语法格式差不多是：
+\begin{lstlisting}[language=C++]
+T* var = new T <initialization>;
+delete var;
+\end{lstlisting}
+
+以上哈，还有对于空指针\vb|nullptr|的话，\vb|delete|是安全的操作。
+
+
+\section{cf's 1324D problem}\timetx{2020-03-13 16:58:11.221877}
+
+终于有一次让我做到了D题（虽然还是没有做出来），
+这道题是给定两组数据，分别是$\{a_1,\ldots,a_i,\ldots,a_n\}$和
+$\{b_1,\ldots,b_i,\ldots,b_n\}$，如果下标$i$和$j$满足：
+$$a_i+a_j>b_i+b_j\Rightarrow (a_i-b_i)+(a_j-b_j)>0$$
+求出可能的下标组合的个数。
+
+我用笨办法来做，先令$c_i=a_i-b_i$，那么对于每一个$i$而言，
+我从正数找到最后一个可以让$j$的值满足$c_i+c_j>0$。那么累加起来，
+可能的组合数就求出来了（大体如此）。
+
+答案是怎么做的呢？好吧，既然你要找到一个令$c_j\ge 1-c_i$的$j$值，
+那么说二分搜索它不香吗？（指\vb|lower\_bound|）
+好吧一下子把$O(n^2)$变成了$(n\text{log}n)$啦。
+
+
+\section{关于map<bitset>的使用}\timetx{2020-03-14 14:45:30.148432}
+
+众所周知，\vb|map|作为一个模板一般接受四个值，而我一般只给定前两个，
+而后面的值让模板自动补全即可。
+
+今天我打算用\vb|bitset|作为键，但是编译器好像看不起\vb|bitset|，
+潇潇洒洒给我了一千字的长文，比我自己写的代码还多，从头看到尾，
+字里行间都是\vb|operator<|，我寻思咋地啦，我没有用到小于号啊，
+你别报其他头文件的错啊，你报这个的，但别人不听，还跟我抬起干来了。
+
+在stack overflow上面使用了一些小花招，搞到了答案，一看，
+原来作为红黑树是要通过小于号来进行比较的，才能产生对应的树。(嗨！
+我也不是不知道，但还真没想到那方面去）所以说，我转念一想，
+这个的意思是说，\vb|bitset|不支持大小比较咯？（嗨，这不废话吗！
+这玩意？宁还真把它当数啦）
+
+为了比较它这个类型，我们必须给map多赋值一个类型，这个类型的对象，
+必须可以调用来比较两个key之间的大小关系。
+
+差不多吧，我边写边抄，差不多代码如下：
+\begin{lstlisting}[language=C++]
+template<size_t N>
+struct bitset_less{
+    bool operator() (const bitset<N> & a, const bitset<N> & b){
+        if(N == 0) return true;
+        size_t i = N - 1;
+        do {
+            if(a[i] ^ b[i])
+                if(a[i]) return false;
+                else return ture;
+            --i;
+        } while ( i > 0 )
+}
+\end{lstlisting}
+
+将\vb|bitset\_less|传入代码即可。
+
+在抄代码中首先使用$i$从$N-1$一直循环到$0$，但是我忘记了\vb|size\_t|
+作为一个无符号正整数，是没有负数的，所以我设定的大于零这个条件是很成立的。
+（我在stack overflow上面问的第一道题）
+

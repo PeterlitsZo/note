@@ -1,0 +1,193 @@
+
+\section{cf's 1303B problem}\timetx{2020-02-14 16:35:21.606044}
+
+首先因为\vb|scanf|和\vb|long long|之间，
+不太熟悉而所以处处碰壁。
+
+\subsection{关于\vb|long long|和\vb|scanf|}
+测试代码如下：
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+int main(){
+    ll a, c;
+    int b;
+    scanf("%d%d%lld", &a, &b, &c);
+    cout << a << ' ' << b << ' ' << c << endl;
+    printf("%lld %d %d\n", a, b, c);
+    return 0;
+}
+\end{lstlisting}
+
+测试输入输出如下：
+\begin{lstlisting}[mathescape = false]
+$ ./a.out
+4294967296 4294967296 4294967296
+0 0 4294967296
+0 0 0
+\end{lstlisting}
+
+可以看到哇，对于\vb|a|来说，只有使用\vb|\%lld|，
+才会使得它把正确的数据储存到相关的内存位置上，
+而不然的话，它则会使用错误的数据，
+可以看到高位的1被舍弃掉了。
+
+同理，\vb|printf|则根本没有读高位的1。
+
+\subsection{其他人的答案}
+在这道题中我需要求到$\lceil\frac{n}{m}\rceil$，
+而众所周知C++中整数相除是得不到小数的，所以我用了：
+\begin{lstlisting}[language=C++]
+(n % m)?n / m + 1: n / m
+\end{lstlisting}
+
+但换一种思考方式，只有$m|n$的时候，
+$n($ mod $m)$才会等于$0$，$\lfloor\frac{n}{m}\rfloor$，
+在这种时候可以直接等于$\lceil\frac{n}{m}\rceil$，
+但是在其他时候都有：
+$$\lfloor\frac{n}{m}\rfloor + 1 = \lceil\frac{n}{m}\rceil$$
+所以说只要令$n$加上$m-1$成为$n'$时，
+当原$n$存在有：$n($ mod $m) = 0$时，
+变化后的$n'$有$\lfloor\frac{n'}{m}\rfloor$的值不变。
+但是对于原$n$有$n($ mod $m)\in [1, m-1]$时，
+都有变化后恒成立：$\lfloor\frac{n'}{m}\rfloor$有
+原$n$的$\lfloor\frac{n}{m}\rfloor + 1$的值。
+
+故上代码的等价代码为：
+\begin{lstlisting}[language=C++]
+(n + m - 1)/ m
+\end{lstlisting}
+
+
+\section{cf's 1303C problem}\timetx{2020-02-14 19:14:25.856520}
+
+这道题，给定了一个密码，
+密码的每两个相邻的字母在键盘上也是相邻的，
+求取符合条件的一维键盘布局。
+
+很明显是要求输入一个密码，输出一个布局格式。
+而对于格式而言，因为是一维的，
+所以我是想着可以根据这个建一个图,
+其中一般情况下，每个点要不然有2个边，
+要不然没有边（就是没有构成密码的字母），
+而有一个边的点就是密码区块的开始和结束，
+所有的密码都是在密码区块中的。
+
+以上是我的思路。
+当然具体要复杂一些，包括判断有无环，
+还有密码长度为一的特殊情况。
+
+\subsection{其他人的答案}
+有人是这么做的：
+使用\vb|bitset|记录所有密码的字符集，
+如果密码的下一位没有在字符集中，
+则把字符链接到密码区块的前面中。
+如果一直是这种线性的结构的话，
+维持\vb|p = 0|的位置，\vb|p|一直指着
+最新的字符。
+
+这样子的话，到时候就能直接输出密码区块，
+之后再把不在字符集中的所有字符输出。
+
+但是密码的下一位出现在了字符集中，
+而且\vb|p = 0|（这代表了它之前是线性的），
+而且最重要的是，
+这个字符不在正在增长的密码区块\vb|result|的
+第\vb|p+1|位中，
+也就是和本位\vb|result[p]|的上一位不一样，
+说明了下一位在密码区块中已经有左右两个字母，
+还要和本位在一起，这在一维上是矛盾的。
+
+但是\vb|p|不可能一直指向最新的元素，
+如果它指向最老的元素，即\vb|p = a.size() - 1|，
+此时有一个不在字符集中的元素，这可以把该元素
+链接在后面以成为最老的元素
+（因为这个元素和之前那个元素很近，
+又不在密码区块中，那只能在密码区块的另一边中了啦）。
+但是在的话，而且\vb|result[p-1]=ch|，
+就令\vb|p--|，让它指向它应该在的位置。
+
+以下是最主要的循环：
+\begin{lstlisting}[language=C++]
+for(auto& ch: input){
+    // if ch is in alphabet:
+    if(alphabet[ch-'a'])
+        // if it is not at the tail, so we can move p
+        if(p < result.size() - 1 && result[p+1] == ch)
+            p++;
+        // if it is not at the head, so we can move p
+        else if(p > 0 && result[p-1] == ch)
+            p--;
+        // oh we can't move it!
+        else{
+            flag = true;
+            break;
+        }
+    // if ch is not in alphabet, 
+    // then should link it to result,
+    // its head or tail, whatever.
+    else
+        // if it is on the head - it is easy
+        if(p == 0)
+            result = ch + result;
+        // or it is on the tail
+        else if(p == result.size() - 1){
+            result += ch;
+            p++;
+        // it is on the inside of result
+        } else {
+            flag = true;
+            break;
+        }
+    alphabet.set(ch - 'a');
+}
+\end{lstlisting}
+
+
+\section{cf's 1304C problem}\timetx{2020-02-16 10:11:01.261449}
+
+这道题需要判断有无相对应的回文串，
+所以我必须要得到一个字符串的\vb|reversed|版本。
+
+在我的程序中使用的是自己实现的\vb|reversed|函数，
+但是在标准库中已经有了\vb|std::reverse|函数，
+传入两个迭代器指向首和末，实现原址颠倒。
+里面用到的函数有\vb|std::iter_swap|
+
+此外我之前企图在迭代的过程中更改原容器的值。
+但是更改容器的操作好像（应该）会引发一些错误。
+
+此外，我试图把输入和运行相隔开，但是这样子的话，
+可能甚至会让情况复杂化！！！
+所以如何取舍呢，有点难欸。
+
+
+\section{cf's 1304 problem}\timetx{2020-02-16 10:58:40.308151}
+
+是时候学点新知识了，铛铛！\vb|struct|！
+之前忙着做题，不敢使用这个怕做错了就麻烦了，
+结果我还是完全记得这个语法结构的说。
+
+使用结构肯定比使用数组要好，
+毕竟数组是使用来储存意义相同的数据，
+而结构是用来储存意义不一样的结构。
+用来比较的话，一个相当于Python中的列表，
+另一个就像元组和类。
+
+此外，鉴于我经常在里面犯一些低级错误，
+重载输出操作符也是很有必要的，比如说：
+\begin{lstlisting}[language=C++]
+ostream& operator<<(ostream& os, const vector<p>& it){
+    os << '[';
+    for(auto &i: it){
+        os << "{" << i.t << ", " << i.h << ", " << i.l << '}, ';
+    os << ']' << endl;
+}
+\end{lstlisting}
+
+其他的和紫名大佬差不多，除了我把循环和处理和输入输出都分开了。
+
+我在想是不是没有必要再竞赛中把输入输出和处理隔开。
+

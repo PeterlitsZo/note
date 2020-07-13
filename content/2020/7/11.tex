@@ -1,0 +1,253 @@
+
+\section{过长的\LaTeX{} url}
+
+有的时候\LaTeX{}的url会很长很长，但是并不会换行。
+
+在Stack Overflow\footnote{更多信息参见：\url{https://stackoverflow.com/review/s%
+uggested-edits/26648630}。}中指出，\verb|url| 宏包定义了\verb|\UrlOrds| 如下：
+\begin{lstlisting}
+\def\UrlOrds{\do\*\do\-\do\~\do\'\do\"\do\-}%
+\end{lstlisting}
+
+我们可以通过 \verb|\g@addto@marco|，来将他们添入可以换行的宏中：
+\begin{lstlisting}
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
+\end{lstlisting}
+
+以上即可定义换行的地方。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{并查集}
+
+\subsection{引入}
+
+并查集的概念是在做一个题目的时候引入近来的，题目大体是：有一个集合$S$，其中告知
+从属于一系列从属于子集合的两个元素的序列，求最多会有多少个子集合？
+
+我们不妨这么想：如果告知$S=\{1, 2, 3, 4\}$其中$1$和$2$为一个子集合的元素，$2$和%
+$3$是一个子集合的元素，那么很明显$1,2,3$属于同一个子集合，最多有两个子集合。
+
+\subsection{我的想法}
+
+一开始我想的是用 \verb|set<set<int>>| 来表达这个数据结构，一开始让所有的元素都从
+属于自己的一个子集合，那么明显有，每次告知$i,j$属于一个集合的时候，就遍历一遍大
+的 \verb|set<set<int>>| 如果有一个集合含有$i$或者$j$的话，就把它拖入到一个
+\verb|temp| 的 \verb|set<int>| 数据结构中，然后把原来的两个集合替换成 \verb|temp|。
+
+很明显，对于一个$i,j$数据的输入的话，那么它需要复杂度为$O(S.len)$的时间复杂度。
+
+\subsection{优化}
+
+在最初的版本中我们可以看到每一次确定集合到底在哪里都需要花很长很长的时间。所以说
+我们使用一个 \verb|map<int, set<int>*>| 的数据结构来表示它的对应的结构，这也算是
+百分百的map的。但是即便如此，我们在进行集合的归并的时候仍然需要花费不少的时间，
+看来我们更需要一个自递归的数据结构来表示并查集。这样，我们能轻松的将两个数据合并
+为一个数据结构，而且同时不需要进行内存的重新分配。这样，树就自然而然的出来了。
+
+\subsection{关于并查集的实现}
+
+我们知道，并查集中最重要的是：知道一个数据属于哪一个集合，以及合并两个集合。所以
+说我们有下面的伪代码，首先是定义基本的树结构来表示并查集：
+\begin{lstlisting}
+struct Tree {
+    Tree* parent;
+}
+map<int, Tree> trees;
+\end{lstlisting}
+
+其中我们使用 \verb|map<int, Tree>| 来快速地寻找对应的集合（形式是树\footnote{其实
+在C++中也是用红黑树来表示集合的，所以说用树来表示也没有什么不好的！}）。而我们如
+何定义两个元素属于一个集合呢？那就是他们的 \verb|parent| 相同，同时由于树结构的性
+质，我们可以在一个小复杂度时间内把一个集合融入另一个集合中，也就是说把它的 
+\verb|parent| 的指针指向另一颗树的随便的一个子元素就行了，有代码：
+\begin{lstlisting}
+Tree* parent(Tree* t) {
+    if (t->parent == t) {
+        return t;
+    } else {
+        return parent(t->parent);
+    }
+}
+
+void union(Tree* a, Tree* b) {
+    parent(a)->parent = parent(b);
+}
+\end{lstlisting}
+
+最后查询有多少个集合的时候，只需要知道有多少个自己是自己的 \verb|papent| 的元素就
+行了。
+
+\subsection{改进的方法与一些想法}
+
+因为和其他的树不同，这个树只能从元素知道它的根，所以降低树的高度就是直接把元素挂靠
+在根元素上就行了。所以说一般而言不会因为树太高而导致复杂度上升，但是也可以考虑一点，
+那就是依次线性的挂靠上去，而最终看起来更像一个线性链表。红黑树的实现方法最终还是靠
+了解直接点搞上去的，要不然让每一个元素都挂靠到根节点上去，这样的复杂度在前期又太高
+了。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section[C++中关于{\tt set<set<int>>}的一些小问题]{C++中关于{\tt set<set<int>>}%
+的一些小问题\footnote{更多详情请参见：\url{https://stackoverflow.com/questions/%
+62847368/why-i-cannot-change-the-value-in-loop-of-setsetint}。这个网址是我在Stack
+Overflow 上提的问题。}}
+
+在尝试AC一个关于查并集的题目的时候，我使用了一个 \verb|set<set<int>>| 的数据结构
+，但是在之后我发现了我无法在迭代中修改 \verb|set<int>| 类型的element。
+
+\subsection{关于{\tt const}的{\tt set::iterator}}
+
+因为 \verb|set| 是有序的，好像底层是用红黑树搞的。所以说在迭代的时候是不能修改
+的，不然底层就乱套了。可是这对于一些代价小的数据，比如 \verb|int| 而言直接 
+\verb|erase| 和一个 \verb|insert| 就没事了，但是数据本身是 \verb|set<int>| 类型
+的，重新搞一个代价就会很大。
+
+\subsection[关于{\tt set}的方法{\tt extract}]{关于{\tt set}的方法{\tt extract}%
+\footnote{更多信息参见：\url{https://en.cppreference.com/w/cpp/container/set/ex%
+tract}。}}
+
+在了解 \verb|extract| 之前，了解 \verb|std::move| 也是很有必要的。
+
+\subsubsection{函数{\tt std::move}}
+
+我之前使用过一个关于json的库，在更之前的时候也看过一点点关于Rust的书，其中移动
+是一个很重要的概念，它改变了内存的所有者。但是因为不需要复制了，所以带来了很显著
+的性能提升，这太棒了啦。
+
+根据一篇很不错的博客\footnote{更多详情请参见：\url{http://www.open-std.org/jtc%
+1/sc22/wg21/docs/papers/2006/n2027.html\#Move_Semantics}。}所说，我们可以有一个很
+糟糕的例子来说明为什么我们需要 \verb|std::move|：
+\begin{lstlisting}
+template<typename T> swap(T& a, T& b) {
+    T tmp(a);       // now we have two copies of a
+    a = b;          // now we have two copies of b
+    b = tmp;        // now we have two copies of tmp (aka a)
+}
+\end{lstlisting}
+
+接下来是一个好的例子：
+\begin{lstlisting}
+template<typename T> swap(T& a, T& b) {
+    T tmp(std::move(a));
+    a = std::move(b);
+    b = std::move(tmp);
+}
+\end{lstlisting}
+
+其中 \verb|move| 函数的底层逻辑是这样的：
+\begin{lstlisting}
+template <typename T>
+typename remove_reference<T>::type&&
+move(T&& a) {
+    return a;
+}
+\end{lstlisting}
+
+看起来，移动语义的底层是右值引用。这很不错的！关于右值引用和移动语义的更多话题，
+请多多看看之前提到的博客。
+
+\subsubsection[Node Handle]{Node Handle\footnote{更多详情请参见：\url{https://%
+en.cppreference.com/w/cpp/container/node_handle}。}}
+
+\verb|extract| 会返回一个 \verb|node handle|，所以先了解一哈什么是 
+\verb|node handle| 也是很有必要的哦。\verb|node handle| 是一个尽可移动的值，它
+提供了处理 \verb|node| 的一系列接口，比如 \verb|value()| 函数会提供子对象（也就
+是说在里面的那个对象）的引用。对于 \verb|map| 而言，\verb|key()| 也会很让它开心
+。主要而言这就是基本的引用了，一个高抽象的 \verb|handle|。
+
+\subsubsection{关于{\tt extract}}
+
+\verb|extract| 函数主要是首先断开node和容器的连接，然后返回一个 \verb|handle|，
+所以说，接下来就可以使用 \verb|handle| 来进行操作。
+
+比如说：
+\begin{lstlisting}
+for(set<set<int>>::iterator it = test.begin(); it != test.end(); ++it) {
+    auto nh = test.extract(it);
+    nh.value().insert(100);
+    test.insert(move(nh));
+}
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{C++中的{\tt set}字面量}
+
+set的字面量本来是可以写成 \verb|set<int>{1, 2, 3}|，也就是说类型后面接上一个初始
+化列表，但是好像有一些是不支持初始化列表的。比如说C++11之前的。但是在C++之前也可
+以使用初始方法来调用，比如说 \verb|vector<int>| 就支持 \verb|vector<int>(10)|来
+当作它的字面量。
+
+在C++11之前的话，有三种比较nice的初始化方法：
+\begin{enumerate}
+\item 空。初始化一个空列表。
+\item 范围初始。使用一个array或者可以可以迭代的来进行迭代复制。
+\item 拷贝初始。使用一个set来直接复制一份。
+\end{enumerate}
+
+所以说有的时候我们可以用这种来初始化一个 \verb|set<int>|。
+\begin{lstlisting}
+int temp[] = {1, 2, 3, 4, 5};
+set<int> target(temp, temp + sizeof temp / sizeof *temp);
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{在C++循环时删除元素}
+
+在 \verb|vector| 中，方法 \verb|erase| 会删除现有的元素，然后返回它的下一个元素
+的迭代器，而这个是最好的方法，即：
+\begin{lstlisting}
+it = test.erase(it);
+\end{lstlisting}
+
+有的时候，在循环的时候进行操作是一个很危险的事情，除非你真的清楚你在干什么，不然
+最好还是慎重进行。无论是无效化迭代器还是诸如此类的事情，都开始变得越来越危险了。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{LeetCode-1025题解}
+
+这是一道非常非常简单的题，但是很有意思，特此记下。
+
+\subsection{题干}
+
+爱丽丝和鲍勃一起玩游戏，他们轮流行动。爱丽丝先手开局。
+
+最初，黑板上有一个数字$N$。在每个玩家的回合，玩家需要执行以下操作：
+
+选出任一$x$，满足$0 < x < N$且$N \mod x == 0$。
+用$N - x$替换黑板上的数字$N$。
+如果玩家无法执行这些操作，就会输掉游戏。
+
+只有在爱丽丝在游戏中取得胜利时才返回 \verb|true|，否则返回 \verb|false|。假设两个玩家都以最佳状态参与游戏。
+
+\subsection{题解}
+
+这道题开始一分析，就是两个小伙伴用能整除$N$的数$x$依次减去得到新的$N$，但是很容
+易发现$N$因为其复杂的分解属性，所以对于他对应的$x$也显得很复杂。
+
+大家都知道博弈题要用归纳法来做对吧，那归纳如表\ref{LeetCode-1025 tab}。
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l|lllllllll}
+        \toprule
+        Number  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & \ldots \\
+        \midrule
+        If win  & F & T & F & T & F & T & F & T & \ldots \\
+        \bottomrule
+    \end{tabular}
+    \caption{关于先手得到数之后到底时候能赢的归纳表}
+    \label{LeetCode-1025 tab}
+\end{table}
+
+我们可以看到，先手能赢的必要条件就是后手必输。对于归纳表的下一个数，如果它是奇
+数的话，那么所有的$x$都是奇数，所以后手得到的数则一定是偶数，后手必赢，那它先手
+必输。如果它是偶数的话，$x$可以取1、也可以取偶数、或者可能的奇数，下一个数可以
+是奇数，后手必输，那么它先手必赢。
+
+可以看到无论在基本情况还是递归归纳情况下，始终保持着偶数胜利奇数失败的传统，所以
+就可以定言 --- 先手偶数则胜利，先手奇数则失败。
+

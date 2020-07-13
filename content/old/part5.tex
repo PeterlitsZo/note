@@ -1,0 +1,282 @@
+
+\section{关于undefined reference to `WinMain'}\timetx{2020-01-24 05:16:31.300438}
+
+因为如题目这样的\vb|Compilation Error|，导致了我重新安装了一边g++，
+因为一直在纳闷明明没有使用WinAppiliction的我，是怎样搞出的``WinMain''，
+结果看了一下（在半个小时之后了），是我的main函数写错了，写成了maim。
+
+
+\section{cf's 1294B problem}\timetx{2020-01-25 06:07:54.481951}
+
+这是一个简化的机器人走路的题，只能向上或者向右走。
+并询问你是否能够完成任务和完成任务的方法。
+
+分析后可知，当机器人处于一个点时，它只能到达以它为原点的第一象限区域。
+也就是说，每一个点都必须要在前一个点的右上方。
+易知，对于一个点来说，除了其右上方的点外，它相对与其他点来说都是在右上方向的。
+
+所以对其他的点来说，令它们以$(x_i, y_i)$排好序后，
+就分为两种情况。第一种，在同一个$x$上，排在后面的都是在它的上方，
+第二种，在不同的$x$上，其点的$y$坐标很明显会大于这个$x$坐标上最上面的一个点的$y$坐标。
+（如果不是，就无法完成任务）
+
+\subsection{little bug}
+其一。
+
+对于\vb|*a.b|，我不是很清楚它们之间的优先级\ldots\ldots
+它会先调用点运算符，之后在调用\vb|*|号运算符，所以要使用\vb|(*a).b|的形式。
+
+其二。
+
+\vb|int|和\vb|char*|是不能相乘的（我知道这是屁话，但还是希望它能搞个\vb|string|出来。
+然后\vb|int|和\vb|string|也是不能相乘的，这个倒是超出了我的预算。
+要使用重复的字符串，应该使用：\vb|string(int n, char c)|来生成。
+
+其三。
+
+通过上面的那一回事，我发现了盲点！
+\vb|type t(a, b)|和\vb|type t = type(a, b)|应该是等价的才对。
+
+其四。
+
+关于\vb|for auto|，它有这种形式：\vb|for(auto& a: a_s)|，
+其中的\vb|a|，其实是\vb|(*iterator)|，而不是迭代器。
+
+\subsection{关于其他人的答案}
+其他的都差不多，但是好像\vb|pair|是可以比较大小的，
+所以标准排序算法\vb|sort(type_t a.begin(), type_t a.end())|是可以支持的。
+这就让给\vb|pair|排序成为了可能。
+
+
+\section{cf's 1294C problem}\timetx{2020-01-25 13:49:00.375339}
+
+这个题的题面是为了让一个数$N$分解成三个不相等的数$a$，$b$，$c$。
+即有$N=a\times b\times c$，而且$a$，$b$，$c$三个数互不相等，且所有数大于等于2。
+
+不妨设$a < b < c$，所以$N=a\times b\times c>a^3$，
+即有$a\in[2,\lfloor\sqrt[3]{N}\rfloor]$。
+
+\begin{lstlisting}[language=C++]
+int result[2], index = 0;
+//(index = 0) -> (i^3 < N); (index = 1) -> (i^2 < N);
+for(int i = 2; pow(i, 3 - index) < N && index < 2; ++i)
+    if(N % i == 0)
+        result[index++] = i,
+        N /= i;
+if(index != 2)
+    cout << "NO" << endl;
+else
+    cout << "YES" << endl << result[0] << " "
+         << result[1] << " " << N << endl;
+\end{lstlisting}
+
+当在\vb|for|循环中，可以保证如果\vb|result[0]|和\vb|result[1]|能正确产出，
+\vb|num|也能成为所谓的\vb|result[3]|。
+
+所以说判别标准就是所谓的\vb|index|是否为2，否则就说明了至少有一个\vb|result|
+是没有被正确产出的。
+
+
+\section{cf's 1293A problem}\timetx{2020-01-28 09:05:51.832202}
+
+本题给出了连续离散集合$A=\{1, \ldots, n\}$，
+同时也给出了非连续的离散集合$B=\{b_1, \ldots, b_k\}$，
+且有$b_i\in A, i\in [1, k]$。
+
+开始给定了初始数字$s\in A$，然后求出$i$，对于$I=s+i\text{ or }s-i$，
+如果对于$i$有$\exists I, I\in A\text{ and } I\notin B$，则求出对应的最小的$i$。
+
+很明显，当$s\notin B$时，$i=0$。
+
+我是通过\vb|set|来作为$B$的容器（以减少查询的时间），
+然后从$i = 0$开始查询，看看对于$I\in A$是否满足$I\notin B$，
+当有满足的则返回$i$，此时的$i$即为最小的$i$。
+
+另外我发现了一点，在C++中，只有0才代表了\vb|false|，
+其他的数都代表了\vb|true|，即使是负数也不例外。
+
+\subsection{其他代码}
+对于\vb|set|，我猜测\vb|find|和\vb|count|的复杂度应该差不多。
+所以在不支持C++20的编译器来说，
+\vb|count|和\vb|contains|在某些方面表现了惊人的可代替性。
+
+
+\section{cf's 1292 problem}\timetx{2020-01-29 09:02:59.956693}
+
+这道题构建了一个$2\times n$的地图。
+在$q$次输入中，$i$-th的输入为$(r_i, c_i)$，
+则在地图上添加或移除相应位置的障碍，且求出是否有路径可以从$(1, 1)$格一直走到
+$(2, n)$格的位置。
+
+我马上就想到了图的广度搜索，但很明显不对。
+
+然后发现模拟行动路线，走到$(r, c)$位置上时，
+如果有障碍物在$(r+1, c)$或者$(r+1, c+1)$的时候就明显无法走通。
+对于每一次输入，都要完整的走一遍，
+最坏的时间复杂度是$O(n)$。果然\vb|time limit|了。
+
+之后对每个障碍物都看看是否周围有不该存在的障碍物。
+时间复杂度就变成了$O(i)$了，随着输入次数的增加而增加。
+还是没通过。
+
+\subsection{他人答案}
+在看到了其他答案之后，我发现可以使用一个值\vb|barr|来表示通畅度。
+
+在我做够题之后再想想这道题吧。
+
+
+\section{cf's 1294D problem}\timetx{2020-01-30 04:29:07.199743}
+
+这道题有着严格的时间限制。我小心翼翼的把它优化成了$O(s)$的时间复杂度，
+但是依然卡在时间上了。而且最优情况下的时间复杂度是$O(1)$的说\ldots\ldots
+
+\subsection{他人答案}
+我看到有人用Python做出来了，我才发现我就是个笨比。
+
+我分析一下我的想法，就是每一次循环的时候，都从头开始算，
+虽然有辅助记忆的变量，但还是解出不能。
+
+而看看其他同学的答案，发现他们是在每一次之后接着上一次循环继续做。
+这样所用的时间就会少一些。
+
+另外我发现使用\vb|printf|和\vb|scanf|的代码会比不使用的代码，
+运行时间会少十倍。（我真的震惊到爆欸）
+
+这么说的话，虽然不喜欢混用C和C++的风格，
+但是为了能通过，还是使用C风格的会运行的快一点。
+（希望之后不会逼我使用大整数而不是模板）
+
+
+\section{puts, printf and fwrite}\timetx{2020-01-31 02:28:52.041320}
+
+（感觉我已经走火入魔了）
+
+首先输出一个字符的时候，其实最快的是\vb|putchar|，
+但是要输出字符串的时候，不输出格式化字符串的时候，
+函数的速度有：\vb|fwrite|$>$\vb|puts|/\vb|fputs|$>$\vb|printf|。
+
+其中\vb|fwrite|的函数声明是：
+\begin{lstlisting}[language=C++]
+size_t fwrite(const void *ptr, size_t size, size_t count, FILE *stream);
+\end{lstlisting}
+
+而根据stack overflow
+的一篇回答\footnote{https://stackoverflow.com/questions/2454474/what-is-the-difference-between-printf-and-puts-in-c/2457714\#2457714}，
+可以看出它省略了调用\vb|strlen|的函数开销。
+而相较与\vb|printf|，它更省略了其他的开销。
+
+
+\section{cf's 1295B problem}\timetx{2020-02-01 02:14:27.397813}
+
+又是一道没有做出来的题目\ldots\ldots
+
+\subsection{最小同余正整数}
+为了得到$n$关于$m$的余数，自然是下意识使用$n (\text{mod} m)$，
+但是在C++中使用\vb|n \% m|，
+却可能不是想要的正整数结果，比如：
+\begin{lstlisting}[language=C++]
+cout << -1 % 100 << endl;
+// -1
+\end{lstlisting}
+
+原因是为了将求余推广到整数上，有以下的等价关系：
+\begin{lstlisting}[language=C++]
+//n > 0, m > 0;
+n % m;
+n % (-m) == n % m;
+(-n) % m == -(n % m); //abs(n % m) < abs(m);
+\end{lstlisting}
+很明显当$n<0$时，求出来的就不是正整数了，
+而为了求出最小同余正整数，根据求余的性质，
+只需要在求余之后加上$|m|$就可以了。
+唉，如果它和Python学学就好了，
+在Python中\vb|-1 \% 23|就是22。
+而在C++中不得不用：
+\begin{lstlisting}[language=C++]
+int atom(const int& n, const int& m){
+    int a = n % m;
+    if(n >= 0) return a;
+    else return a + abs(m);
+}
+\end{lstlisting}
+来作为结尾。
+
+\subsection{寻找元素}
+在\vb|std::set|中寻找元素，可以简单的使用如\vb|count|，
+或者\vb|find(set.begin(), set.end(), item) != set.end()|，
+如果在C++20中，还有method \vb|contains|来寻找。
+
+而在\vb|std::vector|，也只能使用
+\vb|find(vec.begin(), vec.end(), item) != vec.end()|
+来寻找元素。
+
+当然也可以定义一个模板函数来简化它。
+
+\subsection{整数同号}
+为了得到两个数是否同号的布尔值，
+可以使用\vb|std::signbit|，
+对于整数有：
+\begin{lstlisting}[language=C++]
+signbit(0); // false;
+signbit(1); // false;
+signbit(-1); // true;
+\end{lstlisting}
+
+
+
+\section{cf's 1296A problem}\timetx{2020-02-08 11:07:20.858709}
+
+为了给数组赋值，可以使用：
+\begin{lstlisting}[language=C++]
+int len_arr;
+cin >> len_arr;
+vector<int> arr(len_arr);
+while(len_arr--)
+    cin >> arr[len_arr];
+\end{lstlisting}
+或者使用\vb|for auto|结构进行遍历：
+\begin{lstlisting}[language=C++]
+for(auto &i: arr)
+    cin >> i;
+\end{lstlisting}
+
+我在做这个题的时候，一开始使用了\vb|arr[len_arr-1]|代替了\vb|arr[len_arr]|，
+之后就理所当然崩溃了，原因是减一的操作是在判断之后，
+所以说，在循环体中\vb|len_arr|的值最小是0。
+
+另外为了求取\vb|sum|值，
+应该要使用\vb|for auto|语法或者说是使用\vb|accumulate|，
+不过\vb|fot auto|使用的时候会需要一个值，
+而另一个则可以直接返回值。
+
+
+\section{cf's 1303A problem}\timetx{2020-02-14 16:09:05.315418}
+
+给定一个由0和1构成的数值，为了让数的1聚集在一起，
+求最少要删除的0的个数。
+
+我的思路是，把首末两端的0给去掉，然后\vb|count|1的个数，
+即得到答案。
+
+\subsection{我的答案}
+我设置了一个标志，用来判断是否在首末为1的子串中，
+如果标志为真，如果遇到0则把\vb|temp_cnt|自增，
+不然就令\vb|cnt += temp_cnt|，
+这样也能避免末尾的0被归入计算中。
+
+\subsection{其他人的答案 - 1}
+\vb|string|有一个方法是\vb|find|，
+它会接受一个字符或者字符串，和初始位置（默认为0），
+返回被找到字符的位置。
+
+利用它，可以在寻找两个1之间的0的个数。
+比如给出初始位置为$n$，而返回值为$m$，
+则如果$n = m$，则说明两个1之间没有空隙，
+有$m - n$个零，并让$n += 1$。
+
+而如果$n < m$也同理。
+
+\subsection{其他人的答案 - 2}
+\vb|string|除了\vb|find|，也还有\vb|rfind|，
+所以把首末的1的位置找到并递归就明显好做得多。
+
