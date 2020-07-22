@@ -1,0 +1,72 @@
+
+\section[LeetCode-32题解]{LeetCode-32题解\footnote{更多情况请参见：\url{https:/%
+/leetcode-cn.com/problems/longest-valid-parentheses/}。}}
+
+这是一个关于括号的题目，一开始我在想使用线段树来做，结果括号不具备最优子结构。我
+因为这个甚至直接排除了动态规划的做法，很明显我错了，换一个角度它就有好看的动态规
+划转移方程了。
+
+\subsection{题干}
+
+题目如下：
+\begin{Exple}{最长有效括号}
+给定一个只包含 \verb|'('| 和 \verb|')'| 的字符串，找出最长的包含有效括号的子串的长度。
+
+示例1:
+\begin{lstlisting}
+输入: "(()"
+输出: 2
+解释: 最长有效括号子串为 "()"
+\end{lstlisting}
+
+示例2:
+\begin{lstlisting}
+输入: ")()())"
+输出: 4
+解释: 最长有效括号子串为 "()()"
+\end{lstlisting}
+\end{Exple}
+
+\subsection{我的想法}
+
+在无法使用线段树的时候（因为 \verb|(((| 和 \verb|)))| 不是有效括号，但是它们加起
+来又的的确确变成了一个有效括号，换言之，这是括号序列不具备可加性，所以应该构建不
+出来线段树）。
+
+在这么想之后，我开始尝试使用自动机来判别有效括号。
+\begin{lstlisting}
+func getMaximumSubString(s string, index int) int {
+    cnt, back_up_index := 0, index
+    for index < len(s) {
+        switch s[index] {
+        case ')': cnt --
+        default:  cnt ++
+        }
+        if cnt == 0 {
+            back_up_index = index + 1
+        } else if cnt < 0 {
+            return index
+        }
+        index ++
+    }
+    return back_up_index
+}
+\end{lstlisting}
+
+这个自动机会在找到以 \verb|index| 开头的最长字符串之后就返回结束位置的后一位。
+因为我们可以断言两个长字符串是不可能在一起的，因为在一起之后它们一定是一个有效
+字符串了。所以不存在一个长有效字符串也在另一个长有效字符串中。
+
+\subsection{动态规划题解}
+
+我们定义一个数组$dp$，其中$dp_i$是以$i$下标结尾的最长有效字符串长度（注意，有最
+优子结构的是长度而不是字符串，意思是长度可以通过前面的推算出来），而且我们有状态
+转移方程：$$dp_i = \begin{cases}
+    dp_{i-2} + 2                    & \T if | s[0:i+1]\T like|\t'.*()'| \\
+    dp_{i-1} + dp_{i-dp[i-1]-2} + 2 & \T if | s[0:i+1]\T like|\t'.*))'|
+                                      \T and | s_{i-dp[i-1]-1}=\t'('|
+\end{cases}$$
+其中，$dp_{i-dp[i-1]-2}$是$\t(|s[i-dp[i-1]:i-1]\t)|$前面的有效字符长度。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

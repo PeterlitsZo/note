@@ -1,0 +1,64 @@
+\section{CodeFore-1375-C题解}
+
+\subsection{题干}
+
+You are given an array a of length $n$, which initially is a permutation of numbers from $1$ to $n$. In one operation, you can choose an index $i$ ($1\le i<n$) such that $a_i<a_{i+1}$, and remove either $a_i$ or $a_{i+1}$ from the array (after the removal, the remaining parts are concatenated).
+
+For example, if you have the array $[1,3,2]$, you can choose $i=1$ (since $a_1=1<a_2=3$), then either remove a1 which gives the new array $[3,2]$, or remove $a_2$ which gives the new array $[1,2]$.
+
+Is it possible to make the length of this array equal to $1$ with these operations?
+
+\impt{Input}
+The first line contains a single integer $t$ ($1\le t\le 2\cdot 10^4$)  — the number of test cases. The description of the test cases follows.
+
+The first line of each test case contains a single integer $n$ ($2\le n\le 3\cdot 10^5$)  — the length of the array.
+
+The second line of each test case contains $n$ integers $a_1, a_2, \ldots, a_n$ ($1\le ai\le n$, ai are pairwise distinct) — elements of the array.
+
+It is guaranteed that the sum of $n$ over all test cases doesn't exceed $3\cdot 10^5$.
+
+\impt{Output}
+For each test case, output on a single line the word \verb|"YES"| if it is possible to reduce the array to a single element using the aforementioned operation, or \verb|"NO"| if it is impossible to do so.
+
+\subsection{我的想法}
+
+这道题不是很难，但是我却没有想出来到底该怎么做。
+
+我一开始的想法是：既然可以处理掉小数的右边和大数的左边的话，那么很明显我也可以
+使用一个结构体来表示它 --- 一个用来表示递增序列的最小值，一个用来表达递增序列的
+最大值。
+
+\def\t#1|{\text{#1}}
+很明显，如果两个序列$a$和$b$之间有：$a.\t min|<b.\t max|$的情况下，我们可以断言
+它们可以合成为一个结构，因为第一个序列可以退化到$a.\t min|$，而第二个则退化到$
+b.\t max|$，这样就可以通过运算变成一个了。当然对于三个乃至多个复合条件的序列$a, b, 
+c, \ldots, x$我们有最终序列$(a.\t min|, x.\t max|)$，但是这其中需要满足太多条件
+了。
+
+当然现在放一个马后炮也不是不行：对于$a, b, c$来说，由于递增序列的性质，所以说一
+定有：$a.\t max|>b.\t min|, b.\t max| > c.\t min|$。我可以先把$b$从中间断开，并
+且分为左右两个部分，左边全部都小于$a.\t min|$，而右边则是剩下的，通过定理利用右
+边的序列把左边的序列去除掉，如
+果去不完（也就是说没有右边的情况下），那么必定有：如果$c.\t max|>a.\t min|$的话，
+则可以通过$c.\t max|$进行去除，否则不行。
+
+综上，如果对于序列来说，首比末小的话，那么必定可以退化为一个。
+
+当然只能证明它是充分条件。
+
+\subsection{一些题解}
+
+我的想法很绕，但是题解其实没有特别绕来绕去。主要是：
+\begin{enumerate}
+\item 选定一个最小的$i$，使得$a_i > a_1$。
+\item 清除$a_1$到$a_i$（包含$a_i$）的所有值。
+\item 重复1, 2。
+\end{enumerate}
+
+通过以上，我们能很好的证明只要$a_n>a_1$的情况下一定能退化为一个数。当然必然性也
+是能够推理出来：如果$a_n<a_1$的话，那么它一定不能退化为一个数。如果处理掉$a_1$的
+话，只会让开头越来越大，处理掉结尾的话也只会让结尾越来越大，最后也退化为递减的数
+列。
+
+当然这个很绕很绕。看来是我的数学不够好呀。
+

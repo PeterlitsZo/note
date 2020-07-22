@@ -6,9 +6,14 @@
 
 \subsection{一点小知识}
 
+1.
 MySQL虽然还是开源的，但是因为它被一家商业公司给购买了，所以为了防止以后出于公司经
 营角度而闭源，所以社区搞了一个分支叫做Mariadb来避免这种情况。Mariadb目前是百分百
 的支持MySQL。
+
+2.
+Socket file，是一种特殊的文件类型，它和TCP/IP的socket非常相似，提供了进程内网络的
+保护。看起来，它好像能够在文件中传输数据。
 
 \subsection[开始安装]{开始安装\footnote{更多详情请参见：\url{https://medium.com%
 /@harshityadav95/installing-mysql-in-ubuntu-linux-windows-subsystem-for-linux-f%
@@ -16,25 +21,84 @@ rom-scratch-d5771a4a2496}。}}
 
 第一步，为了防止之前安装造成的影响，需要把之前的安装都删掉：
 \begin{lstlisting}
-sudo apt-get remove --purge *mysql*
+sudo apt-get remove --purge '*mysql*'
 sudo rm -rf /etc/mysql /var/lib/mysql
-sudo apt-get remove --purge *mariadb*
+sudo apt-get remove --purge '*mariadb*'
+sudo apt-get autoremove
+sudo apt-get autoclean
+\end{lstlisting}
+
+使用这个来进行检查：
+\begin{lstlisting}
+dpkg -l | grep mariadb
+dpkg -l | grep mysql
+\end{lstlisting}
+
+之后修复所有的坏掉的软件：
+\begin{lstlisting}
+sudo apt-get install -f
+\end{lstlisting}
+
+然后开始升级软件源信息，并且升级所有的软件：
+\begin{lstlisting}
+sudo apt update
+sudo apt upgrade
+\end{lstlisting}
+
+最后可以使用两个简单的命令来进行安装和配置：
+\begin{lstlisting}
+sudo apt install mysql-server
+sudo mysql_secure_installation
 \end{lstlisting}
 
 \subsection{意外情况}
 
 虽然是按照教程来一步一步走的，但是还是出现了一些意外情况。
 
-\subsubsection{Unable to locate package ...}
+\subsubsection[Unable to locate package ...]
+              {Unable to locate package ...\footnote{更多信息请参见：\url{https%
+://askubuntu.com/questions/1078404/unable-to-uninstall-package-with-error-unabl%
+e-to-locate-package}。}}
 
 在使用 \verb|apt-get remove| 的时候，出现了提示 \verb|Unable to locate package|%
-。这让我大感疑惑：一般而言，这是在在安装的时候，找不大软件和它对应的来源的时候才
-对抛出的错误，咋删除还需要呢？
+。这让我大感疑惑：一般而言，这是在在安装的时候，找不到软件和它对应的来源的时候才
+对此抛出的错误，咋删除还需要呢？
 
 一般而言在安装的时候出现这种错误的时候，就需要在 \verb|/etc/apt/sources.list| 中
+看看apt的源文件服务时候符合预期，然后使用一个 \verb|apt update| 就完事，但是如果
+我是按照脚本或者直接安装的 \verb|.deb| 文件那怎么办呢？
 
+\smallskip
+附录：
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+我使用了 \verb|sudo apt remove ^mysql| 来代替 \verb|sudo apt remove *mysql*|。
+然后就可以了。是我没有理解正则表达式吗？？？好奇怪。还有，如果使用 
+\verb|sudo apt remove '*mysql*'| 也是可以运行良好的。是有什么特殊的处理吗？
 
-\section{}
+\subsubsection{关于不存在一些文件产生的错误}
+
+因为删除文件删除得太早了，所以导致删除不了软件。对此，我的解决方案是：re-install
+and re-uninstall。重新安装之后不久没有了吗？我就是小天才。
+
+\subsubsection{关于mysql-server}
+
+我在安装的时候它说没有 \verb|mysql-server| 但是有 \verb|default-mysql-server|。
+安装完了之后好像也没有什么不一样，我粗看了一下，好像它用的是MariaDB的二进制文件。
+
+\subsubsection[关于无法连接socket文件]%
+              {关于无法连接socket文件\footnote{更多信息请参见：\url{https://sta%
+ckoverflow.com/questions/11990708/error-cant-connect-to-local-mysql-server-thro%
+ugh-socket-var-run-mysqld-mysq}。}}
+
+一般而言，指定的Socket文件配置在 \verb|/etc/my.cnf| 中，只需要在其中添加或者修改
+为：
+\begin{lstlisting}
+socket=<$path\ to\ the\ socket\ file$>
+\end{lstlisting}
+
+而我们可以使用命令 \verb|sudo find / -type s 2> /dev/null| 来找到所有的Socket文件
+。改成顺眼的就行。
+
+但是很成功的失败了，于是试着用了一下 \verb|sudo service mysql start|。OK了。好奇怪
+。
 

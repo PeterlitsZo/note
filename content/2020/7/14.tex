@@ -1,0 +1,266 @@
+
+\section{MySQL笔记\#1}
+
+我一开始有想过自己做数据库，但是不是这种数据，是一种能储存文件的、基于文件系统的
+图数据库。后来写了百来行代码就搁置了（但是还是很有潜力的！对吧）。
+
+当然，一般而言的数据库也是非常非常有魅力的，我也已经迫不及待了。
+
+所有笔记基于《MySQL技术内幕》，是我的信息技术老师推荐的！老师很不错的一个人。
+
+\subsection{MySQL的体系}
+
+一般而言，MySQL实际上有两个程序，第一个程序是MySQL服务器，也就是 \verb|mysqld| %
+程序，另外一种是MySQL的客户端程序，最常用的MySQL客户端程序是 \verb|mysql|。在我
+看来它是把用户的输入转换为数据结构传入服务器程序然后把服务器的输出再转换为漂亮
+可读的输出。
+
+\subsection{新建用户}
+
+MySQL很安全，所以它和Linux一样需要账户和密码，通过下列命令新建运行在localhost上
+的账户：
+\begin{lstlisting}
+mysql> CREATE USER 'peter'@'localhost' IDENTIFIED BY '123456';
+mysql> GRANT ALL ON sampdb.* TO 'peter'@'localhost';
+\end{lstlisting}
+
+\subsection{建立和断开连接}
+
+使用下面的命令建立与远程服务器的连接：
+\begin{lstlisting}
+% mysql -h $host\_name$ -p -u $user\_name$
+\end{lstlisting}
+
+其中$host\_name$是目标主机，而$user\_name$则是你的账户姓名。
+
+如果想使用root进行登录的话，好像是需要使用 \verb|sudo| 来着？
+
+\subsection{{\tt SELECT}初探}
+
+使用命令来显示当前日期和时间，以及其他信息：
+\begin{lstlisting}
+mysql> SELECT NOW();
+mysql> SELECT NOW(), USER(), VERSION()\g
+mysql> SELECT NOW(), USER(), VERSION()\G
+\end{lstlisting}
+
+其中分号和 \verb|\g| 命令目前看起来好像是一样的，而 \verb|\G| 却会改变显示方式，
+变成竖排的。如果不想执行了，可以用 \verb|\c| 来结束它。
+
+\subsection{创建数据库}
+
+使用命令来创建一个新数据库：
+\begin{lstlisting}
+mysql> CREATE DATABASE sampdb
+\end{lstlisting}
+
+之后我们需要把它设定为默认数据库：
+\begin{lstlisting}
+mysql> USE sampdb;
+mysql> SELECT DATABASE();
++------------+
+| DATABASE() |
++------------+
+| sampdb     |
++------------+
+\end{lstlisting}
+
+或者在启动是带上数据库的名字：
+\begin{lstlisting}
+% mysql -p -u peter sampdb
+\end{lstlisting}
+
+如果想要知道到底有什么数据库、数据表，使用以下的命令（好奇怪，没有括号了）：
+\begin{lstlisting}
+mysql> SHOW TABLES;
+mysql> SHOW DATABASES;
+\end{lstlisting}
+
+\subsection{创建数据表}
+
+使用命令来建立一个数据表，比如：
+\begin{lstlisting}
+CREATE TABLE $name$ ($column\_space$);
+\end{lstlisting}
+
+比如说我们需要建立一个关于总统的数据库：
+\begin{lstlisting}
+CREATE TABLE president (
+    last_name VARCHAR(15) NOT NULL,
+    first_name VARCHAR(15) NOT NULL,
+    suffix VARCHAR(5) NULL,
+    city VARCHAR(20) NOT NULL,
+    state VARCHAR(2) NOT NULL,
+    birth DATE NOT NULL,
+    death DATE NOT NULL
+);
+\end{lstlisting}
+
+而对于会员来说，我们需要一个相对唯一确定的编码，所以说我们需要这样写：
+\begin{lstlisting}
+CREATE TABLE member (
+    member_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (member_id),
+    [$...$]
+);
+\end{lstlisting}
+
+相应的，查看数据表的结构的时候，可以使用命令来查看它的结构：
+\begin{lstlisting}
+DESCRIBE $name$;
+\end{lstlisting}
+
+当然，\verb|DESCRIBE| 也有相应的别名，比如说 \verb|SHOW| 或者 \verb|EXPLAIN|。
+\verb|SHOW| 的用法还有很多很多，就不一一介绍了，下面是一些相同的例子：
+\begin{lstlisting}
+mysql> DESCRIBE president;
+mysql> DESC president;
+mysql> EXPLAIN president;
+mysql> SHOW COLUMNS FROM president;
+mysql> SHOW FIELDS FROM president;
+\end{lstlisting}
+
+\subsection{关于{\tt KEY}}
+
+在MySQL中有一些特殊的 \verb|KEY|。比如说：\verb|PRIMARY KEY| 能够指定列表的值的
+非重复性，或者说唯一性，而 \verb|FOREIGN KEY| 则定义了它的约束条件，规避了它出现
+了实际上并不存在的虚假ID。比如一个记录分数的数据表：
+\begin{lstlisting}
+CREATE TABLE score (
+    student_id INT UNSIGNED NOT NULL,
+    event_id INT UNSIGNED NOT NULL,
+    score INT NOT NULL,
+    PRIMARY KEY (student_id, event_id),
+    INDEX (student_id),
+    FOREIGN KEY (event_id) PEFERENCES grade_event (event_id),
+    FOREIGN KEY (student_id) PEFERENCES student (student_id)
+) ENGINE = InnoDB;
+\end{lstlisting}
+
+\subsection{添加和查看数据表}
+
+在添加之前，先看看数据表里有什么：
+\begin{lstlisting}
+mysql> SELECT * FROM student;
+\end{lstlisting}
+
+一般来说，它会说这是一个空表。
+
+下面是一些添加数据的方法：
+
+\begin{enumerate}
+\item
+使用 \verb|INSERT|，我们可以这样：
+\begin{lstlisting}
+INSERT INTO grade_event VALUES('2020-7-14', 'Q', NULL);
+\end{lstlisting}
+
+或者有的时候需要一次性列入多个值：
+\begin{lstlisting}
+INSERT INTO grade_event VALUES(NOW(), 'Q', NULL), ($...$) [, ($...$)]*;
+\end{lstlisting}
+
+\item
+懒得写了。
+\end{enumerate}
+
+\subsection{查询语句}
+
+对于之前的命令 \verb|SELECT| 而言：
+\begin{lstlisting}
+SELECT $what\ to\ retrieve$
+FROM $table\ or\ tables$
+WHERE $conditions\ that\ data\ must\ satisfy$;
+\end{lstlisting}
+
+关于 \verb|WHERE| 的参数有很多很多布尔表达式，暂时不提。还有 \verb|ORDER BY| 和 
+\verb|LIMIT| 等等的子命令，不表。
+
+而关于$what\ to\ retrieve$的部分，我们不仅仅可以同时表达多个column，而且可以使用
+如同 \verb|CONCAT(first_name, ' ', last_name)| 这样的表达式。还有 \verb|AS| 别名
+之类的。
+
+如果我们想要生成一个有用的统计信息的话，那么关键字 \verb|DISTINCT| 就可以生成一个
+无重复的表格，如：
+\begin{lstlisting}
+SELECT DISTINCT state FROM president ORDER BY state;
+\end{lstlisting}
+
+而函数 \verb|COUNT()| 能用来计算数据行的行数：
+\begin{lstlisting}
+SELECT COUNT(*) FROM member;
+\end{lstlisting}
+
+对于更多复杂的 \verb|COUNT()| 的SQL语句，也有更加便捷的子语句 \verb|GROUP BY|。
+比如说有：
+\begin{lstlisting}
+SELECT sex, COUNF(*) FROM student GROUP BY sex;
+\end{lstlisting}
+
+同时，对于一些不能被 \verb|WHERE| 进行判断的表达式语句而言，可以试试关键字 %
+\verb|HAVING| 来判断，比如：
+\begin{lstlisting}
+SELECT Email from Person GROUP BY Email HAVING COUNT(*) > 1;
+\end{lstlisting}
+
+\subsection{变量赋值}
+
+SQL中我们使用如同 \verb|@variable=value| 来设置变量，比如：
+\begin{lstlisting}
+mysql> SELECT @birth := birth FROM president
+    -> WHERE last_name = 'Jacksom';
+mysql> SELECT CONCAT(first_name, ' ', last_name) AS 'Name', birth 
+    -> FROM president WHERE birth < @birth ORDER BY birth;
+\end{lstlisting}
+
+但是这种语法只能在一些复合命令中，如果想要独立出来的话，我么应该：
+\begin{lstlisting}
+SET @a := 1;
+\end{lstlisting}
+
+\subsection{关于多个表}
+
+多表操作有两种情况，第一种是联结而第二种是嵌套 \verb|SELECT|。
+
+首先是联结，我们在 \verb|FROM| 子句中使用 \verb|FROM $main\ table$ INNER JOIN $sub\ table$| %
+来进行联结。我们为了真正拿到这个表格，所以我们需要指定一下到底什么数据是关联的，
+我们使用 \verb|ON $main\ table.attr$=$sub\ table.attr$| 来进行联结。这样我们就能
+在查询中找到应该找到的命令了。
+
+当然，联结操作并非只能联结不同的表，其实联结操作也可以联结自己，虽然有点奇怪，但
+是有的时候它又很有用。
+
+而子查询，就是把查询的结果当成中间变量表。
+
+\subsection{更新与删除}
+
+使用命令 \verb|DELETE| 和命令 \verb|UPDATE| 来更新或者删除数据，其中 \verb|DELETE| %
+的语句如下：
+\begin{lstlisting}
+DELETE FROM $table\ name$
+WHERE $which\ row\ to\ delete$;
+\end{lstlisting}
+
+而 \verb|UPDATE| 的语法如下：
+\begin{lstlisting}
+UPDATE $table\ name$
+SET $which\ column\ to\ change$
+WHERE $which\ rows\ to\ update$;
+\end{lstlisting}
+
+比如说这个：
+\begin{lstlisting}
+mysql> UPDATE student SET name='George';
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{二分图}
+
+二分图是一种特殊的图数据结构，它和一般的图不一样的是，$G=(V,E)$中，顶点集$V$可
+以分割为两个互不相交的子集$(A,B)$，并且每一个边$(i,j)$所关联的顶点分别属于这两
+个不同的顶点集$(i\text{ in }A, j\text{ in }B)$。
+
+% \section[Vjudge]{Vjudge-C\footnote{更多信息请参见：\url{https://vjudge.net/contest/381796#problem/C}。}}
+% 
+% \section[Vjudge]{Vjudge-E\footnote{更多信息请参见：\url{https://vjudge.net/contest/381796#problem/E}。}}

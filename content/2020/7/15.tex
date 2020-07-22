@@ -1,0 +1,222 @@
+
+\section{C++容器}
+
+C++的容器分为两种，一种是顺序容器，另外一种是关联容器。其中顺序容器的储存顺序是
+按照编码执行顺序进行储存的，而关联容器则是根据值本身进行排序的。
+
+比如说 \verb|map|，\verb|set| 和用 \verb|unordered| 或者 \verb|multi| 进行修饰
+后的容器。关联容器的类型别名有三个，主要是 \verb|key_type|，\verb|value_type|%
+，其中 \verb|key_type| 是用来支持它在内存中到底储存的，而 \verb|value_type| 则是
+它储存的东西。
+
+一般而言有序容器都是依靠 \verb|less| 来进行比较的，比如：
+\begin{lstlisting}
+template <class T> struct less {
+    bool operator(const T& x, const T& y) const {return x < y;}
+    typedef T first_argument_type;
+    typedef T second_argument_type;
+    typedef bool result_type;
+};
+\end{lstlisting}
+
+当然这只是一个默认值，根据 \verb|set| 的定义：
+\begin{lstlisting}
+template <class T,                      // set::key_type/value_type
+          class Compare = less<T>,      // set::key_compare/value_compare
+          class Alloc = allocator<T>    // set::allocator_type
+         > class set;
+\end{lstlisting}
+
+我们可以使用自定义的，能接受两个参数的函数指针或者自定义好的同样内置的模板：
+\begin{lstlisting}
+  equal_to
+  not_equal_to
+* greater
+  greater_equal
+  less_equal
+\end{lstlisting}
+
+这样我们能通过迭代器迭代来获得期望的顺序。不过注意的是，\verb|set| 迭代器不能用
+来比较大小，这个时候应该使用 \verb|!=| 操作来进行迭代。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{关于Python的包}
+
+在Python中一般用一个包含 \verb|__init__.py| 的文件的文件夹来表示一个包，在 %
+\verb|__init__.py| 中会尝试先运行一些命令，比如我有一个文件夹如下：
+\begin{lstlisting}
+ .
+  +- datedate\
+  |   +- __init__.py
+  |   +- main.py
+  +- datedate.py
+\end{lstlisting}
+
+我可以在 \verb|__init__.py| 中指出 \verb|from .main import main|，然后我就可以在 %
+\verb|datedate.py| 中使用 \verb|datedate.main| 而不是 \verb|datedate.main.main| 了
+，换句话说，这是导入了命名空间集。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{LeetCode-178 题解}
+
+因为SQL关于变量的支持好像不太好（我的天，如果支持轻松地使用变量的话，我会这么恼
+火？），所以这道题还是屁颠屁颠地看别人的答案。心情不好。
+
+\subsection{题干}
+
+编写一个 SQL 查询来实现分数排名。
+
+如果两个分数相同，则两个分数排名（Rank）相同。请注意，平分后的下一个名次应该是下一个连续的整数值。换句话说，名次之间不应该有“间隔”。
+\begin{lstlisting}
++----+-------+
+| Id | Score |
++----+-------+
+| 1  | 3.50  |
+| 2  | 3.65  |
+| 3  | 4.00  |
+| 4  | 3.85  |
+| 5  | 4.00  |
+| 6  | 3.65  |
++----+-------+
+\end{lstlisting}
+
+例如，根据上述给定的 Scores 表，你的查询应该返回（按分数从高到低排列）：
+\begin{lstlisting}
++-------+------+
+| Score | Rank |
++-------+------+
+| 4.00  | 1    |
+| 4.00  | 1    |
+| 3.85  | 2    |
+| 3.65  | 3    |
+| 3.65  | 3    |
+| 3.50  | 4    |
++-------+------+
+\end{lstlisting}
+
+重要提示：对于 MySQL 解决方案，如果要转义用作列名的保留字，可以在关键字之前和之后使用撇号。例如 `Rank`
+
+\subsection{预先部分}
+
+1.
+\verb|JOIN| 操作能够把来自两个表或多个表的行给结合起来。最基础的是笛卡尔联结，
+如果把表1记为$\alpha$而把表2记为$\beta$，那么两表的最基础的联结就为笛卡尔积，
+记为$\alpha\times\beta$。示例：
+\begin{lstlisting}
+mysql> SELECT * FROM a;
++----+-------+
+| id | name  |
++----+-------+
+|  1 | peter |
+|  2 | alice |
++----+-------+
+2 rows in set (0.001 sec)
+
+mysql> SELECT * FROM b;
++------+---------------------+
+| a_id | thing               |
++------+---------------------+
+|    1 | a nice person maybe |
+|    2 | a good gril         |
+|    1 | good idea           |
+|    1 | help                |
++------+---------------------+
+4 rows in set (0.001 sec)
+
+mysql> SELECT * FROM a, b;
++----+-------+------+---------------------+
+| id | name  | a_id | thing               |
++----+-------+------+---------------------+
+|  1 | peter |    1 | a nice person maybe |
+|  2 | alice |    1 | a nice person maybe |
+|  1 | peter |    2 | a good gril         |
+|  2 | alice |    2 | a good gril         |
+|  1 | peter |    1 | good idea           |
+|  2 | alice |    1 | good idea           |
+|  1 | peter |    1 | help                |
+|  2 | alice |    1 | help                |
++----+-------+------+---------------------+
+8 rows in set (0.001 sec)
+\end{lstlisting}
+
+对于这个可以采取 \verb|WHERE a.id = b.a_id| 来进一步筛选结果。
+
+而内部联结则需要关键词 \verb|ON| 不过对于使用 \verb|WHERE| 的交叉连接而言，它
+的效率会相对高一点点。示例：
+\begin{lstlisting}
+mysql> SELECT a.id, a.name, b.thing
+    -> FROM a JOIN b ON a.id = b.a_id;
++----+-------+---------------------+
+| id | name  | thing               |
++----+-------+---------------------+
+|  1 | peter | a nice person maybe |
+|  2 | alice | a good gril         |
+|  1 | peter | good idea           |
+|  1 | peter | help                |
++----+-------+---------------------+
+4 rows in set (0.001 sec)
+\end{lstlisting}
+
+\subsection{题解}
+
+首先是左边的部分，不是很难：
+\begin{lstlisting}
+SELECT a.Score as Score
+FROM Scores AS a
+ORDER BY a.Score DESC
+\end{lstlisting}
+
+然后是右边的部分：
+\begin{lstlisting}
+SELECT b.rank AS `Rank` FROM Scores JOIN
+(
+    SELECT p.score AS score, @rank := @rank+1 AS `rank` FROM
+        (SELECT distinct(score) AS score FROM Scores ORDER BY score DESC) AS p,
+        (SELECT @rank := 0) AS q
+) AS b ON Scores.score = b.score
+ORDER BY score DESC;
+\end{lstlisting}
+
+总的来说，就是在内部中搞了一个成绩与名次对应表。
+
+不过我不是这么做的，我的想法如下：
+\begin{lstlisting}
+SELECT Score, `Rank` FROM (
+    SELECT Score,
+           @rank := IF(Score = @prev, @rank+0, @rank+1) AS `Rank`,
+           @prev := Score
+    FROM Scores, (SELECT @rank := 0, @prev := NULL) q
+    RDER BY Score DESC
+) q;
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{MySQL笔记 \#2}
+
+跳过了很多，直接看看第三节。
+
+\subsection{数据值的类别}
+
+数据有很多种种类，在MySQL中，又类型数值（如 \verb|48|，\verb|193.62|，或者 %
+\verb|-2378E12|）,字符串值（如 \verb|'peter'| 或者 \verb|'12345'|），日期值（
+如 \verb|'CCDD-MM-DD'| 或者 \verb|'2011-06-17 12:30;43'|），布尔值和 \verb|NULL| %
+值。
+
+\subsection{{\tt IF}表达式}
+
+\verb|IF| 表达式的语法如下：
+\begin{lstlisting}
+IF(expr1, expr2, expr3)
+\end{lstlisting}
+
+其中如果 \verb|expr1| 成立的话返回 \verb|expr2| 不然就返回 \verb|expr3|。
+
+\subsection{{\tt :=}在{\tt SELECCT}}
+
+和C/C++一样，使用了 \verb|:=| 之后，就会返回所赋的值。
+不太舒服的是，初始化不能用 \verb|SET| 而只能在 \verb|FROM| 中进行初始化。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

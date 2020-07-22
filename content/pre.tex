@@ -11,6 +11,7 @@
 \usepackage{lipsum}
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{epigraph}
 
 % 编程环境
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,7 +28,24 @@
 % 自定义的 marco
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newenvironment{epi}{%
+    \begingroup
+    \newcommand{\Text}[1]{\def\epiText{##1}}%
+    \newcommand{\Source}[1]{\def\epiSource{##1}}%
+    }{%
+    \edef\Width{\dimexpr\linewidth - 2\parindent}
+    \setlength{\epigraphwidth}{\Width}%
+    %\setlength{\epigraphrule}{0pt}%
+    \epigraph{\epiText}{\epiSource}%
+    \endgroup
+    }
+
 % 给 old 的时间信息格式
+
+\def\t#1|{\text{ \tt #1}}
+\def\T#1|{\text{ #1}}
+\def\*#1|{\text{#1}}
+\def\&#1|{\text{\tt #1}}
 
 \def\timetx#1{%
     \par\noindent\emph{\pltgray\small #1}\smallskip
@@ -41,16 +59,17 @@
 
 % 重点。
 \def\impt#1{\par\smallskip\noindent{\bf #1}\par}
+\def\Impt#1{\par\smallskip\noindent{\bf #1}}
 
 % 示例
 \newbox\ExpleTotal
 \newbox\ExplePart
 
 \long\def\ExpleSplitable#1{%
-    \setbox \ExpleTotal = \vbox{%
+    \setbox\ExpleTotal = \vbox\bgroup%
         \hsize = \SubSep%
         #1%
-    }%
+    \egroup%
     \ExpleSplitableMainLoop}
 
 \def\ExpleSplitableMainLoop{
@@ -73,6 +92,24 @@
         \ExpleSplitableMainLoop%
     \fi\fi}
 
+\newenvironment{Exple}[1]{\begingroup%
+    % the begining definition
+    \edef\MainSep{\dimexpr\textwidth - \parindent}%
+    \edef\SubSep{\dimexpr\textwidth - \parindent - 1.5em}%
+    \def\Rule{\vrule width 1pt}%
+    \linewidth = \SubSep
+    % the main part
+    \par\smallskip
+    {\bf #1：}\par
+    \setbox\ExpleTotal = \vbox\bgroup
+        \hsize = \SubSep
+        \vspace*{0.5em}%
+}{
+    \egroup
+    \ExpleSplitableMainLoop
+    \endgroup
+}
+
 \long\def\exple#1#2{\begingroup
     % the begining definition
     \edef\MainSep{\dimexpr\textwidth - \parindent}%
@@ -92,3 +129,4 @@
 
 \author{Peterlits Zo}
 \title{Peter笔记}
+

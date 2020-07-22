@@ -1,0 +1,27 @@
+
+\section[\LaTeX{}中的{\tt verbatim}]{\LaTeX{}中的{\tt verbatim}\footnote{更多详
+情请参见：\url{https://www.texfaq.org/FAQ-verbwithin}。}}
+
+在\LaTeX{}中，因为 \verb|verbatim| 承担着改变 \verb|category code| 的任务，所以
+说它们也必须要是第一个看到它自己参数的角色。如果它不是的话，那么\TeX{}就会在它之
+前把所有的 \verb|category code| 指定好。
+
+比如说这在一般的正文中显示正常：
+\begin{lstlisting}
+\verb+\error+
+\end{lstlisting}
+
+而在一个命令中则会不起作用：
+\begin{lstlisting}
+\newcommand{\unbrace}[1]{#1}
+\unbrace{\verb+\error+}
+\end{lstlisting}
+
+这正是\LaTeX{} Book强调的为什么不推荐在命令参数中出现抄录，因为它们太脆弱了。如
+果一定需要使用的话，使用 \verb|\usebox<box>| 会更好一些。
+
+其实，如果是自己的命令的话，如果是一个大段落的话，最好还是搞一个环境比较好，使用
+\verb|\vbox\bgroup <...> \egroup| 储存之后再进行操作比较好。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

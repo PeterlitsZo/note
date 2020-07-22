@@ -1,0 +1,162 @@
+
+\section{背包问题}
+
+背包问题是一个很基础的，又很典型的动态规划问题。
+
+\subsection{0-1背包问题}
+
+0-1背包问题是最简单的问题，关键在于要不然取要不然不取。
+
+\begin{Exple}{示例}
+有一个载重量为 \verb|W| 的背包，和 \verb|N| 个物品，每一个物品有重量和价值
+两种属性，分别为 \verb|a[i].wt| 和 \verb|a[i].val|。
+
+试求用这个背包装物品最大能装的价值是多少。
+\end{Exple}
+\begin{Exple}{解答}
+一开始可能会带入到盗贼的视角，想要装下价值密度最高的，但是虽然这一般而言解
+为优秀，但是实际上不一定是最优解。
+
+这个时候只能使用动态规划：
+\begin{lstlisting}
+func solve(a []thing, int W) int {
+    // W: 包包的容量。
+    // result[i]: 如果容量为 i 的包包的最优解。
+    // 注解: 一开始的时候都是 0，所以说 len(a) == 0 的情况下 result[W] == 0
+    //       也很正常。不过如果初始化为 -INF，那么明显 result[index - v.wt]
+    //       + v.val 的最坏情况不再是 v.val 而是 -INF 了。
+    result := [W + 1]int{}
+    for _, v := range a {
+        for index := W; index >= v.wt; index -- {
+            result[index] = max(result[index - v.wt] + v.val, result[index])
+        }
+    }
+    return result[W]
+}
+\end{lstlisting}
+\end{Exple}
+
+动态规划的效率其实很低，它很大一部分都依赖于暴力解，只是使用了DP table来进行适
+量的优化而已。但是在有的时候，动态规划的确就是得到最优解的唯一办法。
+
+当然也有一些很难的0-1背包问题，比如：
+
+\begin{Exple}{示例\footnote{更多信息请参见：\url{https://leetcode-cn.com/proble%
+ms/partition-equal-subset-sum/}。}}
+给定一个只包含正整数的非空数组。是否可以将这个数组分割成两个子集，使得两个子集
+的元素和相等。
+
+\impt{注意}
+
+每个数组中的元素不会超过 100
+
+数组的大小不会超过 200
+\end{Exple}
+\begin{Exple}{解答}
+这道题和之前的题目的不同之处就在于：它强调了必须要把 0-1 背包填满到$sum \over 2$，
+而不能是其他的价值。
+
+在背包九讲中指出，这个和一般的 0-1 背包算法不同之处仅仅在于初始化。因为如果指定了
+\verb|result[$1..W$] == -INF| 的话，那么这个时候所有的不满的结构的值都会是 %
+\verb|-INF|。或者我们可以使用一个 \verb|bool| 值（我感觉这个会更好实现一些哦）。
+\begin{lstlisting}
+func solve(nums []int) bool {
+    sum := 0
+    for _, v := range nums {
+        sum += v
+    }
+    if sum % 2 != 0 {
+        return false
+    }
+
+    result := make([]bool, sum / 2 + 1)
+    result[0] = true
+    for int i := 1; i <= sum / 2; i ++ {
+        result[i] = false
+    }
+
+    for _, v := range nums {
+        for i := sum / 2; i >= v; i -- {
+            result[i] = (result[i] || result[i - v])
+        }
+    }
+    return result[sum / 2]
+}
+\end{lstlisting}
+
+其实这么想的话，这样子的效率还会高那么一点点。
+\end{Exple}
+
+\subsection{完全背包问题}
+
+完全背包的不同之处在于所有物品都是无限的。对于有的时候我们可以有一个简单的优化，
+如果一个物体的被分解后数的物体的价值密度高，那么就可以把前者给直接淘汰。
+
+\subsection{其他}
+
+最近在看背包九章。看完了应该还会做一篇笔记吧。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{单调栈}
+
+单调栈的本质还是栈，只不过它利用了一些逻辑使得在改变它本身的时候还保持有序。
+
+主要是：在末尾排队的时候，把所有小于它的都给吃掉，这样子整个栈就是一个单调递减
+的栈了，还可以保证开头的一定是最大的。
+
+单调栈对于滑动切片或者寻找下一个最值均有良好的性能。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{堆}
+
+既然说到了栈，自然也谈谈堆。堆是一种能够较好的实现取出最大/最小值的数据结构，它
+的性质是：父节点始终大于/小于子节点。
+
+基于这个，我们可以很轻松地实现堆的插入和删除：
+
+第一，对于插入而言，我们首先把它放在尾部，然后将其整理为堆，如果该数字大于/小于
+它的父节点的时候，很明显他就不是一个很好的堆，那么我们只需要将它和父节点进行调
+换。
+\begin{lstlisting}
+func append_h(h []int, num int) {
+    ind := h.size()
+    h := append(h, num)
+    
+    for true {
+        const parent_ind = (ind - 1 / 2)
+        if ind != 0 && h[ind] < h[parent_ind] {
+            h[ind], h[parent_ind] = h[parent_ind], h[ind]
+            ind = parent_ind
+        } else {
+            break
+        }
+    }
+}
+\end{lstlisting}
+
+第二，对于删除而言，我们一般指的是删除根节点。为了维持堆的稳定，我们将尾部元素
+当作一个新的根节点。之后我们让它和子节点中\emph{较小的}那一个进行替换。
+\begin{lstlisting}
+func pop_h(h []int) (p int) {
+    ind := h.size() - 1
+    p, h[0] = h[0], h[ind]
+
+    ind = 0
+    for true {
+        child_ind := ind * 2 + 1
+        if h[child_ind] > h[child_ind + 1] {
+            child_ind ++
+        }
+        if h[ind] > h[child_ind] {
+            h[ind], h[child_ind], ind = h[child_ind], h[ind], child_ind
+        } else {
+            break
+        }
+    }
+    return
+}
+\end{lstlisting}
+
+
